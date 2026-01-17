@@ -57,13 +57,8 @@ const updateBranding = async (req, res) => {
 
     // Update logo if uploaded (using req.file, not req.files)
     if (req.file) {
-      if (settings.logo) {
-        const oldLogoPath = path.join(process.cwd(), 'uploads/branding', settings.logo);
-        fs.unlink(oldLogoPath, (err) => {
-          if (err) console.log('Failed to delete old logo:', err);
-        });
-      }
-      settings.logo = req.file.filename;
+      // Cloudinary automatically handles old image deletion if needed
+      settings.logo = req.file.path;
     }
 
     // Update other branding fields from body
@@ -99,14 +94,8 @@ const updateFavicon = async (req, res) => {
 
     // Update favicon if uploaded
     if (req.file) {
-      // Delete old favicon if exists
-      if (settings.favicon) {
-        const oldFaviconPath = path.join(process.cwd(), 'uploads/branding', settings.favicon);
-        fs.unlink(oldFaviconPath, (err) => {
-          if (err) console.log('Failed to delete old favicon:', err);
-        });
-      }
-      settings.favicon = req.file.filename;
+      // Cloudinary automatically handles old image deletion if needed
+      settings.favicon = req.file.path;
     }
 
     settings.updatedAt = Date.now();

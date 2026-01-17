@@ -36,7 +36,7 @@ const getCategoryById = async (req, res) => {
 //Add a new category
 const addCategory = async (req, res) => {
     const { name } = req.body;
-    const image = req.file ? req.file.filename : "";
+    const image = req.file ? req.file.path : "";
     
     if (!name || !name.trim()) {
         return res.json({ success: false, message: "Category name is required" });
@@ -100,14 +100,8 @@ const updateCategory = async (req, res) => {
 
         // Check if new image is uploaded
         if (image) {
-            // Delete old image if it exists
-            if (category.image) {
-                const oldImagePath = path.join(process.cwd(), "uploads/categories", category.image);
-                fs.unlink(oldImagePath, (err) => {
-                    if (err) console.log("Failed to delete old image:", err);
-                });
-            }
-            updateData.image = image.filename;
+            // Cloudinary automatically handles old image deletion if needed
+            updateData.image = image.path;
         }
 
         const updatedCategory = await categoryModel.findByIdAndUpdate(

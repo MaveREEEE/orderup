@@ -22,7 +22,8 @@ const parseAllergens = (input) => {
 // Add food item
 const addFood = async (req, res) => {
   try {
-    let image_filename = `${req.file.filename}`
+    // Cloudinary returns full URL in req.file.path
+    let image_url = req.file.path
 
     const allergens = parseAllergens(req.body.allergens)
 
@@ -31,7 +32,7 @@ const addFood = async (req, res) => {
       description: req.body.description,
       price: req.body.price,
       category: req.body.category,
-      image: image_filename,
+      image: image_url,
       allergens
     })
 
@@ -122,12 +123,10 @@ const updateFood = async (req, res) => {
       return res.json({ success: false, message: "Food not found" })
     }
 
-    // If new image is uploaded, delete old one
+    // If new image is uploaded, use Cloudinary URL
     if (req.file) {
-      fs.unlink(`uploads/items/${food.image}`, (err) => {
-        if (err) console.log("Error deleting image:", err)
-      })
-      food.image = req.file.filename
+      // No need to delete from filesystem; Cloudinary handles storage
+      food.image = req.file.path
     }
 
     // Update fields
