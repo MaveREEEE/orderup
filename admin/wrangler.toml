@@ -1,0 +1,17 @@
+name = "orderup-admin"
+main = "src/worker.js"
+compatibility_date = "2026-01-17"
+type = "javascript"
+
+[env.production]
+name = "orderup-admin"
+
+[build]
+command = "npm run build"
+cwd = "./"
+
+[site]
+bucket = "./dist"
+
+[env.production.site]
+bucket = "./dist"
