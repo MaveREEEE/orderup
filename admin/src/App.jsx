@@ -21,7 +21,7 @@ import { applyTheme, applyStoredTheme } from './utils/themeUtils'
 
 const App = () => {
 
-  const url = "http://localhost:4000"
+  const url = import.meta.env.VITE_API_URL || "http://localhost:4000"
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || "");
   const [isCollapsed, setIsCollapsed] = useState(false);
