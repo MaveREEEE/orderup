@@ -60,7 +60,7 @@ const Header = () => {
                   <div className="best-seller-card">
                      <div className="best-seller-badge">Best Seller</div>
                      <img 
-                        src={bestSellers[currentIndex].image} 
+                        src={`${url}/uploads/items/${bestSellers[currentIndex].image}`} 
                         alt={bestSellers[currentIndex].name} 
                         className="best-seller-image" 
                      />

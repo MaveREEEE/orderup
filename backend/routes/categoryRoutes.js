@@ -9,7 +9,7 @@ import {
     listArchivedCategories,
     permanentlyDeleteCategory
 } from "../controllers/categoryController.js";
-import { categoryUpload } from "../config/cloudinary.js";
+import { categoryUpload } from "../config/multer.js";
 import authMiddleware from "../middleware/auth.js";
 import { checkRole } from "../middleware/roleAuth.js";
 

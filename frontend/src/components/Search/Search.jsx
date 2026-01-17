@@ -95,7 +95,7 @@ const Search = ({ onClose }) => { // Add onClose prop
                                             onClick={() => handleFoodClick(item)}
                                         >
                                             <img 
-                                                src={item.image} 
+                                                src={`${url}/uploads/items/${item.image}`} 
                                                 alt={item.name} 
                                             />
                                             <div className='search-result-info'>

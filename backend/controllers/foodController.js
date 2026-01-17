@@ -22,8 +22,8 @@ const parseAllergens = (input) => {
 // Add food item
 const addFood = async (req, res) => {
   try {
-    // Cloudinary returns full URL in req.file.path
-    let image_url = req.file.path
+    // Get filename from multer
+    let image_url = req.file ? req.file.filename : ""
 
     const allergens = parseAllergens(req.body.allergens)
 
@@ -123,10 +123,9 @@ const updateFood = async (req, res) => {
       return res.json({ success: false, message: "Food not found" })
     }
 
-    // If new image is uploaded, use Cloudinary URL
+    // If new image is uploaded, use filename
     if (req.file) {
-      // No need to delete from filesystem; Cloudinary handles storage
-      food.image = req.file.path
+      food.image = req.file.filename
     }
 
     // Update fields

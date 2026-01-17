@@ -5,7 +5,7 @@ import {
   updateBranding,
   updateFavicon
 } from "../controllers/settingsController.js"
-import { brandingUpload } from "../config/cloudinary.js"
+import { brandingUpload } from "../config/multer.js"
 import authMiddleware from "../middleware/auth.js"
 import { checkRole } from "../middleware/roleAuth.js"
 

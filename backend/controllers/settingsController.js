@@ -57,8 +57,7 @@ const updateBranding = async (req, res) => {
 
     // Update logo if uploaded (using req.file, not req.files)
     if (req.file) {
-      // Cloudinary automatically handles old image deletion if needed
-      settings.logo = req.file.path;
+      settings.logo = req.file.filename;
     }
 
     // Update other branding fields from body
@@ -94,8 +93,7 @@ const updateFavicon = async (req, res) => {
 
     // Update favicon if uploaded
     if (req.file) {
-      // Cloudinary automatically handles old image deletion if needed
-      settings.favicon = req.file.path;
+      settings.favicon = req.file.filename;
     }
 
     settings.updatedAt = Date.now();

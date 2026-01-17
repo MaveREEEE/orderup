@@ -36,7 +36,7 @@ const getCategoryById = async (req, res) => {
 //Add a new category
 const addCategory = async (req, res) => {
     const { name } = req.body;
-    const image = req.file ? req.file.path : "";
+    const image = req.file ? req.file.filename : "";
     
     if (!name || !name.trim()) {
         return res.json({ success: false, message: "Category name is required" });
@@ -75,7 +75,6 @@ const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
         const { name } = req.body;
-        const image = req.file;
 
         const category = await categoryModel.findById(id);
         if (!category) {
@@ -99,9 +98,9 @@ const updateCategory = async (req, res) => {
         }
 
         // Check if new image is uploaded
-        if (image) {
-            // Cloudinary automatically handles old image deletion if needed
-            updateData.image = image.path;
+        if (req.file) {
+            // Use filename from multer
+            updateData.image = req.file.filename;
         }
 
         const updatedCategory = await categoryModel.findByIdAndUpdate(
