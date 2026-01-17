@@ -11,7 +11,9 @@ const List = ({ url, token }) => {
     category: "", 
     price: "", 
     description: "",
-    allergens: []
+    allergens: [],
+    image: null,
+    imagePreview: ""
   });
   const [list, setList] = useState([]);
   const [archivedList, setArchivedList] = useState([]);
@@ -302,6 +304,21 @@ const List = ({ url, token }) => {
     });
   }
 
+  const handleEditImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditData(prevData => ({
+          ...prevData,
+          image: file,
+          imagePreview: reader.result
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
   const updateFood = async (e) => {
     e.preventDefault();
     
@@ -318,6 +335,11 @@ const List = ({ url, token }) => {
       formData.append('price', editData.price);
       formData.append('description', editData.description);
       formData.append('allergens', (editData.allergens || []).join(','));
+      
+      // Add image if new one was selected
+      if (editData.image) {
+        formData.append('image', editData.image);
+      }
 
       const response = await axios.put(`${url}/api/food/update/${editId}`, formData, {
         headers: { 
@@ -510,7 +532,9 @@ const List = ({ url, token }) => {
                             category: item.category,
                             price: item.price,
                             description: item.description,
-                            allergens: normalizeAllergens(item.allergens)
+                            allergens: normalizeAllergens(item.allergens),
+                            image: null,
+                            imagePreview: `${url}/uploads/items/${item.image}`
                           });
                         }} disabled={loading}>Edit</button>
                         <button
@@ -541,6 +565,24 @@ const List = ({ url, token }) => {
           <div className="edit-popup-overlay" onClick={() => setEditId(null)}></div>
           <form className="edit-popup-container" onSubmit={updateFood}>
             <h3>Edit Product</h3>
+            
+            {/* Image Section */}
+            <div className="edit-image-section">
+              {editData.imagePreview && (
+                <div className="edit-image-preview">
+                  <img src={editData.imagePreview} alt="Preview" />
+                </div>
+              )}
+              <label htmlFor="edit-image">Product Image</label>
+              <input
+                id="edit-image"
+                type="file"
+                accept="image/*"
+                onChange={handleEditImageChange}
+                disabled={loading}
+              />
+            </div>
+            
             <label htmlFor="edit-name">Name</label>
             <input
               id="edit-name"
