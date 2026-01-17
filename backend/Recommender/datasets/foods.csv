@@ -1,0 +1,47 @@
+food_id,name,description,category,price,allergens
+1,Arroz Caldo,"Rice porridge cooked with chicken, ginger, garlic, and topped with egg and spring onions",Soup,180,Egg
+2,Batchoy,"Noodle soup with pork, liver, chicharon, and rich broth",Soup,200,Gluten
+3,Beef Steak (Bistek Tagalog),"Sliced beef cooked in soy sauce, calamansi, and onions",Main Dish,260,Soy
+4,Calamares,Deep-fried battered squid served with dipping sauce,Appetizer,230,Seafood
+5,Cheese Cake,Creamy dessert made with cream cheese and graham crust,Dessert,220,Dairy
+6,Chicken Adobo,"Chicken braised in soy sauce, vinegar, garlic, and peppercorns",Main Dish,240,Soy
+7,Chopsuey,Stir-fried mixed vegetables with meat or seafood,Main Dish,220,Soy
+8,Cupcake,Small baked cake topped with frosting,Dessert,120,Gluten
+9,Fish Fillet,Breaded or grilled fish served with sauce,Main Dish,250,"Fish, Gluten"
+10,Fried Chicken,Crispy deep-fried chicken pieces,Main Dish,230,Gluten
+11,Fried Rice,"Rice stir-fried with egg, vegetables, and meat",Rice Meal,160,Egg
+12,Garlic Rice,Fried rice sautéed with garlic,Rice Meal,130,None
+13,Ginataang Gulay,Vegetables cooked in coconut milk,Vegetable Dish,180,Coconut
+14,Ginisang Ampalaya,Bitter melon sautéed with egg and aromatics,Vegetable Dish,170,Egg
+15,Grilled Bangus,Marinated milkfish grilled to perfection,Main Dish,280,Fish
+16,Lomi,Thick egg noodle soup with pork and vegetables,Soup,220,"Egg, Gluten"
+17,Paella,"Spanish-style rice with seafood, chicken, and saffron",Rice Meal,400,Seafood
+18,Pancit Canton,Stir-fried egg noodles with vegetables and meat,Noodles,180,"Gluten, Soy"
+19,Pinakbet,Mixed vegetables cooked with bagoong,Vegetable Dish,200,Seafood
+20,Pork Sinigang,Pork in sour tamarind-based soup with vegetables,Soup,260,None
+21,Risotto,Creamy Italian rice dish cooked with broth and cheese,Rice Meal,350,Dairy
+22,Shrimp Sinigang,Shrimp cooked in sour tamarind soup,Soup,300,Seafood
+23,Shrimp Tempura,Battered and deep-fried shrimp,Appetizer,320,Seafood
+24,Sotanghon Soup,"Clear soup with glass noodles, chicken, and vegetables",Soup,200,Soy
+25,Spaghetti (Filipino Style),Sweet tomato sauce with hotdogs and ground meat,Pasta,220,Gluten
+26,Bihon Guisado,Stir-fried rice noodles with vegetables and meat,Noodles,180,Soy
+27,Special Palabok,"Rice noodles with shrimp sauce, egg, chicharon",Noodles,260,Seafood
+28,Carbonara,"Creamy pasta with bacon, cheese, and cream",Pasta,280,"Dairy, Gluten"
+29,Spaghetti (Classic),Tomato-based pasta with herbs and meat,Pasta,250,Gluten
+30,Sotanghon Soup,Glass noodles in chicken broth with vegetables,Soup,200,Soy
+31,Chicken Joy,Crispy Chicken,Sides,25,None
+32,Butchi,"A deep-fried Filipino rice ball made from glutinous rice flour, filled with sweet mung bean paste and coated with sesame seeds.",Side Dish,50,None
+33,Clubhouse,"A triple-layered sandwich with toasted bread, chicken or ham, bacon, lettuce, tomato, and creamy dressing, served sliced.",Side Dish,120,None
+34,Puto,"A soft and fluffy Filipino steamed rice cake, lightly sweet and often topped with cheese.",Side Dish,50,None
+35,Spring Rolls,"Crispy fried rolls filled with seasoned vegetables and meat, served with sweet chili or vinegar dipping sauce.",Side Dish,50,None
+36,Maki Rolls,"Japanese-style sushi rolls made with rice, seaweed, and assorted fillings such as fish, vegetables, or egg.",Side Dish,80,None
+37,Kare-Kare,"A rich Filipino stew made with oxtail and vegetables in a thick peanut sauce, traditionally served with bagoong.",Main Dish,50,Peanuts
+38,Pork Sisig,"Finely chopped pork seasoned with calamansi, onions, and chili, served sizzling on a hot plate.",Sisig,95,Soy
+39,Chicken Sisig,"Chopped chicken sautéed with onions, calamansi, and spices, served sizzling for a savory and tangy flavor.",Sisig,95,Soy
+40,Bulalo,"Slow-cooked beef shank soup with bone marrow, corn, and vegetables in a clear, flavorful broth.",Soup,80,None
+41,Pork Tocilog,"Sweet cured pork served with garlic rice and fried egg, a popular Filipino breakfast meal.",Silog,70,"Egg, Soy"
+42,Sai-saring Longsilog,"Filipino sausage served with garlic rice and fried egg, offering a sweet and savory breakfast combo.",Silog,70,"Egg, Soy"
+43,Crispy Danggit,"Deep-fried dried rabbitfish, crispy and salty, commonly served with vinegar dipping sauce.",Silog,80,Fish
+44,Chicken Inasal,"Grilled marinated chicken infused with calamansi, garlic, and annatto oil, served with rice.",Main Dish,90,None
+45,Palabok,"Rice noodles topped with rich shrimp sauce, egg, chicharon, and seafood, finished with calamansi.",Noodles,60,Seafood
+46,Crispy Palabok,"Crispy fried rice noodles topped with savory shrimp sauce, egg, and seafood for added crunch.",Noodles,65,Seafood

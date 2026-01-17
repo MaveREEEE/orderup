@@ -1,0 +1,374 @@
+.add {
+    width: 100%;
+    max-width: 1225px;
+    padding: 24px;
+    background: var(--background-color, #fff);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    color: var(--text-color, #111827);
+}
+
+.add h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+
+    color: var(--primary-color, tomato);
+    margin: 0;
+}
+
+}
+
+.add form {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;]
+}
+
+.flex-col > p,
+.flex-col > label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color, #374151);
+    margin-bottom: 2px;
+}
+
+/* Image Upload - Left side, fixed width */
+.add-img-upload {
+    grid-column: 1;
+    grid-row: 1 / 6;
+    text-align: center;
+    padding: 16px;
+    background: var(--background-color, #f9fafb);
+    border-radius: 8px;
+    border: 2px dashed rgba(0, 0, 0, 0.12);
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+
+.add-img-upload > p {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color, #374151);
+    margin-bottom: 10px;
+}
+
+.add-img-upload label {
+    cursor: pointer;
+    display: inline-block;
+}
+
+.add-img-upload img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.add-img-upload img:hover {
+    transform: scale(1.02);
+}
+
+/* Right side content */
+.add-product-name {
+    grid-column: 2;
+}
+
+.add-product-name input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: var(--background-color, #fff);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.add-product-name input:focus {
+    outline: none;
+    border-color: var(--primary-color, #667eea);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.add-product-description {
+    grid-column: 2;
+}
+
+.add-product-description textarea {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: var(--background-color, #fff);
+    min-height: 80px;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.add-product-description textarea:focus {
+    outline: none;
+    border-color: var(--primary-color, #667eea);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.add-product-description > p:last-child {
+    font-size: 11px !important;
+    font-weight: 400 !important;
+    margin-top: 2px !important;
+    text-align: right;
+    color: var(--text-color, #666);
+}
+
+/* Category, Price, Stock in one row */
+.add-category-price {
+    grid-column: 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+}
+
+.add-category > p,
+.add-price > p,
+.add-product-stock > p {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color, #374151);
+    margin-bottom: 4px;
+}
+
+.add-category select,
+.add-price input,
+.add-product-stock input {
+    width: 100%;
+    padding: 9px 12px;
+    font-size: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 8px;
+    background: var(--background-color, #fff);
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.add-category select:focus,
+.add-price input:focus,
+.add-product-stock input:focus {
+    outline: none;
+    border-color: var(--primary-color, #667eea);
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+/* Allergens Section - More compact */
+.add-allergens {
+    grid-column: 2;
+}
+
+.add-allergens > p {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-color, #374151);
+    margin-bottom: 8px;
+}
+
+.allergens-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: var(--background-color, #f9fafb);
+    max-height: 140px;
+    overflow-y: auto;
+}
+
+.allergen-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: var(--background-color, #fff);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.allergen-checkbox:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: var(--primary-color, tomato);
+}
+
+.allergen-checkbox input[type="checkbox"] {
+    cursor: pointer;
+    width: 14px;
+    height: 14px;
+    accent-color: var(--primary-color, tomato);
+}
+
+.allergen-checkbox input[type="checkbox"]:checked + span {
+    color: var(--primary-color, tomato);
+    font-weight: 600;
+}
+
+.allergen-checkbox span {
+    font-size: 12px;
+    color: var(--text-color, #374151);
+}
+
+/* Scrollbar Styling */
+.allergens-grid::-webkit-scrollbar {
+    width: 5px;
+}
+
+.allergens-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 3px;
+}
+
+.allergens-grid::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.16);
+    border-radius: 3px;
+}
+
+.allergens-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.24);
+}
+
+/* Submit Button */
+.add-btn {
+    grid-column: 2;
+    width: 100%;
+    max-width: 180px;
+    justify-self: end;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background: var(--primary-color, tomato);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-btn:hover:not(:disabled) {
+    filter: brightness(0.95);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.add-btn:active {
+    transform: translateY(0);
+}
+
+.add-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .add form {
+        grid-template-columns: 250px 1fr;
+    }
+
+    .add-img-upload img {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+@media (max-width: 900px) {
+    .add {
+        margin: 15px;
+        padding: 20px;
+    }
+
+    .add form {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .add-img-upload {
+        grid-column: 1;
+        grid-row: auto;
+        position: static;
+    }
+
+    .add-img-upload img {
+        width: 150px;
+        height: 150px;
+    }
+
+    .add-product-name,
+    .add-product-description,
+    .add-allergens,
+    .add-btn {
+        grid-column: 1;
+    }
+
+    .add-category-price {
+        grid-column: 1;
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .allergens-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        max-height: 160px;
+    }
+
+    .add-btn {
+        max-width: 100%;
+        justify-self: stretch;
+    }
+}
+
+@media (max-width: 480px) {
+    .add {
+        margin: 10px;
+        padding: 16px;
+    }
+
+    .add form {
+        gap: 14px;
+    }
+
+    .add h2 {
+        font-size: 1.4rem;
+    }
+
+    .allergens-grid {
+        grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+        gap: 6px;
+        max-height: 140px;
+    }
+
+    .allergen-checkbox {
+        padding: 5px 8px;
+    }
+
+    .allergen-checkbox span {
+        font-size: 11px;
+    }
+
+    .add-img-upload img {
+        width: 120px;
+        height: 120px;
+    }
+}

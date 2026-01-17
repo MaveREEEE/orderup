@@ -1,0 +1,339 @@
+.login-popup {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    z-index: 1000; 
+    width: 100%;
+    height: 100%;
+    background-color: #00000090;
+    display: grid;
+    place-items: center;
+    backdrop-filter: blur(5px); 
+}
+
+.login-popup-container {
+    place-self: center;
+    width: max(23vw, 330px);
+    color: #808080;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 25px 30px;
+    border-radius: 12px;
+    font-size: 14px;
+    animation: fadeIn 0.4s ease-in-out;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); 
+    max-height: 90vh; 
+    overflow-y: auto;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px); 
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.login-popup-title{
+    display: flex; 
+    justify-content: space-between;
+    align-items: center;
+    color: black;
+    font-size: 25px;
+}
+
+.login-popup-title img {
+    cursor: pointer;
+    transition: all 0.3s ease; 
+    padding: 5px; 
+    border-radius: 50%;
+}
+
+.login-popup-title img:hover {
+    transform: scale(1.1);
+    background-color: #f5f5f5;
+}
+
+.login-popup-inputs{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.login-popup-inputs input {
+    outline: none;
+    border: 1px solid #c9c9c9;
+    padding: 12px 15px; 
+    border-radius: 8px; 
+    font-size: 14px;
+    transition: all 0.3s ease; 
+    background-color: #fafafa; 
+}
+
+.login-popup-inputs input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 8px rgba(255, 99, 71, 0.3);
+    background-color: white; 
+}
+
+.login-popup-container button {
+    border: none;
+    padding: 14px;
+    border-radius: 8px;
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3); 
+}
+
+.login-popup-container button:hover {
+    background: linear-gradient(135deg, var(--accent-color), #d84315);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 99, 71, 0.4);
+}
+
+.login-popup-container button:active {
+    transform: translateY(0);
+}
+
+.login-popup-condition {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-top: -15px;
+}
+
+.login-popup-condition input{
+    margin-top: 5px;
+    accent-color: var(--primary-color); 
+}
+
+.login-popup-container p {
+    margin: 0;
+}
+
+.login-popup-container span {
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.login-popup-container span:hover {
+    color: var(--accent-color); 
+}
+
+.login-popup p span {
+    color: var(--primary-color);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.login-popup-error {
+    color: #d32f2f;
+    background: #ffeaea;
+    padding: 10px 16px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 14px; 
+    font-weight: 500;
+    border: 1px solid #ffcdd2;
+}
+
+@media (max-width: 768px) {
+    .login-popup-container {
+        width: 90%;
+        padding: 20px;
+        margin: 20px;
+        max-width: 400px; 
+    }
+    
+    .login-popup-inputs input {
+        padding: 14px; 
+        font-size: 16px; 
+    }
+    
+    .login-popup-container button {
+        padding: 16px; 
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-popup-container {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .login-popup-title {
+        font-size: 22px; 
+    }
+}
+
+/* Terms Modal */
+.terms-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+    padding: 20px;
+}
+
+.terms-modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.terms-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.terms-modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.terms-modal-header img {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.terms-modal-header img:hover {
+    background: #f5f5f5;
+    transform: scale(1.1);
+}
+
+.terms-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.terms-content {
+    margin-bottom: 24px;
+}
+
+.terms-content h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin: 0 0 12px 0;
+}
+
+.terms-content p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.terms-modal-body section {
+    margin-bottom: 24px;
+}
+
+.terms-modal-body h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin: 0 0 12px 0;
+}
+
+.terms-modal-body p {
+    color: #555;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.terms-modal-body ul {
+    margin: 0;
+    padding-left: 24px;
+}
+
+.terms-modal-body li {
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 8px;
+}
+
+.terms-modal-body strong {
+    color: #333;
+}
+
+.terms-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.terms-modal-footer button {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.terms-modal-footer button:hover {
+    background: linear-gradient(135deg, var(--accent-color), #d84315);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 99, 71, 0.3);
+}
+
+@media (max-width: 768px) {
+    .terms-modal-content {
+        width: 95%;
+        max-height: 85vh;
+    }
+    
+    .terms-modal-header h2 {
+        font-size: 1.3rem;
+    }
+    
+    .terms-modal-body {
+        padding: 20px;
+    }
+}
