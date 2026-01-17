@@ -27,10 +27,11 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     // Fetch logo from backend settings
     const fetchLogo = async () => {
       try {
-        const res = await fetch("http://localhost:4000/api/settings/");
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
+        const res = await fetch(apiUrl + "/api/settings/");
         const data = await res.json();
         if (data.success && data.data.logo) {
-          const logoUrl = "http://localhost:4000/uploads/branding/" + data.data.logo;
+          const logoUrl = apiUrl + "/uploads/branding/" + data.data.logo;
           console.log("Logo URL:", logoUrl);
           setRestaurantLogo(logoUrl);
         } else {
