@@ -19,7 +19,8 @@ const Users = ({ url }) => {
       canManageInventory: false,
       canManageMenu: false,
       canViewReports: false,
-      canManageSettings: false
+      canManageSettings: false,
+      canManagePromoCodes: false
     },
     isActive: true
   })
@@ -134,7 +135,8 @@ const Users = ({ url }) => {
           canManageInventory: false,
           canManageMenu: false,
           canViewReports: false,
-          canManageSettings: false
+          canManageSettings: false,
+          canManagePromoCodes: false
         },
         isActive: user.isActive
       })
@@ -151,7 +153,8 @@ const Users = ({ url }) => {
           canManageInventory: false,
           canManageMenu: false,
           canViewReports: false,
-          canManageSettings: false
+          canManageSettings: false,
+          canManagePromoCodes: false
         },
         isActive: true
       })
@@ -388,6 +391,16 @@ const Users = ({ url }) => {
                       onChange={handleChange}
                     />
                     Manage Settings
+                  </label>
+
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="permissions.canManagePromoCodes"
+                      checked={formData.permissions.canManagePromoCodes}
+                      onChange={handleChange}
+                    />
+                    Manage Promo Codes
                   </label>
                 </div>
               </div>
