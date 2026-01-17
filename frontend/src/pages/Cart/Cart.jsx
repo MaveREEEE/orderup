@@ -112,7 +112,7 @@ const Cart = () => {
             return (
               <div key={item._id}>
                 <div className="cart-items-title cart-items-item desktop-cart-item">
-                  <img src={url + "/uploads/items/" + item.image} alt={item.name} />
+                  <img src={item.image} alt={item.name} />
                   <p>{item.name}</p>
                   <p>₱{item.price}</p>
                   <div className="cart-quantity-controls">
@@ -138,7 +138,7 @@ const Cart = () => {
                 </div>
 
                 <div className="mobile-cart-item">
-                  <img src={url + "/uploads/items/" + item.image} alt={item.name} />
+                  <img src={item.image} alt={item.name} />
 
                   <div className="mobile-item-info">
                     <h3 className="mobile-item-name">{item.name}</h3>

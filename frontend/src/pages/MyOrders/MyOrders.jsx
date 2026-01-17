@@ -206,7 +206,7 @@ const MyOrders = () => {
                                         <td className="items-cell">
                                             <div className="items-preview">
                                                 <img 
-                                                    src={`${url}/uploads/items/${firstItem.image}`} 
+                                                    src={firstItem.image}
                                                     alt={firstItem.name}
                                                     className="item-thumbnail"
                                                 />
@@ -260,7 +260,7 @@ const MyOrders = () => {
                                         return (
                                             <div key={index} className="item-card">
                                                 <img 
-                                                    src={`${url}/uploads/items/${item.image}`} 
+                                                    src={item.image}
                                                     alt={item.name}
                                                     className="item-image"
                                                 />
