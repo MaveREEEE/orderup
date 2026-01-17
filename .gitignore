@@ -51,3 +51,6 @@ coverage
 .cache
 .parcel-cache
 uploads/
+
+# Local Netlify folder
+.netlify

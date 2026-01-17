@@ -2,7 +2,6 @@ import express from "express"
 import cors from "cors"
 import path from "path"
 import fs from 'fs'
-import fetch from "node-fetch";
 import { connectDB } from "./config/db.js"
 import foodRouter from "./routes/foodRoutes.js"
 import userRouter from "./routes/userRoutes.js"
