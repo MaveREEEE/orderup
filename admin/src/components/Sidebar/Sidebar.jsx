@@ -5,7 +5,21 @@ import { NavLink, useLocation } from 'react-router-dom'
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const [isListMenuOpen, setIsListMenuOpen] = useState(false);
+    const [userRole, setUserRole] = useState(null);
     const location = useLocation();
+
+    // Get user role from localStorage
+    useEffect(() => {
+        const role = localStorage.getItem("userRole") || localStorage.getItem("role");
+        setUserRole(role);
+    }, []);
+
+    // Role-based access control
+    const hasAccess = (requiredRoles) => {
+        if (!userRole) return false;
+        if (!requiredRoles || requiredRoles.length === 0) return true;
+        return requiredRoles.includes(userRole);
+    };
 
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
@@ -106,28 +120,33 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             </button>
 
             <div className="sidebar-options">
-                <NavLink
-                    to='/dashboard'
-                    className="sidebar-option"
-                    data-tooltip="Dashboard"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.dashboard} alt="Dashboard" />
-                    <p>Dashboard</p>
-                </NavLink>
+                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                    <NavLink
+                        to='/dashboard'
+                        className="sidebar-option"
+                        data-tooltip="Dashboard"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.dashboard} alt="Dashboard" />
+                        <p>Dashboard</p>
+                    </NavLink>
+                )}
 
-                <NavLink
-                    to='/dine-in'
-                    className="sidebar-option"
-                    data-tooltip="Dine In"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.dine_in} alt="Dine-In" />
-                    <p>Dine In</p>
-                </NavLink>
+                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                    <NavLink
+                        to='/dine-in'
+                        className="sidebar-option"
+                        data-tooltip="Dine In"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.dine_in} alt="Dine-In" />
+                        <p>Dine In</p>
+                    </NavLink>
+                )}
 
                 {/* List Items with Submenu */}
-                <div className="sidebar-option-group">
+                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                    <div className="sidebar-option-group">
                     <div
                         className={`sidebar-option has-submenu ${isListMenuOpen ? 'active' : ''}`}
                         onClick={toggleListMenu}
@@ -178,65 +197,80 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         </NavLink>
                     </div>
                 </div>
+                )}
 
-                <NavLink
-                    to='/orders'
-                    className="sidebar-option"
-                    data-tooltip="Orders"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.order_icon} alt="Orders" />
-                    <p>Orders</p>
-                </NavLink>
-                <NavLink
-                    to='/reviews'
-                    className="sidebar-option"
-                    data-tooltip="Reviews"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.review_icon} alt="Reviews" />
-                    <p>Reviews</p>
-                </NavLink>
-                <NavLink
-                    to='/inventory'
-                    className="sidebar-option"
-                    data-tooltip="Inventory"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.inventory_icon} alt="Inventory" />
-                    <p>Inventory</p>
-                </NavLink>
-                <NavLink to='/promocode' className="sidebar-option">
-                    <img src={assets.promo_icon} alt="" />
-                    <p>Promo Codes</p>
-                </NavLink>
-                <NavLink
-                    to='/report'
-                    className="sidebar-option"
-                    data-tooltip="Report"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.report} alt="Report" />
-                    <p>Report</p>
-                </NavLink>
-                <NavLink
-                    to='/users'
-                    className="sidebar-option"
-                    data-tooltip="Users"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.user} alt="Users" />
-                    <p>Users</p>
-                </NavLink>
-                <NavLink
-                    to='/settings'
-                    className="sidebar-option"
-                    data-tooltip="Settings"
-                    onClick={handleNavClick}
-                >
-                    <img src={assets.settings} alt="Settings" />
-                    <p>Settings</p>
-                </NavLink>
+                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                    <NavLink
+                        to='/orders'
+                        className="sidebar-option"
+                        data-tooltip="Orders"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.order_icon} alt="Orders" />
+                        <p>Orders</p>
+                    </NavLink>
+                )}
+                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                    <NavLink
+                        to='/reviews'
+                        className="sidebar-option"
+                        data-tooltip="Reviews"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.review_icon} alt="Reviews" />
+                        <p>Reviews</p>
+                    </NavLink>
+                )}
+                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                    <NavLink
+                        to='/inventory'
+                        className="sidebar-option"
+                        data-tooltip="Inventory"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.inventory_icon} alt="Inventory" />
+                        <p>Inventory</p>
+                    </NavLink>
+                )}
+                {hasAccess(['superadmin', 'admin']) && (
+                    <NavLink to='/promocode' className="sidebar-option">
+                        <img src={assets.promo_icon} alt="" />
+                        <p>Promo Codes</p>
+                    </NavLink>
+                )}
+                {hasAccess(['superadmin', 'admin']) && (
+                    <NavLink
+                        to='/report'
+                        className="sidebar-option"
+                        data-tooltip="Report"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.report} alt="Report" />
+                        <p>Report</p>
+                    </NavLink>
+                )}
+                {hasAccess(['superadmin']) && (
+                    <NavLink
+                        to='/users'
+                        className="sidebar-option"
+                        data-tooltip="Users"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.user} alt="Users" />
+                        <p>Users</p>
+                    </NavLink>
+                )}
+                {hasAccess(['superadmin', 'admin']) && (
+                    <NavLink
+                        to='/settings'
+                        className="sidebar-option"
+                        data-tooltip="Settings"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.settings} alt="Settings" />
+                        <p>Settings</p>
+                    </NavLink>
+                )}
             </div>
         </div>
     )
