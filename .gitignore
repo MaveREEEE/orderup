@@ -50,7 +50,8 @@ coverage
 # Misc
 .cache
 .parcel-cache
-uploads/
+# Allow uploads folder to persist images across deployments
+# uploads/
 
 # Local Netlify folder
 .netlify
