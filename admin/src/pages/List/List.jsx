@@ -26,6 +26,11 @@ const List = ({ url, token }) => {
   const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+  }
+
   const allergensList = [
     "Milk",
     "Eggs",
@@ -408,7 +413,7 @@ const List = ({ url, token }) => {
                 <div key={item._id} className="archived-card">
                   <div className="archived-image">
                     <img 
-                      src={`${url}/uploads/items/${item.image}`} 
+                      src={getImageUrl(item.image)} 
                       alt={item.name}
                       onError={(e) => {
                         e.target.src = 'https://via.placeholder.com/200?text=No+Image';
@@ -513,7 +518,7 @@ const List = ({ url, token }) => {
                   filteredList.map((item) => (
                     <tr key={item._id}>
                       <td>
-                        <img src={`${url}/uploads/items/${item.image}`} alt={item.name} />
+                        <img src={getImageUrl(item.image)} alt={item.name} />
                       </td>
                       <td className="name-cell">{item.name}</td>
                       <td className="description-cell">{item.description}</td>
@@ -534,7 +539,7 @@ const List = ({ url, token }) => {
                             description: item.description,
                             allergens: normalizeAllergens(item.allergens),
                             image: null,
-                            imagePreview: `${url}/uploads/items/${item.image}`
+                            imagePreview: getImageUrl(item.image)
                           });
                         }} disabled={loading}>Edit</button>
                         <button

@@ -8,6 +8,11 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url }) => {
   const [mlRecs, setMlRecs] = useState([])
   const userId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null
 
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+  }
+
   useEffect(() => {
     if (!userId || !url) {
       setMlRecs([])
@@ -87,7 +92,7 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url }) => {
         <button className="modal-close" onClick={onClose}>&times;</button>
 
         <div className="modal-image-wrapper">
-          <img src={url + '/uploads/items/' + item.image} alt={item.name} className="modal-image" />
+          <img src={getImageUrl(item.image)} alt={item.name} className="modal-image" />
         </div>
 
         <h2 className="modal-name">{item.name}</h2>
@@ -158,7 +163,7 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url }) => {
             <div className="rec-scroll">
               {recommendations.map(rec => (
                 <div key={rec._id} className="rec-card">
-                  <img src={url + '/uploads/items/' + rec.image} alt={rec.name} />
+                  <img src={getImageUrl(rec.image)} alt={rec.name} />
                   <p className="rec-name">{rec.name}</p>
                   <p className="rec-price">₱{Number(rec.price).toFixed(2)}</p>
                 </div>

@@ -16,6 +16,11 @@ const FoodItem = ({
 }) => {
   const { url } = useContext(StoreContext)
 
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+  }
+
   const totalStock = batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
   const isOutOfStock = totalStock === 0
 
@@ -32,7 +37,7 @@ const FoodItem = ({
       onClick={!isOutOfStock && onView ? () => onView() : undefined}
     >
       <div className="food-item-img-container">
-        <img className="food-item-image" src={url + '/uploads/items/' + image} alt="" />
+        <img className="food-item-image" src={getImageUrl(image)} alt="" />
       </div>
       <div className="food-item-info">
         <div className="food-item-name-rating">

@@ -38,6 +38,11 @@ const Settings = ({ url }) => {
   const [faviconPreview, setFaviconPreview] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  const getBrandingUrl = (img) => {
+    if (!img) return null
+    return img.startsWith('http') ? img : `${url}/uploads/branding/${img}`
+  }
+
   useEffect(() => {
     fetchSettings()
   }, [])
@@ -63,10 +68,10 @@ const Settings = ({ url }) => {
           }
         }))
         if (data.logo) {
-          setPreview(url + "/uploads/branding/" + data.logo)
+          setPreview(getBrandingUrl(data.logo))
         }
         if (data.favicon) {
-          setFaviconPreview(url + "/uploads/branding/" + data.favicon)
+          setFaviconPreview(getBrandingUrl(data.favicon))
         }
       }
     } catch (error) {
