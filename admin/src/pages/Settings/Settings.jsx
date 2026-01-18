@@ -128,10 +128,7 @@ const Settings = ({ url }) => {
         formData.append("backgroundColor", settings.backgroundColor)
         
         const brandingRes = await axios.put(url + "/api/settings/branding", formData, {
-          headers: { 
-            token,
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { token }
         })
         
         if (!brandingRes.data.success) {
@@ -147,10 +144,7 @@ const Settings = ({ url }) => {
         faviconFormData.append("favicon", faviconFile)
         
         const faviconRes = await axios.put(url + "/api/settings/favicon", faviconFormData, {
-          headers: { 
-            token,
-            'Content-Type': 'multipart/form-data'
-          }
+          headers: { token }
         })
         
         if (!faviconRes.data.success) {
