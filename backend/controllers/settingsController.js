@@ -57,7 +57,10 @@ const updateBranding = async (req, res) => {
 
     // Update logo if uploaded (using req.file, not req.files)
     if (req.file) {
+      console.log("File received:", req.file.filename);
       settings.logo = req.file.filename;
+    } else {
+      console.log("No file in request");
     }
 
     // Update other branding fields from body
@@ -69,15 +72,17 @@ const updateBranding = async (req, res) => {
     if (req.body.backgroundColor) settings.backgroundColor = req.body.backgroundColor;
 
     settings.updatedAt = Date.now();
-    await settings.save();
+    
+    const savedSettings = await settings.save();
+    console.log("Settings saved:", savedSettings);
 
     res.json({ 
       success: true, 
       message: "Branding updated successfully", 
-      data: settings 
+      data: savedSettings 
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error in updateBranding:", error);
     res.json({ success: false, message: "Error updating branding" });
   }
 };
@@ -93,19 +98,24 @@ const updateFavicon = async (req, res) => {
 
     // Update favicon if uploaded
     if (req.file) {
+      console.log("Favicon file received:", req.file.filename);
       settings.favicon = req.file.filename;
+    } else {
+      console.log("No favicon file in request");
     }
 
     settings.updatedAt = Date.now();
-    await settings.save();
+    
+    const savedSettings = await settings.save();
+    console.log("Settings saved with favicon:", savedSettings);
 
     res.json({ 
       success: true, 
       message: "Favicon updated successfully", 
-      data: settings 
+      data: savedSettings 
     });
   } catch (error) {
-    console.log(error);
+    console.log("Error in updateFavicon:", error);
     res.json({ success: false, message: "Error updating favicon" });
   }
 };

@@ -127,10 +127,12 @@ const Settings = ({ url }) => {
         formData.append("textColor", settings.textColor)
         formData.append("backgroundColor", settings.backgroundColor)
         
+        console.log("Uploading branding with logo:", logoFile.name)
         const brandingRes = await axios.put(url + "/api/settings/branding", formData, {
           headers: { token }
         })
         
+        console.log("Branding response:", brandingRes.data)
         if (!brandingRes.data.success) {
           toast.error(brandingRes.data.message || "Branding update failed")
           setLoading(false)
@@ -143,10 +145,12 @@ const Settings = ({ url }) => {
         const faviconFormData = new FormData()
         faviconFormData.append("favicon", faviconFile)
         
+        console.log("Uploading favicon:", faviconFile.name)
         const faviconRes = await axios.put(url + "/api/settings/favicon", faviconFormData, {
           headers: { token }
         })
         
+        console.log("Favicon response:", faviconRes.data)
         if (!faviconRes.data.success) {
           toast.error(faviconRes.data.message || "Favicon update failed")
           setLoading(false)
