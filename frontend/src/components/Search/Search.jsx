@@ -135,6 +135,7 @@ const Search = ({ onClose }) => { // Add onClose prop
                     onClose={handleCloseModal}
                     onAddToCart={handleAddToCart}
                     url={url}
+                    onItemClick={(item) => setSelectedFood(item)}
                 />
             )}
         </>

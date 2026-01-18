@@ -41,6 +41,7 @@ const FoodDisplay = ({ category }) => {
           onClose={() => setSelectedItem(null)}
           onAddToCart={addToCart}
           url={url}
+          onItemClick={(item) => setSelectedItem(item)}
         />
       )}
     </div>

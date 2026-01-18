@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './FoodItemModal.css'
 
-const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url }) => {
+const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClick }) => {
   if (!item) return null
 
   const [amount, setAmount] = useState(1)
@@ -162,7 +162,12 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url }) => {
             <h3>You might also like</h3>
             <div className="rec-scroll">
               {recommendations.map(rec => (
-                <div key={rec._id} className="rec-card">
+                <div 
+                  key={rec._id} 
+                  className="rec-card"
+                  onClick={() => onItemClick && onItemClick(rec)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <img src={getImageUrl(rec.image)} alt={rec.name} />
                   <p className="rec-name">{rec.name}</p>
                   <p className="rec-price">₱{Number(rec.price).toFixed(2)}</p>

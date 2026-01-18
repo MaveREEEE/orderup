@@ -107,6 +107,7 @@ const Header = () => {
                }}
                onAddToCart={addToCart}
                url={url}
+               onItemClick={(item) => setSelectedItem(item)}
             />
          )}
       </div>
