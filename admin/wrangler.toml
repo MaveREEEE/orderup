@@ -5,6 +5,7 @@ type = "javascript"
 
 [env.production]
 name = "orderup-admin"
+vars = { VITE_API_URL = "https://orderup-izp5.onrender.com" }
 
 [build]
 command = "npm run build"
