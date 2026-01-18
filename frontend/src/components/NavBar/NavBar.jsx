@@ -16,6 +16,11 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   const { getTotalCartAmount, token, setToken, cartItems, url } = useContext(StoreContext)
   const navigate = useNavigate();
 
+  const getBrandingUrl = (apiUrl, img) => {
+    if (!img) return null;
+    return img.startsWith('http') ? img : `${apiUrl}/uploads/branding/${img}`;
+  }
+
   useEffect(() => {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 10;
@@ -31,7 +36,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
         const res = await fetch(apiUrl + "/api/settings/");
         const data = await res.json();
         if (data.success && data.data.logo) {
-          const logoUrl = apiUrl + "/uploads/branding/" + data.data.logo;
+          const logoUrl = getBrandingUrl(apiUrl, data.data.logo);
           console.log("Logo URL:", logoUrl);
           setRestaurantLogo(logoUrl);
         } else {

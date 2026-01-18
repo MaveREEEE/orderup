@@ -23,6 +23,11 @@ const Footer = () => {
     }
   })
 
+  const getBrandingUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : `${url}/uploads/branding/${img}`
+  }
+
   useEffect(() => {
     // Fetch settings from backend
     const fetchSettings = async () => {
@@ -45,7 +50,7 @@ const Footer = () => {
         <div className="footer-content-left">
           <img 
             style={{ width: '100px', height: 'auto' }} 
-            src={settings.logo ? `${url}/uploads/branding/${settings.logo}` : assets.logo} 
+            src={settings.logo ? getBrandingUrl(settings.logo) : assets.logo} 
             alt={settings.siteName || "OrderUP"} 
           />
           <p>{settings.siteDescription}</p>

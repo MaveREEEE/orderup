@@ -15,8 +15,11 @@ const loadBranding = async () => {
         // Update favicon
         if (data.data.favicon) {
           const link = document.querySelector('link[rel="icon"]')
-          if (link) {
-            link.href = `${apiUrl}/uploads/branding/${data.data.favicon}`
+          const href = data.data.favicon.startsWith('http')
+            ? data.data.favicon
+            : `${apiUrl}/uploads/branding/${data.data.favicon}`
+          if (link && href) {
+            link.href = href
           }
         }
         // Update page title with siteName + admin
