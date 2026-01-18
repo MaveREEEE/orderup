@@ -1,6 +1,7 @@
 import settingsModel from "../models/settingsModel.js";
 import fs from 'fs';
 import path from 'path';
+import autoCommitUploads from "../utils/autoCommit.js";
 
 // Get settings
 const getSettings = async (req, res) => {
@@ -82,6 +83,9 @@ const updateBranding = async (req, res) => {
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.logo);
 
+    // Auto-commit uploads to GitHub
+    autoCommitUploads().catch(err => console.error("Auto-commit failed:", err));
+
     res.json({ 
       success: true, 
       message: "Branding updated successfully", 
@@ -120,6 +124,9 @@ const updateFavicon = async (req, res) => {
     // Verify the update by fetching directly from DB
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.favicon);
+
+    // Auto-commit uploads to GitHub
+    autoCommitUploads().catch(err => console.error("Auto-commit failed:", err));
 
     res.json({ 
       success: true, 
