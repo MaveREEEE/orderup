@@ -7,11 +7,12 @@ import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 const Home = ({ showLogin }) => {
 
  const [category, setCategory] = useState('All');
+ const url = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
   return (
     <div>
       <Header />
-      <ExploreMenu url="http://localhost:4000" category={category} setCategory={setCategory} />
+      <ExploreMenu url={url} category={category} setCategory={setCategory} />
       <FoodDisplay category={category}/>  
     </div>
   )

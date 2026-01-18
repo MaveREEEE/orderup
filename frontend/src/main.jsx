@@ -9,7 +9,7 @@ import StoreContextProvider from './context/StoreContext.jsx'
 const loadFavicon = async () => {
   try {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000'
-    const response = await fetch(`${apiUrl}/api/settings/branding`)
+    const response = await fetch(`${apiUrl}/api/settings`)
     if (response.ok) {
       const data = await response.json()
       if (data.success && data.data?.favicon) {
