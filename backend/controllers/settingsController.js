@@ -67,13 +67,20 @@ const updateBranding = async (req, res) => {
 
     updateData.updatedAt = Date.now();
 
+    console.log("Attempting to update with:", updateData);
+
     const savedSettings = await settingsModel.findOneAndUpdate(
       {},
-      { $set: updateData },
-      { new: true, upsert: true }
+      updateData,
+      { new: true, upsert: true, runValidators: false }
     );
     
-    console.log("Settings saved:", savedSettings);
+    console.log("MongoDB returned:", savedSettings);
+    console.log("Logo in response:", savedSettings.logo);
+
+    // Verify the update by fetching directly from DB
+    const verified = await settingsModel.findById(savedSettings._id);
+    console.log("Verified from DB:", verified.logo);
 
     res.json({ 
       success: true, 
@@ -99,13 +106,20 @@ const updateFavicon = async (req, res) => {
 
     updateData.updatedAt = Date.now();
 
+    console.log("Attempting to update favicon with:", updateData);
+
     const savedSettings = await settingsModel.findOneAndUpdate(
       {},
-      { $set: updateData },
-      { new: true, upsert: true }
+      updateData,
+      { new: true, upsert: true, runValidators: false }
     );
     
-    console.log("Settings saved with favicon:", savedSettings);
+    console.log("MongoDB returned:", savedSettings);
+    console.log("Favicon in response:", savedSettings.favicon);
+
+    // Verify the update by fetching directly from DB
+    const verified = await settingsModel.findById(savedSettings._id);
+    console.log("Verified from DB:", verified.favicon);
 
     res.json({ 
       success: true, 
