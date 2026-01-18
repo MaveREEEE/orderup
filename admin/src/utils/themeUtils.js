@@ -24,9 +24,12 @@ export const applyTheme = async (url) => {
         backgroundColor: settings.backgroundColor
       }));
       
-      // Update favicon if available
+      // Update favicon if available (supports Cloudinary URLs)
       if (settings.favicon) {
-        updateFavicon(`${url}/uploads/branding/${settings.favicon}`);
+        const href = settings.favicon.startsWith('http')
+          ? settings.favicon
+          : `${url}/uploads/branding/${settings.favicon}`
+        updateFavicon(href);
       }
       
       return settings;

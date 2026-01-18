@@ -298,7 +298,7 @@ const Dashboard = ({ url }) => {
                                             <tr key={index} className={isExpired ? 'expired-row' : isCritical ? 'critical-row' : ''}>
                                                 <td>
                                                     <img 
-                                                        src={`${url}/uploads/items/${item.image}`} 
+                                                        src={item.image && item.image.startsWith('http') ? item.image : `${url}/uploads/items/${item.image}`} 
                                                         alt={item.name}
                                                         className="table-item-image"
                                                     />

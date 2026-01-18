@@ -52,6 +52,11 @@ const Search = ({ onClose }) => { // Add onClose prop
         }
     };
 
+    const getImageUrl = (img) => {
+        if (!img) return ''
+        return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+    }
+
     return (
         <>
             <div className='search-overlay' onClick={handleClose}>
@@ -95,7 +100,7 @@ const Search = ({ onClose }) => { // Add onClose prop
                                             onClick={() => handleFoodClick(item)}
                                         >
                                             <img 
-                                                src={`${url}/uploads/items/${item.image}`} 
+                                                src={getImageUrl(item.image)} 
                                                 alt={item.name} 
                                             />
                                             <div className='search-result-info'>

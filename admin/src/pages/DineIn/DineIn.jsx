@@ -14,6 +14,11 @@ const DineIn = ({ url, token }) => {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+  }
+
   const fetchCategories = async () => {
     try {
       const res = await axios.get(`${url}/api/category/list`);
@@ -182,7 +187,7 @@ const handleCheckout = async () => {
               <div className="food-card" key={item._id}>
                 <div className="food-image">
                   <img
-                    src={`${url}/uploads/items/${item.image}`}
+                    src={getImageUrl(item.image)}
                     alt={item.name}
                     loading="lazy"
                   />

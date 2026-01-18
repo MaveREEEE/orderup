@@ -163,6 +163,11 @@ const Inventory = ({ url }) => {
         fetchExpiringItems()
     }, [url])
 
+    const getImageUrl = (img) => {
+        if (!img) return ''
+        return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+    }
+
     return (
         <div className="inventory-container">
             <div className="inventory-header">
@@ -177,7 +182,7 @@ const Inventory = ({ url }) => {
                         <div className="alert-list">
                             {expiringItems.map(item => (
                                 <div key={`${item._id}-${item.batchId}`} className="alert-item expiring-alert">
-                                    <img src={`${url}/uploads/items/${item.image}`} alt={item.name} />
+                                    <img src={getImageUrl(item.image)} alt={item.name} />
                                     <div className="alert-details">
                                         <strong>{item.name}</strong>
                                         <span>Batch expires in {getDaysUntilExpiry(item.expirationDate)} days</span>
@@ -195,7 +200,7 @@ const Inventory = ({ url }) => {
                         <div className="alert-list">
                             {lowStockItems.map(item => (
                                 <div key={item._id} className={`alert-item ${item.totalStock === 0 ? 'out-of-stock-alert' : 'low-stock-alert'}`}>
-                                    <img src={`${url}/uploads/items/${item.image}`} alt={item.name} />
+                                    <img src={getImageUrl(item.image)} alt={item.name} />
                                     <div className="alert-details">
                                         <strong>{item.name}</strong>
                                         <span>
@@ -330,7 +335,7 @@ const Inventory = ({ url }) => {
                             <div className="form-group">
                                 <label>Item:</label>
                                 <div className="selected-item">
-                                    <img src={`${url}/uploads/items/${selectedItem.image}`} alt={selectedItem.name} />
+                                    <img src={getImageUrl(selectedItem.image)} alt={selectedItem.name} />
                                     <span>{selectedItem.name}</span>
                                 </div>
                             </div>

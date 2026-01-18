@@ -11,6 +11,11 @@ const Header = () => {
    const [showModal, setShowModal] = useState(false);
    const [selectedItem, setSelectedItem] = useState(null);
 
+   const getImageUrl = (img) => {
+      if (!img) return ''
+      return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+   }
+
    useEffect(() => {
       // Get top 5 best selling items
       if (food_list && food_list.length > 0) {
@@ -60,7 +65,7 @@ const Header = () => {
                   <div className="best-seller-card">
                      <div className="best-seller-badge">Best Seller</div>
                      <img 
-                        src={`${url}/uploads/items/${bestSellers[currentIndex].image}`} 
+                        src={getImageUrl(bestSellers[currentIndex].image)} 
                         alt={bestSellers[currentIndex].name} 
                         className="best-seller-image" 
                      />

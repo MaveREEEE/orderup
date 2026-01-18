@@ -169,8 +169,9 @@ const Settings = ({ url }) => {
         }
       }
       
-      // Settings update (always send this)
-      const response = await axios.put(url + "/api/settings/update", settings, {
+      // Settings update (always send this) — EXCLUDE logo/favicon so file endpoints own them
+      const { logo, favicon, ...nonFileSettings } = settings
+      const response = await axios.put(url + "/api/settings/update", nonFileSettings, {
         headers: { token }
       })
       

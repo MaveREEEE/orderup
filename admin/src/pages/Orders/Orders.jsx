@@ -14,6 +14,11 @@ const Orders = ({ url }) => {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
 
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+  }
+
   const parseAddress = (address) => {
     if (!address) return {}
     if (typeof address === 'string') {
@@ -327,7 +332,7 @@ const Orders = ({ url }) => {
                   {selectedOrder.items.map((item, index) => (
                     <div key={index} className="item-card">
                       <img
-                        src={`${url}/uploads/items/${item.image}`}
+                        src={getImageUrl(item.image)}
                         alt={item.name}
                         className="item-image"
                       />
