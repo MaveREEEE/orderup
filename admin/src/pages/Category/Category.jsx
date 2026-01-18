@@ -19,6 +19,11 @@ const Category = ({ url, token }) => {
         fetchCategories()
     }, [])
 
+    const getImageUrl = (img) => {
+        if (!img) return null;
+        return img.startsWith('http') ? img : `${url}/uploads/categories/${img}`;
+    }
+
     useEffect(() => {
         console.log("Category Debug:");
         console.log("  Token:", token ? "Present" : "Missing");
@@ -176,7 +181,7 @@ const Category = ({ url, token }) => {
         setEditId(category._id);
         setName(category.name);
         setImage(null);
-        setImagePreview(category.image ? `${url}/uploads/categories/${category.image}` : null);
+        setImagePreview(getImageUrl(category.image));
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -403,7 +408,7 @@ const Category = ({ url, token }) => {
                                     {category.image && (
                                         <div className="category-image">
                                             <img
-                                                src={`${url}/uploads/categories/${category.image}`}
+                                                src={getImageUrl(category.image)}
                                                 alt={category.name}
                                                 onError={(e) => {
                                                     e.target.src = 'https://via.placeholder.com/200?text=No+Image';
@@ -447,7 +452,7 @@ const Category = ({ url, token }) => {
                                     {category.image && (
                                         <div className="category-image">
                                             <img
-                                                src={`${url}/uploads/categories/${category.image}`}
+                                                src={getImageUrl(category.image)}
                                                 alt={category.name}
                                                 onError={(e) => {
                                                     e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="%23ddd" width="200" height="200"/><text fill="%23999" x="50%" y="50%" text-anchor="middle" dy=".3em">No Image</text></svg>';

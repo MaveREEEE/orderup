@@ -36,7 +36,7 @@ const getCategoryById = async (req, res) => {
 //Add a new category
 const addCategory = async (req, res) => {
     const { name } = req.body;
-    const image = req.file ? req.file.filename : "";
+    const image = req.file ? (req.file.path || req.file.filename) : "";
     
     if (!name || !name.trim()) {
         return res.json({ success: false, message: "Category name is required" });
@@ -99,8 +99,8 @@ const updateCategory = async (req, res) => {
 
         // Check if new image is uploaded
         if (req.file) {
-            // Use filename from multer
-            updateData.image = req.file.filename;
+            // Use Cloudinary URL/path when available
+            updateData.image = req.file.path || req.file.filename;
         }
 
         const updatedCategory = await categoryModel.findByIdAndUpdate(
@@ -212,7 +212,7 @@ const permanentlyDeleteCategory = async (req, res) => {
         }
 
         // Delete the image file if it exists
-        if (archivedCategory.image) {
+        if (archivedCategory.image && !archivedCategory.image.startsWith("http")) {
             const imagePath = path.join(process.cwd(), "uploads/categories", archivedCategory.image);
             fs.unlink(imagePath, (err) => {
                 if (err) console.log("Failed to delete image:", err);

@@ -54,8 +54,8 @@ const updateBranding = async (req, res) => {
 
     // Update logo if uploaded
     if (req.file) {
-      console.log("File received:", req.file.filename);
-      updateData.logo = req.file.filename;
+      console.log("File received:", req.file.path || req.file.filename);
+      updateData.logo = req.file.path || req.file.filename;
     }
 
     // Update other branding fields from body
@@ -104,8 +104,8 @@ const updateFavicon = async (req, res) => {
 
     // Update favicon if uploaded
     if (req.file) {
-      console.log("Favicon file received:", req.file.filename);
-      updateData.favicon = req.file.filename;
+      console.log("Favicon file received:", req.file.path || req.file.filename);
+      updateData.favicon = req.file.path || req.file.filename;
     }
 
     updateData.updatedAt = Date.now();

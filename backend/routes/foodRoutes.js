@@ -12,7 +12,7 @@ import {
   getFoodRatings,
   deleteFoodRating,
 } from "../controllers/foodController.js"
-import { foodUpload } from "../config/multer.js"
+import { foodUpload } from "../config/cloudinary.js"
 import authMiddleware from "../middleware/auth.js"
 import { checkRole } from "../middleware/roleAuth.js"
 

@@ -23,8 +23,11 @@ const parseAllergens = (input) => {
 // Add food item
 const addFood = async (req, res) => {
   try {
-    // Get filename from multer
-    let image_url = req.file ? req.file.filename : ""
+    // Get Cloudinary URL (path) when available, fallback to filename for legacy data
+    let image_url = ""
+    if (req.file) {
+      image_url = req.file.path || req.file.filename || ""
+    }
 
     const allergens = parseAllergens(req.body.allergens)
 
@@ -128,9 +131,9 @@ const updateFood = async (req, res) => {
       return res.json({ success: false, message: "Food not found" })
     }
 
-    // If new image is uploaded, use filename
+    // If new image is uploaded, use Cloudinary URL/path
     if (req.file) {
-      food.image = req.file.filename
+      food.image = req.file.path || req.file.filename
     }
 
     // Update fields
@@ -205,10 +208,12 @@ const permanentlyDeleteFood = async (req, res) => {
       return res.json({ success: false, message: "Archived food not found" })
     }
 
-    // Delete the image file
-    fs.unlink(`uploads/items/${archivedFood.image}`, (err) => {
-      if (err) console.log("Error deleting image:", err)
-    })
+    // Delete local image only if it's not a Cloudinary URL
+    if (archivedFood.image && !archivedFood.image.startsWith("http")) {
+      fs.unlink(`uploads/items/${archivedFood.image}`, (err) => {
+        if (err) console.log("Error deleting image:", err)
+      })
+    }
 
     // Delete from archived
     await archivedFoodModel.findByIdAndDelete(req.body.id)
