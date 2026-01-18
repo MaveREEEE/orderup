@@ -25,7 +25,7 @@ const Footer = () => {
 
   const getBrandingUrl = (img) => {
     if (!img) return ''
-    return img.startsWith('http') ? img : `${url}/uploads/branding/${img}`
+    return img.startsWith('http') ? img : ''
   }
 
   useEffect(() => {

@@ -18,7 +18,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
 
   const getBrandingUrl = (apiUrl, img) => {
     if (!img) return null;
-    return img.startsWith('http') ? img : `${apiUrl}/uploads/branding/${img}`;
+    return img.startsWith('http') ? img : null;
   }
 
   useEffect(() => {

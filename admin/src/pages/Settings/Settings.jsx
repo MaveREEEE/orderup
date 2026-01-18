@@ -40,7 +40,7 @@ const Settings = ({ url }) => {
 
   const getBrandingUrl = (img) => {
     if (!img) return null
-    return img.startsWith('http') ? img : `${url}/uploads/branding/${img}`
+    return img.startsWith('http') ? img : null
   }
 
   useEffect(() => {

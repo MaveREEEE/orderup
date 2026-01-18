@@ -18,7 +18,7 @@ const FoodItem = ({
 
   const getImageUrl = (img) => {
     if (!img) return ''
-    return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+    return img.startsWith('http') ? img : ''
   }
 
   const totalStock = batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0

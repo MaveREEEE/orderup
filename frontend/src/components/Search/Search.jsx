@@ -54,7 +54,7 @@ const Search = ({ onClose }) => { // Add onClose prop
 
     const getImageUrl = (img) => {
         if (!img) return ''
-        return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
+        return img.startsWith('http') ? img : ''
     }
 
     return (

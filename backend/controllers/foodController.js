@@ -1,7 +1,6 @@
 import foodModel from "../models/foodModel.js"
 import archivedFoodModel from "../models/archivedFoodModel.js"
 import fs from 'fs'
-import autoCommitUploads from "../utils/autoCommit.js"
 
 // Normalize allergens from array, JSON string, or comma-separated string
 const parseAllergens = (input) => {
@@ -42,8 +41,7 @@ const addFood = async (req, res) => {
 
     await food.save()
     
-    // Auto-commit uploads to GitHub
-    autoCommitUploads().catch(err => console.error("Auto-commit failed:", err));
+    // Cloudinary-only: no git auto-commit for uploads
     
     res.json({ success: true, message: "Food Added" })
   } catch (error) {

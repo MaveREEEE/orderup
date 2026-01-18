@@ -1,7 +1,6 @@
 import settingsModel from "../models/settingsModel.js";
 import fs from 'fs';
 import path from 'path';
-import autoCommitUploads from "../utils/autoCommit.js";
 
 // Get settings
 const getSettings = async (req, res) => {
@@ -83,8 +82,7 @@ const updateBranding = async (req, res) => {
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.logo);
 
-    // Auto-commit uploads to GitHub
-    autoCommitUploads().catch(err => console.error("Auto-commit failed:", err));
+    // Cloudinary-only: no git auto-commit for uploads
 
     res.json({ 
       success: true, 
@@ -125,8 +123,7 @@ const updateFavicon = async (req, res) => {
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.favicon);
 
-    // Auto-commit uploads to GitHub
-    autoCommitUploads().catch(err => console.error("Auto-commit failed:", err));
+    // Cloudinary-only: no git auto-commit for uploads
 
     res.json({ 
       success: true, 

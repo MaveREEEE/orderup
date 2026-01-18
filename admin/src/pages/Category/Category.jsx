@@ -21,7 +21,7 @@ const Category = ({ url, token }) => {
 
     const getImageUrl = (img) => {
         if (!img) return null;
-        return img.startsWith('http') ? img : `${url}/uploads/categories/${img}`;
+        return img.startsWith('http') ? img : null;
     }
 
     useEffect(() => {

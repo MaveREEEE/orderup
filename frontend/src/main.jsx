@@ -14,13 +14,10 @@ const loadBranding = async () => {
       const data = await response.json()
       if (data.success && data.data) {
         // Update favicon
-        if (data.data.favicon) {
+        if (data.data.favicon && data.data.favicon.startsWith('http')) {
           const link = document.querySelector('link[rel="icon"]')
-          const href = data.data.favicon.startsWith('http')
-            ? data.data.favicon
-            : `${apiUrl}/uploads/branding/${data.data.favicon}`
-          if (link && href) {
-            link.href = href
+          if (link) {
+            link.href = data.data.favicon
           }
         }
         // Update page title
