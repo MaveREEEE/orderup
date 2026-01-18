@@ -1,21 +1,20 @@
 import express from "express";
-import fetch from "node-fetch";
 
 const router = express.Router();
-const recommenderBase = process.env.RECOMMENDER_URL || "http://localhost:8000";
 
+// Recommendation endpoint - currently disabled as recommender service is not deployed
+// The frontend will fall back to default recommendations when this fails
 router.get("/:userId", async (req, res) => {
   try {
-    const { userId } = req.params;
-    const response = await fetch(`${recommenderBase}/recommend/${encodeURIComponent(userId)}`);
-    if (!response.ok) {
-      return res.status(502).json({ message: "Recommender service unavailable" });
-    }
-    const data = await response.json();
-    res.json(data);
+    // Return empty recommendations to allow frontend fallback
+    res.json({ 
+      success: false, 
+      message: "Recommender service not available",
+      recommendations: []
+    });
   } catch (err) {
-    console.error("Recommendation fetch failed", err);
-    res.status(500).json({ message: "Error fetching recommendations" });
+    console.error("Recommendation error", err);
+    res.status(500).json({ message: "Error fetching recommendations", recommendations: [] });
   }
 });
 
