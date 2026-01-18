@@ -3,6 +3,11 @@ import './ExploreMenu.css'
 const ExploreMenu = ({ category, setCategory, url }) => {
   const [categories, setCategories] = useState([]);
   
+  const getImageUrl = (img) => {
+    if (!img) return ''
+    return img.startsWith('http') ? img : ''
+  }
+  
   useEffect(() => {
     const fetchCategories = async () => {
       const res = await fetch(`${url}/api/category/list`);
@@ -25,7 +30,7 @@ const ExploreMenu = ({ category, setCategory, url }) => {
             onClick={() => setCategory(category === item.name ? "All" : item.name)}
           >
             <img
-              src={`${url}/uploads/categories/${item.image}`}
+              src={getImageUrl(item.image)}
               alt={item.name}
               className={category === item.name ? 'active' : ''}
             />
