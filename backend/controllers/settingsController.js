@@ -49,31 +49,30 @@ const updateSettings = async (req, res) => {
 // Update branding (logo and favicon)
 const updateBranding = async (req, res) => {
   try {
-    let settings = await settingsModel.findOne();
-    
-    if (!settings) {
-      settings = new settingsModel({});
-    }
+    const updateData = {};
 
-    // Update logo if uploaded (using req.file, not req.files)
+    // Update logo if uploaded
     if (req.file) {
       console.log("File received:", req.file.filename);
-      settings.logo = req.file.filename;
-    } else {
-      console.log("No file in request");
+      updateData.logo = req.file.filename;
     }
 
     // Update other branding fields from body
-    if (req.body.siteName) settings.siteName = req.body.siteName;
-    if (req.body.primaryColor) settings.primaryColor = req.body.primaryColor;
-    if (req.body.secondaryColor) settings.secondaryColor = req.body.secondaryColor;
-    if (req.body.accentColor) settings.accentColor = req.body.accentColor;
-    if (req.body.textColor) settings.textColor = req.body.textColor;
-    if (req.body.backgroundColor) settings.backgroundColor = req.body.backgroundColor;
+    if (req.body.siteName) updateData.siteName = req.body.siteName;
+    if (req.body.primaryColor) updateData.primaryColor = req.body.primaryColor;
+    if (req.body.secondaryColor) updateData.secondaryColor = req.body.secondaryColor;
+    if (req.body.accentColor) updateData.accentColor = req.body.accentColor;
+    if (req.body.textColor) updateData.textColor = req.body.textColor;
+    if (req.body.backgroundColor) updateData.backgroundColor = req.body.backgroundColor;
 
-    settings.updatedAt = Date.now();
+    updateData.updatedAt = Date.now();
+
+    const savedSettings = await settingsModel.findOneAndUpdate(
+      {},
+      { $set: updateData },
+      { new: true, upsert: true }
+    );
     
-    const savedSettings = await settings.save();
     console.log("Settings saved:", savedSettings);
 
     res.json({ 
@@ -83,30 +82,29 @@ const updateBranding = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in updateBranding:", error);
-    res.json({ success: false, message: "Error updating branding" });
+    res.json({ success: false, message: "Error updating branding: " + error.message });
   }
 };
 
 // Update favicon
 const updateFavicon = async (req, res) => {
   try {
-    let settings = await settingsModel.findOne();
-    
-    if (!settings) {
-      settings = new settingsModel({});
-    }
+    const updateData = {};
 
     // Update favicon if uploaded
     if (req.file) {
       console.log("Favicon file received:", req.file.filename);
-      settings.favicon = req.file.filename;
-    } else {
-      console.log("No favicon file in request");
+      updateData.favicon = req.file.filename;
     }
 
-    settings.updatedAt = Date.now();
+    updateData.updatedAt = Date.now();
+
+    const savedSettings = await settingsModel.findOneAndUpdate(
+      {},
+      { $set: updateData },
+      { new: true, upsert: true }
+    );
     
-    const savedSettings = await settings.save();
     console.log("Settings saved with favicon:", savedSettings);
 
     res.json({ 
@@ -116,7 +114,7 @@ const updateFavicon = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in updateFavicon:", error);
-    res.json({ success: false, message: "Error updating favicon" });
+    res.json({ success: false, message: "Error updating favicon: " + error.message });
   }
 };
 
