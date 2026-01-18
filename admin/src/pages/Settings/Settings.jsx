@@ -129,7 +129,10 @@ const Settings = ({ url }) => {
         
         console.log("Uploading branding with logo:", logoFile.name)
         const brandingRes = await axios.put(url + "/api/settings/branding", formData, {
-          headers: { token }
+          headers: { 
+            token,
+            'Content-Type': 'multipart/form-data'
+          }
         })
         
         console.log("Branding response:", brandingRes.data)
@@ -147,7 +150,10 @@ const Settings = ({ url }) => {
         
         console.log("Uploading favicon:", faviconFile.name)
         const faviconRes = await axios.put(url + "/api/settings/favicon", faviconFormData, {
-          headers: { token }
+          headers: { 
+            token,
+            'Content-Type': 'multipart/form-data'
+          }
         })
         
         console.log("Favicon response:", faviconRes.data)

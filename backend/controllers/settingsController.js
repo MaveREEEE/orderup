@@ -71,7 +71,7 @@ const updateBranding = async (req, res) => {
 
     const savedSettings = await settingsModel.findOneAndUpdate(
       {},
-      updateData,
+      { $set: updateData },
       { new: true, upsert: true, runValidators: false }
     );
     
@@ -110,7 +110,7 @@ const updateFavicon = async (req, res) => {
 
     const savedSettings = await settingsModel.findOneAndUpdate(
       {},
-      updateData,
+      { $set: updateData },
       { new: true, upsert: true, runValidators: false }
     );
     
