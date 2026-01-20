@@ -1,4 +1,8 @@
-# ✅ OrderUP Recommender System - Implementation Complete
+> Running 'cd backend/Recommender && uvicorn api:app --host 0.0.0.0 --port $PORT.'
+Usage: uvicorn [OPTIONS] APP
+Try 'uvicorn --help' for help.
+Error: Invalid value for '--port': '10000.' is not a valid integer.
+==> Exited with status 2# ✅ OrderUP Recommender System - Implementation Complete
 
 ## 🎉 Status: FULLY INTEGRATED AND TESTED
 
