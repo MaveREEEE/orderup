@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import { applyTheme } from '../../utils/themeUtils'
 
 const Settings = ({ url }) => {
+  const recommenderUrl = import.meta.env.VITE_RECOMMENDER_URL || 'http://127.0.0.1:8000'
   const [settings, setSettings] = useState({
     siteName: '',
     siteDescription: '',
@@ -37,6 +38,7 @@ const Settings = ({ url }) => {
   const [preview, setPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [reloadingRecs, setReloadingRecs] = useState(false)
 
   const getBrandingUrl = (img) => {
     if (!img) return null
@@ -190,6 +192,25 @@ const Settings = ({ url }) => {
       toast.error(error.response?.data?.message || "Error updating settings")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleReloadRecommendations = async () => {
+    if (!recommenderUrl) {
+      toast.error('Recommender URL not configured')
+      return
+    }
+
+    setReloadingRecs(true)
+    try {
+      const res = await axios.post(`${recommenderUrl}/reload-data`)
+      const message = res.data?.message || 'Recommender data reloaded'
+      toast.success(message)
+    } catch (error) {
+      const detail = error.response?.data?.detail || 'Failed to reload recommender data'
+      toast.error(detail)
+    } finally {
+      setReloadingRecs(false)
     }
   }
 
@@ -532,6 +553,22 @@ const Settings = ({ url }) => {
               />
               <label htmlFor="enableDineIn">Enable Dine In</label>
             </div>
+          </div>
+        </div>
+
+        <div className="settings-section">
+          <h3>Recommendations</h3>
+          <p className="hint">Reload the recommender cache after you add menu items or new orders.</p>
+          <div className="action-row">
+            <button
+              type="button"
+              className="reload-btn"
+              onClick={handleReloadRecommendations}
+              disabled={reloadingRecs}
+            >
+              {reloadingRecs ? 'Reloading...' : 'Reload Recommender Data'}
+            </button>
+            <span className="hint">Endpoint: {recommenderUrl}/reload-data</span>
           </div>
         </div>
 
