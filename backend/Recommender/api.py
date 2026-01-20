@@ -5,7 +5,7 @@ from recommender import hybrid_recommend, load_data_from_mongodb, initialize_dat
 
 app = FastAPI(title="OrderUP Recommender API", version="2.0")
 
-# Allow CORS for local frontend and Netlify previews
+# Allow CORS for local frontend, Netlify, and Cloudflare Pages
 origins = [
     "http://localhost",
     "http://localhost:5173",
@@ -15,6 +15,8 @@ origins = [
     "http://localhost:8000",
     "https://localhost",
     "https://localhost:5173",
+    "https://orderup-7v2.pages.dev",
+    "https://orderup-admin.pages.dev",
 ]
 
 app.add_middleware(
