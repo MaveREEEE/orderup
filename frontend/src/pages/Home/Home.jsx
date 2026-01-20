@@ -15,8 +15,8 @@ const Home = ({ showLogin }) => {
   return (
     <div>
       <Header />
-      <ExploreMenu url={url} category={category} setCategory={setCategory} />
       {userId && <Recommendations userId={userId} />}
+      <ExploreMenu url={url} category={category} setCategory={setCategory} />
       <FoodDisplay category={category}/>  
     </div>
   )
