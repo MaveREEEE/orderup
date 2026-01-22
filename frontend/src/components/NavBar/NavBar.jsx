@@ -4,6 +4,7 @@ import { assets } from '../../assets/assets'
 import { Link, useNavigate } from 'react-router-dom';
 import { StoreContext } from '../../context/StoreContext';
 import Search from '../Search/Search';
+import Notifications from '../Notifications/Notifications';
 import axios from 'axios';
 
 const NavBar = ({ setShowLogin, showLogin }) => {
@@ -12,6 +13,8 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [userName, setUserName] = useState("");
   const { getTotalCartAmount, token, setToken, cartItems, url } = useContext(StoreContext)
   const navigate = useNavigate();
@@ -73,6 +76,34 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     }
 
     return () => window.removeEventListener('scroll', handleScroll);
+  }, [token, url]);
+
+  // Fetch unread notifications count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      const userId = localStorage.getItem("userId");
+      const storedToken = localStorage.getItem("token");
+
+      if (userId && storedToken) {
+        try {
+          const response = await axios.get(`${url}/api/notifications/${userId}/unread-count`, {
+            headers: { token: storedToken }
+          });
+          if (response.data.success) {
+            setUnreadCount(response.data.count);
+          }
+        } catch (error) {
+          console.error("Error fetching unread count:", error);
+        }
+      }
+    };
+
+    if (token) {
+      fetchUnreadCount();
+      // Refresh every 30 seconds
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
   }, [token, url]);
 
   const logout = () => {
@@ -163,14 +194,21 @@ const NavBar = ({ setShowLogin, showLogin }) => {
             <img src={assets.search_icon} alt="Search" />
           </div>
 
-          <div className="navbar-cart-icon">
-            <Link to='/cart' onClick={closeMobileMenu}>
-              <img src={assets.basket_icon} alt="Cart" />
-            </Link>
+          {token && (
+            <div className="navbar-notification-icon" onClick={() => setShowNotifications(true)}>
+              <img src={assets.notification_icon} alt="Notifications" />
+              {unreadCount > 0 && (
+                <div className="notification-badge">{unreadCount > 9 ? '9+' : unreadCount}</div>
+              )}
+            </div>
+          )}
+
+          <Link to='/cart' onClick={closeMobileMenu} className="navbar-cart-icon">
+            <img src={assets.basket_icon} alt="Cart" />
             {cartItemCount > 0 && (
               <div className="dot">{cartItemCount}</div>
             )}
-          </div>
+          </Link>
 
           {!token ? (
             <button onClick={() => setShowLogin(true)}>sign in</button>
@@ -181,8 +219,13 @@ const NavBar = ({ setShowLogin, showLogin }) => {
                 {userName && <span className="profile-name">{userName}</span>}
               </div>
               <ul className="nav-profile-dropdown">
+                <li onClick={() => { navigate('/profile'); closeMobileMenu(); }}>
+                  <img src={assets.profile_icon} alt="Profile" />
+                  <p>Profile</p>
+                </li>
+                <hr />
                 <li onClick={() => { navigate('/myorders'); closeMobileMenu(); }}>
-                  <img src={assets.bag_icon} alt="Orders" />
+                  <img src={assets.basket_icon} alt="Orders" />
                   <p>Orders</p>
                 </li>
                 <hr />
@@ -206,6 +249,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
       </div>
       )}
       {showSearch && <Search onClose={() => setShowSearch(false)} />}
+      {showNotifications && <Notifications onClose={() => setShowNotifications(false)} />}
     </>
   )
 }

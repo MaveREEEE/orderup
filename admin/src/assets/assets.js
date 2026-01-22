@@ -20,6 +20,7 @@ import user from './user.png'
 import dine_in from './dine_in.png'
 import promo_icon from './promo_icon.png'
 import review_icon from './review_icon.png'
+import hamburger_icon from './hamburger_icon.png'
 export const assets ={
     logo,
     add_icon,
@@ -42,7 +43,8 @@ export const assets ={
     user,
     dine_in,
     promo_icon,
-    review_icon
+    review_icon,
+    hamburger_icon
 }
 
 export const url = 'http://localhost:4000'

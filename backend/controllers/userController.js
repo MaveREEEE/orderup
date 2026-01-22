@@ -183,6 +183,36 @@ const deleteUser = async (req, res) => {
   }
 }
 
+// Update own profile (customer)
+const updateOwnProfile = async (req, res) => {
+  try {
+    const { id } = req.params
+    const { name, email, phone, address } = req.body
+    
+    // Verify user is updating their own profile
+    if (!req.user || req.user.id.toString() !== id.toString()) {
+      return res.json({ success: false, message: "Unauthorized" })
+    }
+    
+    const user = await userModel.findById(id)
+    if (!user) {
+      return res.json({ success: false, message: "User not found" })
+    }
+    
+    // Update allowed fields
+    if (name) user.name = name
+    if (email) user.email = email
+    if (phone !== undefined) user.phone = phone
+    if (address !== undefined) user.address = address
+    
+    await user.save()
+    res.json({ success: true, message: "Profile updated successfully" })
+  } catch (error) {
+    console.error("Error updating profile:", error)
+    res.json({ success: false, message: "Error updating profile" })
+  }
+}
+
 export {
   loginUser,
   registerUser,
@@ -190,5 +220,6 @@ export {
   listUsers,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  updateOwnProfile
 }

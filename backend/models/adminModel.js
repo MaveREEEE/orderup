@@ -18,7 +18,10 @@ const adminSchema = new mongoose.Schema({
     canManageSettings: { type: Boolean, default: false },
     canManagePromoCodes: { type: Boolean, default: false }  // NEW
   },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true },
+  // Password reset
+  resetPasswordToken: { type: String },
+  resetPasswordExpires: { type: Date }
 }, { timestamps: true });
 
 const adminModel = mongoose.models.admin || mongoose.model("admin", adminSchema);

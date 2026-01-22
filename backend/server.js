@@ -16,6 +16,8 @@ import roleRouter from "./routes/roleRoutes.js";
 import authRouter from "./routes/authRoutes.js"
 import promoCodeRouter from "./routes/promoCodeRoutes.js"
 import recommendRouter from "./routes/recommendRoutes.js";
+import passwordRouter from "./routes/passwordRoutes.js";
+import notificationRouter from "./routes/notificationRoutes.js";
 
 
 //app config
@@ -42,6 +44,8 @@ app.use("/api/settings", settingsRouter);
 app.use("/api/roles", roleRouter);
 app.use("/api/promo", promoCodeRouter);
 app.use("/api/recommend", recommendRouter);
+app.use("/api/password", passwordRouter);
+app.use("/api/notifications", notificationRouter);
 
 app.get("/",(req,res)=>{
     res.send("API Working")

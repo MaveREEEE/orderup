@@ -2,6 +2,8 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import foodModel from "../models/foodModel.js";
 import promoCodeModel from "../models/promoCodeModel.js";
+import { sendEmail, emailTemplates } from "../config/email.js";
+import { createNotification } from "./notificationController.js";
 
 // Get all orders for admin
 const listOrders = async (req, res) => {
@@ -120,6 +122,36 @@ const placeOrder = async (req, res) => {
         
         // Clear user cart
         await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+        // Get user details for email
+        const user = await userModel.findById(userId);
+
+        // Send order confirmation email
+        if (user && user.email) {
+            const emailHtml = emailTemplates.orderConfirmation({
+                customerName: user.name,
+                orderId: newOrder._id,
+                orderType: newOrder.orderType,
+                amount: newOrder.amount,
+                paymentMethod: newOrder.paymentMethod,
+                items: items
+            });
+
+            await sendEmail({
+                to: user.email,
+                subject: 'Order Confirmation - OrderUP',
+                html: emailHtml
+            });
+        }
+
+        // Create notification
+        await createNotification({
+            userId,
+            type: 'order',
+            title: 'Order Placed Successfully',
+            message: `Your order of ₱${amount.toFixed(2)} has been placed and is being processed.`,
+            relatedOrderId: newOrder._id
+        });
 
         res.json({ 
             success: true, 
@@ -263,6 +295,33 @@ const updateStatus = async (req, res) => {
 
         await order.save();
 
+        // Get user details for email and notification
+        const user = await userModel.findById(order.userId);
+
+        // Send status update email
+        if (user && user.email) {
+            const emailHtml = emailTemplates.orderStatusUpdate({
+                customerName: user.name,
+                orderId: order._id,
+                status: status
+            });
+
+            await sendEmail({
+                to: user.email,
+                subject: `Order Status Update - ${status}`,
+                html: emailHtml
+            });
+        }
+
+        // Create notification
+        await createNotification({
+            userId: order.userId,
+            type: 'order',
+            title: 'Order Status Updated',
+            message: `Your order status has been updated to: ${status}`,
+            relatedOrderId: order._id
+        });
+
         res.json({ 
             success: true, 
             message: "Status updated successfully",
@@ -307,4 +366,101 @@ const userOrders = async (req, res) => {
     }
 };
 
-export { placeOrder,placeDineInOrder, listOrders, updateStatus, userOrders };
+// Cancel order
+const cancelOrder = async (req, res) => {
+    try {
+        const { orderId, userId } = req.body;
+
+        if (!orderId) {
+            return res.json({ success: false, message: "Order ID is required" });
+        }
+
+        const order = await orderModel.findById(orderId);
+
+        if (!order) {
+            return res.json({ success: false, message: "Order not found" });
+        }
+
+        // Only allow cancellation if order is in "Food Processing" status
+        if (order.status !== "Food Processing") {
+            return res.json({ 
+                success: false, 
+                message: "Order can only be cancelled when in 'Food Processing' status" 
+            });
+        }
+
+        // Verify order belongs to user (security check)
+        if (userId && order.userId.toString() !== userId) {
+            return res.json({ success: false, message: "Unauthorized" });
+        }
+
+        // Refund inventory - add items back to food batches
+        for (const item of order.items) {
+            const food = await foodModel.findById(item._id);
+            if (food) {
+                // Add back as a new batch
+                const refundBatch = {
+                    quantity: item.quantity,
+                    productionDate: new Date(),
+                    expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days from now
+                };
+                
+                if (!food.batches) {
+                    food.batches = [];
+                }
+                food.batches.push(refundBatch);
+                await food.save();
+            }
+        }
+
+        // Refund promo code usage
+        if (order.promoCode) {
+            const promo = await promoCodeModel.findOne({ code: order.promoCode });
+            if (promo && promo.usageLimit > 0) {
+                promo.usageCount = Math.max(0, (promo.usageCount || 0) - 1);
+                await promo.save();
+            }
+        }
+
+        // Update order status to Cancelled
+        order.status = "Cancelled";
+        await order.save();
+
+        // Get user details for email
+        const user = await userModel.findById(order.userId);
+
+        // Send cancellation email
+        if (user && user.email) {
+            const emailHtml = emailTemplates.orderCancellation({
+                customerName: user.name,
+                orderId: order._id,
+                amount: order.amount
+            });
+
+            await sendEmail({
+                to: user.email,
+                subject: 'Order Cancelled - OrderUP',
+                html: emailHtml
+            });
+        }
+
+        // Create notification
+        await createNotification({
+            userId: order.userId,
+            type: 'order',
+            title: 'Order Cancelled',
+            message: `Your order has been cancelled successfully. Amount: ₱${order.amount.toFixed(2)}`,
+            relatedOrderId: order._id
+        });
+
+        res.json({ 
+            success: true, 
+            message: "Order cancelled successfully and inventory refunded" 
+        });
+    } catch (error) {
+        console.error("Error cancelling order:", error);
+        res.json({ success: false, message: "Error cancelling order" });
+    }
+};
+
+export { placeOrder,placeDineInOrder, listOrders, updateStatus, userOrders, cancelOrder };

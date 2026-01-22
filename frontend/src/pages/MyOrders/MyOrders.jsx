@@ -3,9 +3,12 @@ import './MyOrders.css'
 import { StoreContext } from '../../context/StoreContext';
 import axios from 'axios';
 import { assets } from '../../assets/assets';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const MyOrders = () => {
-    const { url, token, userId } = useContext(StoreContext);
+    const { url, token, userId, addToCart } = useContext(StoreContext);
+    const navigate = useNavigate();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
@@ -149,13 +152,13 @@ const MyOrders = () => {
                     }
                 }));
                 
-                alert("Rating submitted successfully!");
+                toast.success("Rating submitted successfully!");
             } else {
-                alert(response.data.message);
+                toast.error(response.data.message);
             }
         } catch (error) {
             console.error("Error submitting rating:", error);
-            alert("Error submitting rating: " + error.message);
+            toast.error("Error submitting rating: " + error.message);
         }
     }
 
@@ -179,6 +182,17 @@ const MyOrders = () => {
         }));
     }
 
+    const handleReorder = async (order) => {
+        // Add all items from the order to cart
+        for (const item of order.items) {
+            for (let i = 0; i < item.quantity; i++) {
+                await addToCart(item._id);
+            }
+        }
+        toast.success("Items added to cart!");
+        navigate('/cart');
+    };
+
     return (
         <div className='my-orders'>
             <h2>My Orders</h2>
@@ -197,6 +211,7 @@ const MyOrders = () => {
                                 <th>Items</th>
                                 <th>Amount</th>
                                 <th>Status</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -237,6 +252,18 @@ const MyOrders = () => {
                                                 <span className="status-dot">●</span>
                                                 {order.status}
                                             </span>
+                                        </td>
+                                        <td className="actions-cell">
+                                            {(order.items.every(item => userRatings[`${item._id}-${order._id}`]) || 
+                                              order.status === "Food Ready" || 
+                                              order.status === "Delivered") && (
+                                                <button
+                                                    className="reorder-btn"
+                                                    onClick={() => handleReorder(order)}
+                                                >
+                                                    Reorder
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 )
@@ -321,7 +348,7 @@ const MyOrders = () => {
                                                                                     if (state.selectedRating > 0) {
                                                                                         handleRating(item._id, selectedOrder._id, state.selectedRating, state.comment);
                                                                                     } else {
-                                                                                        alert("Please select a rating");
+                                                                                        toast.warn("Please select a rating");
                                                                                     }
                                                                                 }}
                                                                             >

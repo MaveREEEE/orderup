@@ -45,7 +45,12 @@ const App = () => {
   return (
     <div>
       <ToastContainer />
-      <Navbar setToken={setToken} />
+      <Navbar 
+        setToken={setToken}
+        setUserRole={setUserRole}
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+      />
       <hr />
       <div className="app-content">
         <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} /> {/* Pass both props */}

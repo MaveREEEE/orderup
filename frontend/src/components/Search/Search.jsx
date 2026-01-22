@@ -10,6 +10,16 @@ const Search = ({ onClose }) => { // Add onClose prop
     const [searchResults, setSearchResults] = useState([]);
     const [showResults, setShowResults] = useState(true); // Start with true
     const [selectedFood, setSelectedFood] = useState(null);
+    const [sortBy, setSortBy] = useState('relevance'); // relevance, price-low, price-high, rating
+    const [filterCategory, setFilterCategory] = useState('all');
+    const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+    const [categories, setCategories] = useState([]);
+
+    // Get unique categories from food list
+    React.useEffect(() => {
+        const uniqueCategories = [...new Set(food_list.map(item => item.category))];
+        setCategories(uniqueCategories);
+    }, [food_list]);
 
     const handleSearch = (e) => {
         const value = e.target.value;
@@ -27,8 +37,54 @@ const Search = ({ onClose }) => { // Add onClose prop
             item.category.toLowerCase().includes(value.toLowerCase())
         );
 
-        setSearchResults(results);
+        // Apply category filter
+        const categoryFiltered = filterCategory === 'all' 
+            ? results 
+            : results.filter(item => item.category === filterCategory);
+
+        // Apply price range filter
+        let priceFiltered = categoryFiltered;
+        if (priceRange.min !== '') {
+            priceFiltered = priceFiltered.filter(item => item.price >= parseFloat(priceRange.min));
+        }
+        if (priceRange.max !== '') {
+            priceFiltered = priceFiltered.filter(item => item.price <= parseFloat(priceRange.max));
+        }
+
+        // Apply sorting
+        let sorted = [...priceFiltered];
+        switch (sortBy) {
+            case 'price-low':
+                sorted.sort((a, b) => a.price - b.price);
+                break;
+            case 'price-high':
+                sorted.sort((a, b) => b.price - a.price);
+                break;
+            case 'rating':
+                sorted.sort((a, b) => {
+                    const avgA = a.ratings?.length ? a.ratings.reduce((sum, r) => sum + r.rating, 0) / a.ratings.length : 0;
+                    const avgB = b.ratings?.length ? b.ratings.reduce((sum, r) => sum + r.rating, 0) / b.ratings.length : 0;
+                    return avgB - avgA;
+                });
+                break;
+            default: // relevance
+                break;
+        }
+
+        setSearchResults(sorted);
     };
+
+    const handleFilterChange = () => {
+        // Reapply search with current filters
+        handleSearch({ target: { value: searchTerm } });
+    };
+
+    // Re-apply filters when they change
+    React.useEffect(() => {
+        if (searchTerm) {
+            handleFilterChange();
+        }
+    }, [sortBy, filterCategory, priceRange]);
 
     const handleFoodClick = (food) => {
         setSelectedFood(food);
@@ -87,6 +143,55 @@ const Search = ({ onClose }) => { // Add onClose prop
                             </button>
                         )}
                     </div>
+
+                    {searchTerm && (
+                        <div className='filters-container'>
+                            <div className='filter-group'>
+                                <label>Category:</label>
+                                <select 
+                                    value={filterCategory} 
+                                    onChange={(e) => setFilterCategory(e.target.value)}
+                                >
+                                    <option value='all'>All Categories</option>
+                                    {categories.map(cat => (
+                                        <option key={cat} value={cat}>{cat}</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className='filter-group'>
+                                <label>Sort by:</label>
+                                <select 
+                                    value={sortBy} 
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                >
+                                    <option value='relevance'>Relevance</option>
+                                    <option value='price-low'>Price: Low to High</option>
+                                    <option value='price-high'>Price: High to Low</option>
+                                    <option value='rating'>Highest Rated</option>
+                                </select>
+                            </div>
+
+                            <div className='filter-group price-filter'>
+                                <label>Price Range:</label>
+                                <div className='price-inputs'>
+                                    <input 
+                                        type='number' 
+                                        placeholder='Min' 
+                                        value={priceRange.min}
+                                        onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                                    />
+                                    <span>-</span>
+                                    <input 
+                                        type='number' 
+                                        placeholder='Max' 
+                                        value={priceRange.max}
+                                        onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {showResults && (
                         <>

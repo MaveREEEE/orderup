@@ -125,7 +125,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                 <div className="login-popup-inputs">
                     {currState === "Sign Up" && (
                         <>
+                            <label htmlFor="name">Name</label>
                             <input
+                                id='name'
                                 name='name'
                                 onChange={onChangeHandler}
                                 value={data.name}
@@ -133,7 +135,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 placeholder='Your name'
                                 required
                             />
+                            <label htmlFor="phone">Phone</label>
                             <input
+                                id='phone'
                                 name='phone'
                                 onChange={onChangeHandler}
                                 value={data.phone}
@@ -141,7 +145,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 placeholder='Phone number'
                                 required
                             />
+                            <label htmlFor="address">Address</label>
                             <input
+                                id='address'
                                 name='address'
                                 onChange={onChangeHandler}
                                 value={data.address}
@@ -151,7 +157,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                             />
                         </>
                     )}
+                    <label htmlFor="email">Email</label>
                     <input
+                        id='email'
                         name='email'
                         onChange={onChangeHandler}
                         value={data.email}
@@ -159,7 +167,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                         placeholder='Your email'
                         required
                     />
+                    <label htmlFor="password">Password</label>
                     <input
+                        id='password'
                         name='password'
                         onChange={onChangeHandler}
                         value={data.password}
@@ -172,6 +182,17 @@ const LoginPopUp = ({ setShowLogin }) => {
                 <button type='submit' disabled={loading}>
                     {loading ? "Please wait..." : (currState === "Sign Up" ? "Create account" : "Login")}
                 </button>
+                {currState === "Login" && (
+                    <div className="forgot-password-link">
+                        <a href="/forgot-password" onClick={(e) => {
+                            e.preventDefault();
+                            setShowLogin(false);
+                            window.location.href = '/forgot-password';
+                        }}>
+                            Forgot password?
+                        </a>
+                    </div>
+                )}
                 <div className="login-popup-condition">
                     <input type="checkbox" required />
                     <p>By continuing, I agree to the <span onClick={() => setShowTerms(true)}>terms & conditions</span>.</p>

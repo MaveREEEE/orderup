@@ -9,6 +9,10 @@ import LoginPopUp from './components/LoginPopUp/LoginPopUp'
 import Verify from './pages/Verify/Verify'
 import MyOrders from './pages/MyOrders/MyOrders'
 import ScrollToTop from './components/ScrollToTop/ScrollToTop'
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword'
+import ResetPassword from './pages/ResetPassword/ResetPassword'
+import Profile from './pages/Profile/Profile'
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { applyTheme, applyStoredTheme } from './utils/themeUtils'
@@ -24,7 +28,7 @@ const App = () => {
   }, [])
 
   return (
-    <>
+    <ErrorBoundary>
       {showLogin ? <LoginPopUp setShowLogin={setShowLogin} /> : <></>}
       <div className="app">
         <NavBar setShowLogin={setShowLogin} showLogin={showLogin} />
@@ -34,12 +38,15 @@ const App = () => {
           <Route path='/order' element={<PlaceOrder />} />
           <Route path='/verify' element={<Verify />} />
           <Route path='/myorders' element={<MyOrders />} />
+          <Route path='/profile' element={<Profile />} />
+          <Route path='/forgot-password' element={<ForgotPassword />} />
+          <Route path='/reset-password/:token' element={<ResetPassword />} />
         </Routes>
       </div>
       <Footer />
       <ScrollToTop/>
       <ToastContainer />
-    </>
+    </ErrorBoundary>
   )
 }
 

@@ -4,6 +4,7 @@ import { StoreContext } from '../../context/StoreContext'
 import axios from 'axios'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { assets } from '../../assets/assets';
+import { toast } from 'react-toastify';
 
 const orderTypes = ["Pick Up", "Pre-Order", "Delivery"];
 const formatCurrency = (amount) => `₱${amount.toFixed(2)}`;
@@ -84,7 +85,7 @@ const PlaceOrder = () => {
     const userId = localStorage.getItem("userId");
     
     if (!userId) {
-      alert("User ID not found. Please login again.");
+      toast.error("User ID not found. Please login again.");
       return;
     }
     
@@ -119,10 +120,10 @@ const PlaceOrder = () => {
       if (paymentMethod === "Cash") {
         let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
         if (response.data.success) {
-          alert("Order placed successfully!");
+          toast.success("Order placed successfully!");
           window.location.replace("/myorders");
         } else {
-          alert("Error placing order: " + response.data.message);
+          toast.error("Error placing order: " + response.data.message);
         }
       } else if (paymentMethod === "Gcash") {
         setShowGcash(true);
@@ -132,12 +133,12 @@ const PlaceOrder = () => {
           const { session_url } = response.data;
           window.location.replace(session_url); 
         } else {
-          alert("Error: " + response.data.message);
+          toast.error("Error: " + response.data.message);
         }
       }
     } catch (error) {
       console.error("Error placing order:", error);
-      alert("Error placing order: " + (error.response?.data?.message || error.message));
+      toast.error("Error placing order: " + (error.response?.data?.message || error.message));
     }
   }
 
@@ -328,7 +329,7 @@ const PlaceOrder = () => {
                 onClick={async () => {
                   const userId = localStorage.getItem("userId");
                   if (!userId) {
-                    alert("User ID not found. Please login again.");
+                    toast.error("User ID not found. Please login again.");
                     return;
                   }
 
@@ -359,14 +360,14 @@ const PlaceOrder = () => {
                     let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
                     if (response.data.success) {
                       setShowGcash(false);
-                      alert("Order placed successfully!");
+                      toast.success("Order placed successfully!");
                       window.location.replace("/myorders");
                     } else {
-                      alert("Error placing order: " + response.data.message);
+                      toast.error("Error placing order: " + response.data.message);
                     }
                   } catch (error) {
                     console.error("Error:", error);
-                    alert("Error placing order: " + (error.response?.data?.message || error.message));
+                    toast.error("Error placing order: " + (error.response?.data?.message || error.message));
                   }
                 }}
               >

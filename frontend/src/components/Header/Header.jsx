@@ -70,7 +70,10 @@ const Header = () => {
                         className="best-seller-image" 
                      />
                      <div className="best-seller-info">
-                        <h4>{bestSellers[currentIndex].name}</h4>
+                        <div className="best-seller-header">
+                           <h4>{bestSellers[currentIndex].name}</h4>
+                           <span className="best-seller-price">₱{bestSellers[currentIndex].price}</span>
+                        </div>
                         <div className="best-seller-footer">
                            <button className="best-seller-btn" onClick={() => {
                               setSelectedItem(bestSellers[currentIndex]);

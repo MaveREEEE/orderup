@@ -3,29 +3,52 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, tomato 0%, #ff4500 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   padding: 20px;
 }
 
 .login-card {
-  background: white;
+  background: #ffffff;
   border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.18);
   padding: 40px;
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
 }
 
 .login-header {
   text-align: center;
   margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.login-brand {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.4));
+  display: grid;
+  place-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.login-logo {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
 }
 
 .login-header h1 {
   font-size: 2rem;
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 8px 0;
+  margin: 0 0 4px 0;
 }
 
 .login-header p {
@@ -61,31 +84,35 @@
 
 .form-group input:focus {
   outline: none;
-  border-color: tomato;
-  box-shadow: 0 0 0 3px rgba(255, 99, 71, 0.1);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.12);
 }
 
 .login-btn {
   padding: 14px;
-  background: linear-gradient(135deg, tomato, #ff4500);
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  background: linear-gradient(135deg, var(--primary-color, #ff7043), var(--secondary-color, #ff4500));
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.2px;
   cursor: pointer;
   transition: all 0.2s;
   margin-top: 12px;
+  box-shadow: 0 12px 30px rgba(255, 112, 67, 0.35);
 }
 
 .login-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(255, 99, 71, 0.3);
+  box-shadow: 0 14px 28px rgba(255, 112, 67, 0.4);
 }
 
 .login-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
+  background: linear-gradient(135deg, var(--primary-color, #ff7043), var(--secondary-color, #ff4500));
 }
 .credentials-box {
   background: #f0f9ff;

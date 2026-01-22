@@ -6,7 +6,8 @@ import {
     placeDineInOrder, 
     listOrders, 
     updateStatus, 
-    userOrders 
+    userOrders,
+    cancelOrder 
 } from "../controllers/orderController.js";
 
 const orderRouter = express.Router();
@@ -14,6 +15,7 @@ const orderRouter = express.Router();
 // User routes
 orderRouter.post("/place", authMiddleware, placeOrder);
 orderRouter.post("/userorders", authMiddleware, userOrders);
+orderRouter.post("/cancel", authMiddleware, cancelOrder);
 
 // Admin routes
 orderRouter.get("/list", authMiddleware, checkRole(['superadmin', 'admin', 'staff']), listOrders);

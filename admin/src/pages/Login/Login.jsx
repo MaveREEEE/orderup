@@ -3,6 +3,7 @@ import './Login.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useNavigate } from 'react-router-dom'
+import { assets } from '../../assets/assets'
 
 const Login = ({ url, setToken, setUserRole }) => {
   const [email, setEmail] = useState('')
@@ -63,6 +64,9 @@ const Login = ({ url, setToken, setUserRole }) => {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
+          <div className="login-brand">
+            <img src={assets.logo} alt="OrderUP logo" className="login-logo" />
+          </div>
           <h1>Admin Panel</h1>
           <p>Sign in to continue</p>
         </div>
@@ -74,7 +78,7 @@ const Login = ({ url, setToken, setUserRole }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="superadmin@orderup.com"
+              placeholder="example@email.com"
               required
               autoComplete="email"
             />
@@ -96,12 +100,6 @@ const Login = ({ url, setToken, setUserRole }) => {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        <div className="login-footer">
-          <p className="login-note">
-            Admin credentials required.
-          </p>
-        </div>
       </div>
     </div>
   )
