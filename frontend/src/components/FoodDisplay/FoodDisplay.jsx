@@ -10,7 +10,7 @@ const FoodDisplay = ({ category }) => {
 
   return (
     <div className='food-display' id='food-display'>
-      <h2>Top dishes</h2>
+      <h2>Available Dishes</h2>
       <div className="food-display-list">
         {food_list.map((item, index) => {
           if (category === "All" || category === item.category) {
@@ -22,11 +22,12 @@ const FoodDisplay = ({ category }) => {
                 description={item.description}
                 price={item.price}
                 image={item.image}
-                batches={item.batches}  // ← Add this line
+                batches={item.batches}
                 ratings={item.ratings}
                 averageRating={item.averageRating}
                 onView={() => setSelectedItem(item)}
                 url={url}
+                hideDescriptionOnMobile={true}
               />
             );
           }

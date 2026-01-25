@@ -26,6 +26,9 @@ const Settings = ({ url }) => {
     enableDelivery: true,
     enablePickup: true,
     enableDineIn: true,
+    heroBackground: '',
+    heroTitle: '',
+    heroSubtitle: '',
     socialMedia: {
       facebook: '',
       instagram: '',
@@ -37,6 +40,15 @@ const Settings = ({ url }) => {
   const [faviconFile, setFaviconFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
+  const [heroBgFile, setHeroBgFile] = useState(null)
+  const [heroBgPreview, setHeroBgPreview] = useState(null)
+    const handleHeroBgChange = (e) => {
+      const file = e.target.files[0]
+      if (file) {
+        setHeroBgFile(file)
+        setHeroBgPreview(URL.createObjectURL(file))
+      }
+    }
   const [loading, setLoading] = useState(false)
   const [reloadingRecs, setReloadingRecs] = useState(false)
 
@@ -63,6 +75,9 @@ const Settings = ({ url }) => {
         setSettings(prev => ({
           ...prev,
           ...rest,
+          heroBackground: data.heroBackground || '',
+          heroTitle: data.heroTitle || '',
+          heroSubtitle: data.heroSubtitle || '',
           socialMedia: {
             facebook: socialMedia?.facebook || '',
             instagram: socialMedia?.instagram || '',
@@ -122,7 +137,7 @@ const Settings = ({ url }) => {
 
     try {
       const token = localStorage.getItem("token")
-      
+
       // Branding/logo upload (only if new logo selected)
       if (logoFile) {
         const formData = new FormData()
@@ -133,59 +148,86 @@ const Settings = ({ url }) => {
         formData.append("accentColor", settings.accentColor)
         formData.append("textColor", settings.textColor)
         formData.append("backgroundColor", settings.backgroundColor)
-        
-        console.log("Uploading branding with logo:", logoFile.name)
+
         const brandingRes = await axios.put(url + "/api/settings/branding", formData, {
           headers: { 
             token,
             'Content-Type': 'multipart/form-data'
           }
         })
-        
-        console.log("Branding response:", brandingRes.data)
         if (!brandingRes.data.success) {
           toast.error(brandingRes.data.message || "Branding update failed")
           setLoading(false)
           return
         }
       }
-      
+
+      // Hero background upload (only if new hero background selected)
+      if (heroBgFile) {
+        const heroBgFormData = new FormData()
+        heroBgFormData.append("heroBackground", heroBgFile)
+        // Also send heroTitle and heroSubtitle if present
+        if (settings.heroTitle !== undefined) heroBgFormData.append("heroTitle", settings.heroTitle)
+        if (settings.heroSubtitle !== undefined) heroBgFormData.append("heroSubtitle", settings.heroSubtitle)
+
+        const heroBgRes = await axios.put(url + "/api/settings/hero-background", heroBgFormData, {
+          headers: {
+            token,
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        if (!heroBgRes.data.success) {
+          toast.error(heroBgRes.data.message || "Hero background update failed")
+          setLoading(false)
+          return
+        }
+      }
+
       // Favicon upload (only if new favicon selected)
       if (faviconFile) {
         const faviconFormData = new FormData()
         faviconFormData.append("favicon", faviconFile)
-        
-        console.log("Uploading favicon:", faviconFile.name)
+
         const faviconRes = await axios.put(url + "/api/settings/favicon", faviconFormData, {
           headers: { 
             token,
             'Content-Type': 'multipart/form-data'
           }
         })
-        
-        console.log("Favicon response:", faviconRes.data)
         if (!faviconRes.data.success) {
           toast.error(faviconRes.data.message || "Favicon update failed")
           setLoading(false)
           return
         }
       }
-      
-      // Settings update (always send this) — EXCLUDE logo/favicon so file endpoints own them
-      const { logo, favicon, ...nonFileSettings } = settings
-      const response = await axios.put(url + "/api/settings/update", nonFileSettings, {
-        headers: { token }
-      })
-      
-      if (response.data.success) {
-        toast.success("Settings updated successfully!")
+
+      // Settings update (always send this) — EXCLUDE logo/favicon/heroBg so file endpoints own them
+      // If heroBgFile was uploaded, do not send heroTitle/heroSubtitle again in this request
+      const { logo, favicon, heroBackground, ...nonFileSettings } = settings
+      if (!heroBgFile) {
+        // Only send heroTitle/heroSubtitle if not already sent with heroBgFile
+        const response = await axios.put(url + "/api/settings/update", nonFileSettings, {
+          headers: { token }
+        })
+
+        if (response.data.success) {
+          toast.success("Settings updated successfully!")
+          setLogoFile(null)
+          setFaviconFile(null)
+          setHeroBgFile(null)
+          fetchSettings()
+          // Apply theme immediately after saving
+          applyTheme(url)
+        } else {
+          toast.error(response.data.message || "Failed to update settings")
+        }
+      } else {
+        // If heroBgFile was uploaded, still clear files and fetch settings
         setLogoFile(null)
         setFaviconFile(null)
+        setHeroBgFile(null)
         fetchSettings()
-        // Apply theme immediately after saving
         applyTheme(url)
-      } else {
-        toast.error(response.data.message || "Failed to update settings")
       }
     } catch (error) {
       console.error("Settings error:", error)
@@ -230,10 +272,10 @@ const Settings = ({ url }) => {
       <h2 className="settings-title">Restaurant Settings</h2>
       
       <form onSubmit={handleSubmit} className="settings-form">
+
         {/* Branding Section */}
         <div className="settings-section">
           <h3>Branding</h3>
-          
           <div className="form-group">
             <label>Restaurant Name</label>
             <input
@@ -244,7 +286,6 @@ const Settings = ({ url }) => {
               placeholder="Enter restaurant name"
             />
           </div>
-
           <div className="form-group">
             <label>Description</label>
             <textarea
@@ -253,6 +294,42 @@ const Settings = ({ url }) => {
               onChange={handleChange}
               placeholder="Enter restaurant description"
               rows="3"
+            />
+          </div>
+          <div className="form-group">
+            <label>Hero Background Image</label>
+            <div className="logo-upload">
+              {heroBgPreview || settings.heroBackground ? (
+                <div className="logo-preview">
+                  <img src={heroBgPreview || settings.heroBackground} alt="Hero Background" style={{ maxWidth: '100%', maxHeight: 120 }} />
+                </div>
+              ) : null}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleHeroBgChange}
+              />
+              <small className="hint">Upload a hero background image (recommended: 1200x400px or similar)</small>
+            </div>
+          </div>
+          <div className="form-group">
+            <label>Hero Title</label>
+            <input
+              type="text"
+              name="heroTitle"
+              value={settings.heroTitle}
+              onChange={handleChange}
+              placeholder="Enter hero title"
+            />
+          </div>
+          <div className="form-group">
+            <label>Hero Subtitle</label>
+            <input
+              type="text"
+              name="heroSubtitle"
+              value={settings.heroSubtitle}
+              onChange={handleChange}
+              placeholder="Enter hero subtitle"
             />
           </div>
 

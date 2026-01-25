@@ -13,6 +13,7 @@ const FoodItem = ({
   ratings = [],
   averageRating,
   onView,
+  hideDescriptionOnMobile = false,
 }) => {
   const { url } = useContext(StoreContext)
 
@@ -38,30 +39,30 @@ const FoodItem = ({
     >
       <div className="food-item-img-container">
         <img className="food-item-image" src={getImageUrl(image)} alt="" />
+        {formattedAvg && (
+          <div className="item-rating item-rating-badge">
+            <span className="item-rating-star">★</span>
+            <span className="item-rating-value">{formattedAvg}</span>
+            <span className="item-rating-count">({ratingCount})</span>
+          </div>
+        )}
       </div>
       <div className="food-item-info">
         <div className="food-item-name-rating">
           <p className="food-item-name">{name}</p>
-          {formattedAvg && (
-            <div className="item-rating">
-              <span className="item-rating-star">★</span>
-              <span className="item-rating-value">{formattedAvg}</span>
-              <span className="item-rating-count">({ratingCount})</span>
-            </div>
-          )}
         </div>
-        <p className="food-item-desc">{description}</p>
-        <div className="food-item-bottom">
-          <p className="food-item-price">
-            {new Intl.NumberFormat('en-PH', {
-              style: 'currency',
-              currency: 'PHP',
-            }).format(price)}
-          </p>
-          {totalStock <= 10 && totalStock > 0 && (
-            <span className="low-stock-warning">Only {totalStock} left!</span>
-          )}
-        </div>
+        {/* Price directly below title */}
+        <p className="food-item-price">
+          {new Intl.NumberFormat('en-PH', {
+            style: 'currency',
+            currency: 'PHP',
+          }).format(price)}
+        </p>
+        {totalStock <= 10 && totalStock > 0 && (
+          <span className="low-stock-warning">Only {totalStock} left!</span>
+        )}
+        {/* Description clamped for consistent card height */}
+        <p className={`food-item-desc${hideDescriptionOnMobile ? ' hide-desc-mobile' : ''}`}>{description}</p>
         {!isOutOfStock && onView && (
           <button
             onClick={(e) => {

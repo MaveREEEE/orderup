@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express from "express"
 import cors from "cors"
 import path from "path"
@@ -5,7 +6,6 @@ import fs from 'fs'
 import { connectDB } from "./config/db.js"
 import foodRouter from "./routes/foodRoutes.js"
 import userRouter from "./routes/userRoutes.js"
-import 'dotenv/config'
 import cartRouter from "./routes/cartRoutes.js"
 import orderRouter from "./routes/orderRoutes.js"
 import categoryRouter from "./routes/categoryRoutes.js"

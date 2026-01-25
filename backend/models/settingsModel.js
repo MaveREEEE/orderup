@@ -14,6 +14,20 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
+
+  // Hero Section Customization
+  heroBackground: {
+    type: String,
+    default: ""
+  },
+  heroTitle: {
+    type: String,
+    default: "Delicious Food Delivered Fast"
+  },
+  heroSubtitle: {
+    type: String,
+    default: "Order your favorite meals and enjoy them at home"
+  },
   
   // Branding
   logo: {

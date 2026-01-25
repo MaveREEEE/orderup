@@ -25,7 +25,7 @@ const updateSettings = async (req, res) => {
   try {
     const updates = req.body;
     updates.updatedAt = Date.now();
-    
+    console.log("[Settings Update] Payload received:", updates);
     // Remove logo and favicon from update if not provided
     if (!updates.logo) {
       delete updates.logo;
@@ -33,17 +33,56 @@ const updateSettings = async (req, res) => {
     if (!updates.favicon) {
       delete updates.favicon;
     }
-    
     let settings = await settingsModel.findOneAndUpdate(
       {},
       { $set: updates },
       { new: true, upsert: true }
     );
-    
     res.json({ success: true, message: "Settings updated successfully", data: settings });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error updating settings" });
+  }
+};
+// Update hero background image, title, and subtitle
+const updateHeroBackground = async (req, res) => {
+  try {
+    const updateData = {};
+
+    // Update hero background if uploaded
+    if (req.file) {
+      console.log("Hero background file received:", req.file.path || req.file.filename);
+      updateData.heroBackground = req.file.path || req.file.filename;
+    }
+
+    // Accept heroTitle and heroSubtitle from body (for multipart/form-data)
+    if (req.body.heroTitle !== undefined) updateData.heroTitle = req.body.heroTitle;
+    if (req.body.heroSubtitle !== undefined) updateData.heroSubtitle = req.body.heroSubtitle;
+
+    updateData.updatedAt = Date.now();
+
+    console.log("Attempting to update hero background/title/subtitle with:", updateData);
+
+    const savedSettings = await settingsModel.findOneAndUpdate(
+      {},
+      { $set: updateData },
+      { new: true, upsert: true, runValidators: false }
+    );
+    console.log("MongoDB returned:", savedSettings);
+    console.log("Hero background in response:", savedSettings.heroBackground);
+
+    // Verify the update by fetching directly from DB
+    const verified = await settingsModel.findById(savedSettings._id);
+    console.log("Verified from DB:", verified.heroBackground, verified.heroTitle, verified.heroSubtitle);
+
+    res.json({
+      success: true,
+      message: "Hero background/title/subtitle updated successfully",
+      data: savedSettings
+    });
+  } catch (error) {
+    console.log("Error in updateHeroBackground:", error);
+    res.json({ success: false, message: "Error updating hero background: " + error.message });
   }
 };
 // Update branding (logo and favicon)
@@ -141,5 +180,6 @@ export {
   getSettings, 
   updateSettings, 
   updateBranding,
-  updateFavicon
+  updateFavicon,
+  updateHeroBackground
 };

@@ -1,12 +1,16 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import './Recommendations.css';
 import { StoreContext } from '../../context/StoreContext';
 import { useRecommendations } from '../../utils/recommendationUtils';
 import FoodItem from '../FoodItem/FoodItem';
+import FoodItemModal from '../FoodItemModal/FoodItemModal';
+
 
 const Recommendations = ({ userId, showTitle = true }) => {
   const { food_list, url } = useContext(StoreContext);
   const { recommendations, loading, error } = useRecommendations(userId, 10);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   // Filter food_list to get only recommended items
   const recommendedFoods = recommendations
@@ -38,25 +42,54 @@ const Recommendations = ({ userId, showTitle = true }) => {
     return null; // No recommendations to show
   }
 
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedItem(null);
+  };
+
   return (
     <div className='recommendations-section'>
       {showTitle && <h2>Recommended For You</h2>}
-      <div className="recommendations-list">
-        {recommendedFoods.slice(0, 5).map((item, index) => (
-          <FoodItem
+      <div className="recommendations-list scrollable-horizontal">
+        {recommendedFoods.slice(0, 10).map((item, index) => (
+          <div
             key={index}
-            id={item._id}
-            name={item.name}
-            description={item.description}
-            price={item.price}
-            image={item.image}
-            batches={item.batches}
-            ratings={item.ratings}
-            averageRating={item.averageRating}
-            url={url}
-          />
+            className="recommendation-item-wrapper"
+            onClick={() => !modalOpen && handleItemClick(item)}
+            style={{ cursor: modalOpen ? 'default' : 'pointer' }}
+          >
+            <FoodItem
+              id={item._id}
+              name={item.name}
+              description={item.description}
+              price={item.price}
+              image={item.image}
+              batches={item.batches}
+              ratings={item.ratings}
+              averageRating={item.averageRating}
+              url={url}
+              hideButton={true}
+            />
+          </div>
         ))}
       </div>
+      {modalOpen && selectedItem && (
+        <FoodItemModal
+          item={selectedItem}
+          items={recommendedFoods}
+          url={url}
+          onClose={handleCloseModal}
+          onAddToCart={() => {}}
+          onItemClick={item => {
+            setSelectedItem(item);
+          }}
+        />
+      )}
     </div>
   );
 };

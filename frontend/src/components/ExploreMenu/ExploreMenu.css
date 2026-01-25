@@ -1,7 +1,17 @@
+@media (max-width: 600px) {
+    .explore-menu {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        box-sizing: border-box;
+        width: 100vw;
+        max-width: 100vw;
+    }
+}
 .explore-menu{
     display: flex;
     flex-direction: column;
     gap: 20px;
+    padding: 0 6vw;
 }
 .explore-menu h1{
     color: #262626;
