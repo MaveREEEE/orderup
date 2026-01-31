@@ -115,7 +115,7 @@ const Search = ({ onClose }) => { // Add onClose prop
 
     return (
         <>
-            <div className='search-overlay' onClick={handleClose}>
+            <div className={`search-overlay ${selectedFood ? 'hidden' : ''}`} onClick={handleClose}>
                 <div className='search-modal' onClick={(e) => e.stopPropagation()}>
                     <div className='search-header'>
                         <h2>Search Menu</h2>
