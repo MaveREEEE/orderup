@@ -159,9 +159,17 @@ const Dashboard = ({ url }) => {
     const deliveredOrders = filteredOrders.filter(o => o.status === "Delivered").length;
     const avgOrderValue = totalOrders ? totalSales / totalOrders : 0;
 
-    // Top Selling Items
-    const allSellingData = Object.values(itemStatsByType)
-        .flat()
+    // Top Selling Items - Aggregate items by name to avoid duplicates
+    const itemAggregation = {};
+    Object.values(itemStatsByType).forEach(typeItems => {
+        typeItems.forEach(item => {
+            if (!itemAggregation[item.name]) {
+                itemAggregation[item.name] = { name: item.name, count: 0, image: item.image };
+            }
+            itemAggregation[item.name].count += item.count;
+        });
+    });
+    const allSellingData = Object.values(itemAggregation)
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
 
