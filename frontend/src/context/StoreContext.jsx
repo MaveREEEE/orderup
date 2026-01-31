@@ -110,8 +110,8 @@ const StoreContextProvider = (props) => {
             // Load food list first
             await fetchFoodList();
 
-            const storedToken = localStorage.getItem("token");
-            const storedUserId = localStorage.getItem("userId");
+            const storedToken = sessionStorage.getItem("token");
+            const storedUserId = sessionStorage.getItem("userId");
 
             if (storedToken) {
                 setToken(storedToken);

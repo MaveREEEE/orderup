@@ -5,9 +5,9 @@ import { assets } from '../../assets/assets'
 
 const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
   const handleLogout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("userRole")
-    localStorage.removeItem("userType")
+    sessionStorage.removeItem("token")
+    sessionStorage.removeItem("userRole")
+    sessionStorage.removeItem("userType")
     
     setToken("")
     setUserRole("")

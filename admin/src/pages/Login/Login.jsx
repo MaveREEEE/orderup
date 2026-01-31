@@ -28,9 +28,9 @@ const Login = ({ url, setToken, setUserRole }) => {
         const { token, userType, role, name } = response.data
 
         if (userType === 'admin') {
-          localStorage.setItem("token", token)
-          localStorage.setItem("userRole", role)
-          localStorage.setItem("userType", "admin")
+          sessionStorage.setItem("token", token)
+          sessionStorage.setItem("userRole", role)
+          sessionStorage.setItem("userType", "admin")
           setToken(token)
           setUserRole(role)
           toast.success(`Welcome ${name}!`)

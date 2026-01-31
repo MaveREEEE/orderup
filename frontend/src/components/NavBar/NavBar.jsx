@@ -107,8 +107,11 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   }, [token, url]);
 
   const logout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("userId")
+    sessionStorage.removeItem("token")
+    sessionStorage.removeItem("userId")
+    sessionStorage.removeItem("userName")
+    sessionStorage.removeItem("userType")
+    sessionStorage.removeItem("userRole")
     setToken("")
     setUserName("")
     navigate("/")

@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom'
 import Add from './pages/Add/Add'
 import List from './pages/List/List'
 import Orders from './pages/Orders/Orders'
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Dashboard from './pages/Dashboard/Dashboard'
 import Category from './pages/Category/Category'
@@ -22,8 +22,8 @@ import { applyTheme, applyStoredTheme } from './utils/themeUtils'
 const App = () => {
 
   const url = import.meta.env.VITE_API_URL || "http://localhost:4000"
-  const [token, setToken] = useState(localStorage.getItem("token") || "");
-  const [userRole, setUserRole] = useState(localStorage.getItem("userRole") || "");
+  const [token, setToken] = useState(sessionStorage.getItem("token") || "");
+  const [userRole, setUserRole] = useState(sessionStorage.getItem("userRole") || "");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Apply theme on load

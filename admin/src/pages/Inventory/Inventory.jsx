@@ -239,7 +239,7 @@ const Inventory = ({ url }) => {
                             return (
                                 <div key={item._id} className="inventory-card">
                                     <div className="inventory-item-image">
-                                        <img src={`${url}/uploads/items/${item.image}`} alt={item.name} />
+                                        <img src={getImageUrl(item.image)} alt={item.name} />
                                     </div>
                                     
                                     <div className="inventory-card-info">

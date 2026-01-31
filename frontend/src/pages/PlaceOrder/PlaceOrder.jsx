@@ -82,7 +82,7 @@ const PlaceOrder = () => {
     event.preventDefault();
     
     const orderItems = getOrderItems();
-    const userId = localStorage.getItem("userId");
+    const userId = sessionStorage.getItem("userId");
     
     if (!userId) {
       toast.error("User ID not found. Please login again.");
@@ -327,7 +327,7 @@ const PlaceOrder = () => {
                 className="gcash-confirm-btn"
                 type="button"
                 onClick={async () => {
-                  const userId = localStorage.getItem("userId");
+                  const userId = sessionStorage.getItem("userId");
                   if (!userId) {
                     toast.error("User ID not found. Please login again.");
                     return;

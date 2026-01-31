@@ -77,16 +77,16 @@ const LoginPopUp = ({ setShowLogin }) => {
                 const tokenPayload = JSON.parse(atob(token.split('.')[1]))
                 const userId = tokenPayload.id
 
-                // Update context and localStorage
+                // Update context and sessionStorage (clears on browser close)
                 setToken(token)
                 setUserId(userId)
-                localStorage.setItem("token", token)
-                localStorage.setItem("userId", userId)
-                localStorage.setItem("userName", name)
-                localStorage.setItem("userType", userType)
+                sessionStorage.setItem("token", token)
+                sessionStorage.setItem("userId", userId)
+                sessionStorage.setItem("userName", name)
+                sessionStorage.setItem("userType", userType)
 
                 if (userType === 'admin') {
-                    localStorage.setItem("userRole", role)
+                    sessionStorage.setItem("userRole", role)
 
                     toast.success(`Welcome ${name}! Redirecting to Admin Panel...`)
 
