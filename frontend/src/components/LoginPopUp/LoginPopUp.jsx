@@ -69,34 +69,47 @@ const LoginPopUp = ({ setShowLogin }) => {
             const response = await axios.post(newUrl, payload)
 
             if (response.data.success) {
-                const { token, userType, role, name } = response.data
+                if (currState === "Login") {
+                    const { token, userType, role, name } = response.data
 
-                console.log("Login successful:", { userType, role, name })
+                    console.log("Login successful:", { userType, role, name })
 
-                // Decode token to get userId
-                const tokenPayload = JSON.parse(atob(token.split('.')[1]))
-                const userId = tokenPayload.id
+                    // Decode token to get userId
+                    const tokenPayload = JSON.parse(atob(token.split('.')[1]))
+                    const userId = tokenPayload.id
 
-                // Update context and sessionStorage (clears on browser close)
-                setToken(token)
-                setUserId(userId)
-                sessionStorage.setItem("token", token)
-                sessionStorage.setItem("userId", userId)
-                sessionStorage.setItem("userName", name)
-                sessionStorage.setItem("userType", userType)
+                    // Update context and sessionStorage (clears on browser close)
+                    setToken(token)
+                    setUserId(userId)
+                    sessionStorage.setItem("token", token)
+                    sessionStorage.setItem("userId", userId)
+                    sessionStorage.setItem("userName", name)
+                    sessionStorage.setItem("userType", userType)
 
-                if (userType === 'admin') {
-                    sessionStorage.setItem("userRole", role)
+                    if (userType === 'admin') {
+                        sessionStorage.setItem("userRole", role)
 
-                    toast.success(`Welcome ${name}! Redirecting to Admin Panel...`)
+                        toast.success(`Welcome ${name}! Redirecting to Admin Panel...`)
 
-                    // Redirect to admin panel
-                    setTimeout(() => {
-                        window.location.href = 'http://localhost:5174'
-                    }, 1500)
+                        // Redirect to admin panel
+                        setTimeout(() => {
+                            window.location.href = 'http://localhost:5174'
+                        }, 1500)
+                    } else {
+                        toast.success(`Welcome ${name}!`)
+                        setShowLogin(false)
+                    }
                 } else {
-                    toast.success(`Welcome ${name}!`)
-                    setShowLogin(false)
+                    // Sign Up - don't auto-login
+                    toast.success("Account created successfully! Please login to continue.")
+                    setCurrState("Login")
+                    setData({
+                        name: "",
+                        email: "",
+                        password: "",
+                        phone: "",
+                        address: ""
+                    })
                 }
             } else {
                 toast.error(response.data.message)
