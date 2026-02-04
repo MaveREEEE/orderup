@@ -44,7 +44,7 @@ const Dashboard = ({ url }) => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = sessionStorage.getItem("token");
                 const res = await axios.get(url + "/api/order/list", {
                     headers: { token }
                 });
@@ -85,7 +85,7 @@ const Dashboard = ({ url }) => {
     useEffect(() => {
         const fetchExpiringItems = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = sessionStorage.getItem("token");
                 const res = await axios.get(url + "/api/inventory/expiring-soon", {
                     headers: { token }
                 });
