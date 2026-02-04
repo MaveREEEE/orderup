@@ -39,7 +39,7 @@ const Inventory = ({ url }) => {
 
     const fetchLowStockItems = async () => {
         try {
-            const token = localStorage.getItem("token")
+            const token = sessionStorage.getItem("token")
             const response = await axios.get(url + "/api/inventory/low-stock", {
                 headers: { token }
             })
@@ -61,7 +61,7 @@ const Inventory = ({ url }) => {
 
     const fetchExpiringItems = async () => {
         try {
-            const token = localStorage.getItem("token")
+            const token = sessionStorage.getItem("token")
             const response = await axios.get(url + "/api/inventory/expiring-soon", {
                 headers: { token }
             })
@@ -98,7 +98,7 @@ const Inventory = ({ url }) => {
         }
 
         try {
-            const token = localStorage.getItem("token")
+            const token = sessionStorage.getItem("token")
             const response = await axios.post(url + "/api/inventory/add-batch", batchData, {
                 headers: { token }
             })
@@ -120,7 +120,7 @@ const Inventory = ({ url }) => {
 
     const removeBatch = async (itemId, batchId) => {
         try {
-            const token = localStorage.getItem("token")
+            const token = sessionStorage.getItem("token")
             const response = await axios.post(url + "/api/inventory/remove-batch", {
                 itemId,
                 batchId
