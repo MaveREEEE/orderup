@@ -19,7 +19,7 @@ const PromoCode = ({ url }) => {
     validUntil: ''
   })
 
-  const token = localStorage.getItem("token")
+  const token = sessionStorage.getItem("token")
 
   const fetchPromoCodes = async () => {
     try {
