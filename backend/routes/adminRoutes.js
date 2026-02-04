@@ -1,13 +1,7 @@
-'use strict';
+import express from "express";
 
-const express = require('express');
-const authMiddleware = require('../../middleware/authMiddleware');
 const adminRouter = express.Router();
 
-const { getAdminProfile } = require('../../controllers/adminController');
+// Define your routes here
 
-// Other routes... 
-
-adminRouter.get('/profile', authMiddleware, getAdminProfile);
-
-module.exports = adminRouter;
+export default adminRouter;
