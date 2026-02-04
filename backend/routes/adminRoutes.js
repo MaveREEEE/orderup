@@ -13,18 +13,20 @@ import {
 
 const adminRouter = express.Router();
 
-// Admin authentication
+// Admin authentication (no auth required)
 adminRouter.post("/register", registerAdmin);
 adminRouter.post("/login", loginAdmin);
 
-// Admin profile
+// Admin profile (auth required, no role check)
 adminRouter.get("/profile", authMiddleware, getAdminProfile);
 
-// Admin management (superadmin only)
+// Admin management - specific routes first (superadmin only)
 adminRouter.get("/list", authMiddleware, checkRole(['superadmin']), listAdmins);
-adminRouter.get(":id", authMiddleware, checkRole(['superadmin']), getAdminById);
 adminRouter.post("/create", authMiddleware, checkRole(['superadmin']), registerAdmin);
 adminRouter.put("/update/:id", authMiddleware, checkRole(['superadmin']), updateAdmin);
 adminRouter.delete("/delete/:id", authMiddleware, checkRole(['superadmin']), deleteAdmin);
+
+// Get admin by ID - must be last to avoid catching /list, /create, etc
+adminRouter.get("/:id", authMiddleware, checkRole(['superadmin']), getAdminById);
 
 export default adminRouter;
