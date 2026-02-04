@@ -63,7 +63,7 @@ const Settings = ({ url }) => {
 
   const fetchSettings = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = sessionStorage.getItem("token");
       const response = await axios.get(url + "/api/settings/", {
         headers: { token }
       })
