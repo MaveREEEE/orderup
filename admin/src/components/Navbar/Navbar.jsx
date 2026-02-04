@@ -1,9 +1,64 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import './Navbar.css'
 import { toast } from 'react-toastify'
 import { assets } from '../../assets/assets'
 
 const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
+  const [userRole, setLocalUserRole] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [userName, setUserName] = useState("")
+
+  // Fetch admin profile from MongoDB
+  useEffect(() => {
+    const fetchAdminProfile = async () => {
+      try {
+        const token = sessionStorage.getItem("token")
+        
+        if (!token) {
+          setLoading(false)
+          return
+        }
+
+        // Call the admin profile endpoint
+        const response = await fetch('http://localhost:4000/api/admin/profile', {
+          method: 'GET',
+          headers: {
+            'token': token,
+            'Content-Type': 'application/json'
+          }
+        })
+
+        const data = await response.json()
+
+        if (data.success && data.admin) {
+          setLocalUserRole(data.admin.role)
+          setUserName(data.admin.name)
+          // Update sessionStorage with fresh data from DB
+          sessionStorage.setItem("userRole", data.admin.role)
+          
+          // Also update parent component state if needed
+          if (setUserRole) {
+            setUserRole(data.admin.role)
+          }
+        } else {
+          console.error("Failed to fetch admin profile:", data.message)
+          // Fallback to sessionStorage
+          const storedRole = sessionStorage.getItem("userRole") || "admin"
+          setLocalUserRole(storedRole)
+        }
+      } catch (error) {
+        console.error("Error fetching admin profile:", error)
+        // Fallback to sessionStorage if API fails
+        const storedRole = sessionStorage.getItem("userRole") || "admin"
+        setLocalUserRole(storedRole)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAdminProfile()
+  }, [setUserRole])
+
   const handleLogout = () => {
     sessionStorage.removeItem("token")
     sessionStorage.removeItem("userRole")
@@ -23,8 +78,6 @@ const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
     setIsCollapsed(!isCollapsed)
   }
 
-  const userRole = localStorage.getItem("userRole") || "admin"
-
   return (
     <div className="navbar">
       <div className="navbar-left">
@@ -41,9 +94,16 @@ const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
       
       <div className="navbar-right">
         <div className="user-info">
-          <p className="user-role">
-            {userRole === "superadmin" ? "Super Admin" : userRole === "admin" ? "Admin" : "Staff"}
-          </p>
+          {loading ? (
+            <p className="user-role">Loading...</p>
+          ) : (
+            <>
+              {userName && <p className="user-name">{userName}</p>}
+              <p className="user-role">
+                {userRole === "superadmin" ? "Super Admin" : userRole === "admin" ? "Admin" : "Staff"}
+              </p>
+            </>
+          )}
           <button className="logout-btn" onClick={handleLogout}>
             Logout
           </button>
