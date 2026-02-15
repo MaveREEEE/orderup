@@ -1,3 +1,4 @@
+/* entire file contents */
 .navbar {
     padding: 15px max(5vw, 20px);
     display: flex;
@@ -389,7 +390,19 @@ body {
     mask: url('../../assets/profile_icon.png') center / contain no-repeat;
 }
 
+.profile-name {
+    font-size: 11px;
+    color: #49557e;
+    font-weight: 500;
+    white-space: nowrap;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* INSERTED: show username below the avatar and hide the old inline profile-name to avoid duplicates */
 .profile-name-below {
+  display: block;
   font-size: 12px;
   color: #49557e;
   font-weight: 600;
@@ -402,56 +415,24 @@ body {
   white-space: nowrap;
   user-select: none;
 }
-.profile-info {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  outline: none;
-}
-.nav-profile-dropdown {
-  position: absolute;
-  display: none; /* hidden by default — controlled by React .show */
-  right: 0;
-  top: calc(100% + 6px); /* a little spacing below avatar/name */
-  z-index: 1001;
-  margin-top: 0;
-  min-width: 180px;
-  max-width: calc(100vw - 40px);
-  padding-top: 10px;
-  padding-bottom: 12px;
-  overflow: visible;
-  flex-direction: column;
-  gap: 0;
-  background: white;
-  padding-left: 0;
-  padding-right: 0;
-  border-radius: 12px;
-  border: 1px solid rgba(var(--primary-rgb, 255, 112, 67), 0.2);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  list-style: none;
-  animation: dropdownSlide 0.3s ease;
-  width: max-content;
-  white-space: nowrap;
+
+/* hide the old .profile-name (prevents duplicate labels) */
+.profile-name {
+  display: none;
 }
 
-/* When React toggles the dropdown it adds .show — use that to display */
-.nav-profile-dropdown.show {
-  display: flex;
-}
-
-/* Prevent accidental immediate close on small taps: allow clicks inside */
-.nav-profile-dropdown li {
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* (Optional) Slightly nudge the dropdown left on small screens so it's fully visible */
+/* small-screen adjustments */
 @media (max-width: 480px) {
-  .nav-profile-dropdown {
-    right: -6px;
+  .profile-name-below {
+    font-size: 11px;
+    max-width: 90px;
   }
 }
+
+.navbar.scrolled .profile-name {
+    color: #262626;
+}
+
 .navbar-profile > img {
     width: 40px;
     height: 40px;
@@ -888,12 +869,6 @@ body {
         width: 36px;
         height: 36px;
     }
-    
-    .nav-profile-dropdown {
-        right: 0;
-        min-width: 160px;
-        max-width: calc(100vw - 24px);
-    }
 }
 
 @media (max-width: 480px) {
@@ -971,144 +946,5 @@ body {
         padding: 12px 16px;
         font-size: 15px;
         margin-bottom: 6px;
-    }
-}
-
-@media (max-width: 320px) {
-    .navbar {
-        padding: 6px 8px;
-    }
-    
-    .navbar .logo {
-        width: 80px;
-        min-width: 60px;
-    }
-    
-    .restaurant-logo {
-        height: 26px;
-    }
-    
-    .orderup-logo {
-        height: 20px;
-    }
-    
-    .x-separator {
-        font-size: 1rem;
-        margin: 0 2px;
-    }
-    
-    .navbar-right {
-        gap: 6px;
-    }
-    
-    .navbar button {
-        padding: 4px 8px;
-        font-size: 10px;
-    }
-    
-    .navbar-search-icon,
-    .navbar-cart-icon {
-        padding: 4px;
-        min-width: 32px;
-        min-height: 32px;
-    }
-    
-    .navbar-search-icon img,
-    .navbar-cart-icon img {
-        width: 16px;
-        height: 16px;
-    }
-    
-    .mobile-menu-toggle {
-        min-width: 32px;
-        min-height: 32px;
-        padding: 4px;
-    }
-    
-    .mobile-menu-toggle span {
-        width: 18px;
-        height: 2px;
-        margin: 2px 0;
-    }
-    
-    .navbar-profile > img {
-        width: 28px;
-        height: 28px;
-    }
-    
-    .navbar-menu {
-        padding: 12px;
-    }
-    
-    .navbar-menu a {
-        padding: 10px 12px;
-        font-size: 14px;
-        margin-bottom: 4px;
-    }
-    
-    .nav-profile-dropdown {
-        min-width: 140px;
-        right: -15px;
-        max-width: calc(100vw - 16px);
-    }
-    
-    .nav-profile-dropdown li {
-        padding: 10px 16px;
-    }
-    
-    .nav-profile-dropdown p {
-        font-size: 13px;
-    }
-}
-
-@media (max-height: 500px) and (orientation: landscape) {
-    .navbar {
-        padding: 6px 12px;
-    }
-    
-    .navbar .logo {
-        width: 100px;
-    }
-    
-    .restaurant-logo {
-        height: 32px;
-    }
-    
-    .orderup-logo {
-        height: 26px;
-    }
-    
-    .navbar-menu {
-        padding: 12px;
-    }
-    
-    .navbar-menu a {
-        padding: 8px 16px;
-        margin-bottom: 4px;
-    }
-    
-    .mobile-menu-toggle {
-        min-width: 32px;
-        min-height: 32px;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .navbar-menu,
-    .navbar-menu a,
-    .mobile-menu-toggle span,
-    .navbar button::before,
-    .nav-profile-dropdown {
-        animation: none !important;
-        transition: none !important;
-    }
-}
-
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .navbar-search-icon img,
-    .navbar-cart-icon img,
-    .nav-profile-dropdown img {
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: crisp-edges;
     }
 }
