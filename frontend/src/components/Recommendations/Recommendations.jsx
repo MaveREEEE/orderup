@@ -7,7 +7,7 @@ import FoodItemModal from '../FoodItemModal/FoodItemModal';
 
 
 const Recommendations = ({ userId, showTitle = true }) => {
-  const { food_list, url } = useContext(StoreContext);
+  const { food_list, url, addToCart  } = useContext(StoreContext);
   const { recommendations, loading, error } = useRecommendations(userId, 10);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -84,7 +84,7 @@ const Recommendations = ({ userId, showTitle = true }) => {
           items={recommendedFoods}
           url={url}
           onClose={handleCloseModal}
-          onAddToCart={() => {}}
+          onAddToCart={(addToCart ) => {}}
           onItemClick={item => {
             setSelectedItem(item);
           }}
