@@ -389,20 +389,69 @@ body {
     mask: url('../../assets/profile_icon.png') center / contain no-repeat;
 }
 
-.profile-name {
-    font-size: 11px;
-    color: #49557e;
-    font-weight: 500;
-    white-space: nowrap;
-    max-width: 80px;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.profile-name-below {
+  font-size: 12px;
+  color: #49557e;
+  font-weight: 600;
+  text-align: center;
+  margin-top: 6px;
+  cursor: pointer;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  user-select: none;
+}
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  outline: none;
+}
+.nav-profile-dropdown {
+  position: absolute;
+  display: none; /* hidden by default — controlled by React .show */
+  right: 0;
+  top: calc(100% + 6px); /* a little spacing below avatar/name */
+  z-index: 1001;
+  margin-top: 0;
+  min-width: 180px;
+  max-width: calc(100vw - 40px);
+  padding-top: 10px;
+  padding-bottom: 12px;
+  overflow: visible;
+  flex-direction: column;
+  gap: 0;
+  background: white;
+  padding-left: 0;
+  padding-right: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--primary-rgb, 255, 112, 67), 0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  animation: dropdownSlide 0.3s ease;
+  width: max-content;
+  white-space: nowrap;
 }
 
-.navbar.scrolled .profile-name {
-    color: #262626;
+/* When React toggles the dropdown it adds .show — use that to display */
+.nav-profile-dropdown.show {
+  display: flex;
 }
 
+/* Prevent accidental immediate close on small taps: allow clicks inside */
+.nav-profile-dropdown li {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* (Optional) Slightly nudge the dropdown left on small screens so it's fully visible */
+@media (max-width: 480px) {
+  .nav-profile-dropdown {
+    right: -6px;
+  }
+}
 .navbar-profile > img {
     width: 40px;
     height: 40px;
