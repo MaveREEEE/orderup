@@ -165,7 +165,8 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   };
 
   const toggleProfileDropdown = (e) => {
-    e.stopPropagation();
+    // stop propagation so the document click handler doesn't immediately close it
+    if (e && e.stopPropagation) e.stopPropagation();
     setShowProfileDropdown(!showProfileDropdown);
   };
 
@@ -236,22 +237,57 @@ const NavBar = ({ setShowLogin, showLogin }) => {
             <button onClick={() => setShowLogin(true)}>sign in</button>
           ) : (
             <div className='navbar-profile'>
-              <div className="profile-info" onClick={toggleProfileDropdown}>
+              {/* Clickable avatar (keyboard accessible) */}
+              <div
+                className="profile-info"
+                onClick={toggleProfileDropdown}
+                role="button"
+                tabIndex={0}
+                aria-expanded={showProfileDropdown}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    toggleProfileDropdown(e);
+                  }
+                }}
+              >
                 <img src={assets.profile_icon} alt="Profile" />
-                {userName && <span className="profile-name">{userName}</span>}
               </div>
-              <ul className={`nav-profile-dropdown ${showProfileDropdown ? 'show' : ''}`}> 
-                <li onClick={() => { navigate('/profile'); closeMobileMenu(); setShowProfileDropdown(false); }}>  
+
+              {/* Username appears below the avatar and also toggles dropdown when clicked */}
+              {userName && (
+                <div
+                  className="profile-name-below"
+                  onClick={toggleProfileDropdown}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleProfileDropdown(e);
+                    }
+                  }}
+                >
+                  {userName}
+                </div>
+              )}
+
+              {/* Dropdown visibility is controlled by showProfileDropdown (inline style overrides any :hover rules) */}
+              <ul
+                className={`nav-profile-dropdown ${showProfileDropdown ? 'show' : ''}`}
+                style={{ display: showProfileDropdown ? 'block' : 'none' }}
+              > 
+                <li onClick={(e) => { e.stopPropagation(); navigate('/profile'); closeMobileMenu(); setShowProfileDropdown(false); }}>  
                   <img src={assets.profile_icon} alt="Profile" />
                   <p>Profile</p>
                 </li>
                 <hr />
-                <li onClick={() => { navigate('/myorders'); closeMobileMenu(); setShowProfileDropdown(false); }}>  
+                <li onClick={(e) => { e.stopPropagation(); navigate('/myorders'); closeMobileMenu(); setShowProfileDropdown(false); }}>  
                   <img src={assets.basket_icon} alt="Orders" />
                   <p>Orders</p>
                 </li>
                 <hr />
-                <li onClick={logout}>
+                <li onClick={(e) => { e.stopPropagation(); logout(); }}>
                   <img src={assets.logout_icon} alt="Logout" />
                   <p>Logout</p>
                 </li>
