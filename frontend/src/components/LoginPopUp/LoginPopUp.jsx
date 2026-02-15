@@ -145,7 +145,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 onChange={onChangeHandler}
                                 value={data.name}
                                 type="text"
-                                placeholder='Enter Your Name'
+                                placeholder='Enter your name'
                                 required
                             />
                             <label htmlFor="phone">Phone</label>
@@ -155,7 +155,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 onChange={onChangeHandler}
                                 value={data.phone}
                                 type="tel"
-                                placeholder='Enter Your Phone Number'
+                                placeholder='Enter your phone number'
                                 required
                             />
                             <label htmlFor="address">Address</label>
@@ -165,7 +165,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 onChange={onChangeHandler}
                                 value={data.address}
                                 type="text"
-                                placeholder='Enter Your Delivery Address'
+                                placeholder='Enter your delivery address'
                                 required
                             />
                         </>
@@ -177,7 +177,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                         onChange={onChangeHandler}
                         value={data.email}
                         type="email"
-                        placeholder='Enter Your email'
+                        placeholder='Enter your email'
                         required
                     />
                     <label htmlFor="password">Password</label>
@@ -187,7 +187,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                         onChange={onChangeHandler}
                         value={data.password}
                         type="password"
-                        placeholder='Enter Your Password'
+                        placeholder='Enter your password'
                         required
                         minLength="6"
                     />
