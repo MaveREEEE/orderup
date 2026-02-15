@@ -84,7 +84,7 @@ const Recommendations = ({ userId, showTitle = true }) => {
           items={recommendedFoods}
           url={url}
           onClose={handleCloseModal}
-          onAddToCart={(addToCart ) => {}}
+          onAddToCart={addToCart}
           onItemClick={item => {
             setSelectedItem(item);
           }}
