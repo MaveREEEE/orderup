@@ -78,7 +78,7 @@ const Login = ({ url, setToken, setUserRole }) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="example@email.com"
+              placeholder="Enter Your Email"
               required
               autoComplete="email"
             />
@@ -90,7 +90,7 @@ const Login = ({ url, setToken, setUserRole }) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter your password"
+              placeholder="Enter Your Password"
               required
               autoComplete="current-password"
             />
