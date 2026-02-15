@@ -21,7 +21,7 @@ export const emailTemplates = {
       <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
         <h3>Order Details</h3>
         <p><strong>Order ID:</strong> ${orderData.orderId}</p>
-        <p><strong>Total:</strong> $${orderData.amount}</p>
+        <p><strong>Total:</strong> ₱${orderData.amount.toFixed(2)}</p>
         <p><strong>Delivery Address:</strong> ${orderData.address}</p>
       </div>
       
@@ -101,8 +101,7 @@ export const emailTemplates = {
         <p><strong>Delivered on:</strong> ${new Date().toLocaleDateString()}</p>
       </div>
       
-      <p>We hope you enjoyed your meal!</p>
-      <p>We hope to serve you again soon!</p>
+      <p>We hope you enjoyed your meal and look forward to serving you again soon!</p>
     </div>
   `,
 
