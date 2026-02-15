@@ -145,7 +145,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 onChange={onChangeHandler}
                                 value={data.name}
                                 type="text"
-                                placeholder='Your name'
+                                placeholder='Your Name'
                                 required
                             />
                             <label htmlFor="phone">Phone</label>
@@ -155,7 +155,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 onChange={onChangeHandler}
                                 value={data.phone}
                                 type="tel"
-                                placeholder='Phone number'
+                                placeholder='Your Phone Number'
                                 required
                             />
                             <label htmlFor="address">Address</label>
@@ -165,7 +165,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 onChange={onChangeHandler}
                                 value={data.address}
                                 type="text"
-                                placeholder='Delivery address'
+                                placeholder=' Your Delivery Address'
                                 required
                             />
                         </>
@@ -187,7 +187,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                         onChange={onChangeHandler}
                         value={data.password}
                         type="password"
-                        placeholder='Password'
+                        placeholder='Your Password'
                         required
                         minLength="6"
                     />
