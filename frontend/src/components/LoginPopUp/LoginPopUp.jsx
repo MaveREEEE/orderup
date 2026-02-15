@@ -192,6 +192,10 @@ const LoginPopUp = ({ setShowLogin }) => {
                         minLength="6"
                     />
                 </div>
+                <div className="login-popup-condition">
+                    <input type="checkbox" required />
+                    <p>By continuing, I agree to the <span onClick={() => setShowTerms(true)}>terms & conditions</span>.</p>
+                </div>
                 <button type='submit' disabled={loading}>
                     {loading ? "Please wait..." : (currState === "Sign Up" ? "Create account" : "Login")}
                 </button>
@@ -206,10 +210,6 @@ const LoginPopUp = ({ setShowLogin }) => {
                         </a>
                     </div>
                 )}
-                <div className="login-popup-condition">
-                    <input type="checkbox" required />
-                    <p>By continuing, I agree to the <span onClick={() => setShowTerms(true)}>terms & conditions</span>.</p>
-                </div>
                 {currState === "Login" ? (
                     <p>Create a new account? <span onClick={() => setCurrState("Sign Up")}>Click here</span></p>
                 ) : (
