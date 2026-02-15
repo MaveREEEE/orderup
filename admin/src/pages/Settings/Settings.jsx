@@ -40,7 +40,7 @@ const Settings = ({ url }) => {
   const [faviconFile, setFaviconFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
-  const [heroBgFile, setHeroBgFile] = useState(null)
+  const [BgFile, setHeroBgFile] = useState(null)
   const [heroBgPreview, setHeroBgPreview] = useState(null)
     const handleHeroBgChange = (e) => {
       const file = e.target.files[0]
@@ -297,7 +297,7 @@ const Settings = ({ url }) => {
             />
           </div>
           <div className="form-group">
-            <label>Hero Background Image</label>
+            <label>Main Banner Background Image</label>
             <div className="logo-upload">
               {heroBgPreview || settings.heroBackground ? (
                 <div className="logo-preview">
@@ -309,7 +309,7 @@ const Settings = ({ url }) => {
                 accept="image/*"
                 onChange={handleHeroBgChange}
               />
-              <small className="hint">Upload a hero background image (recommended: 1200x400px or similar)</small>
+              <small className="hint">Upload a main banner background image (recommended: 1200x400px or similar)</small>
             </div>
           </div>
           <div className="form-group">
@@ -323,7 +323,7 @@ const Settings = ({ url }) => {
             />
           </div>
           <div className="form-group">
-            <label>Hero Subtitle</label>
+            <label>Main Banner Subtitle</label>
             <input
               type="text"
               name="heroSubtitle"
