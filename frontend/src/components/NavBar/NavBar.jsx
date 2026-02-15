@@ -16,6 +16,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [userName, setUserName] = useState("");
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { getTotalCartAmount, token, setToken, cartItems, url } = useContext(StoreContext)
   const navigate = useNavigate();
 
@@ -106,6 +107,18 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     }
   }, [token, url]);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showProfileDropdown && !event.target.closest('.navbar-profile')) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [showProfileDropdown]);
+
   const logout = () => {
     sessionStorage.removeItem("token")
     sessionStorage.removeItem("userId")
@@ -114,6 +127,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     sessionStorage.removeItem("userRole")
     setToken("")
     setUserName("")
+    setShowProfileDropdown(false)
     navigate("/")
   }
 
@@ -150,12 +164,17 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     return itemCount;
   };
 
+  const toggleProfileDropdown = (e) => {
+    e.stopPropagation();
+    setShowProfileDropdown(!showProfileDropdown);
+  };
+
   const cartItemCount = getCartItemCount();
 
   return (
     <>
       {!showLogin && (
-        <div className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+        <div className={`navbar ${scrolled ? 'scrolled' : ''}`}> 
         <Link to='/' onClick={handleHomeClick} className="navbar-brand">
           <img
             src={restaurantLogo || assets.logo}
@@ -168,7 +187,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   <img src={assets.logo} alt="OrderUP" className="orderup-logo" />
 </span>
         </Link>
-        <ul className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}>
+        <ul className={`navbar-menu ${mobileMenuOpen ? 'active' : ''}`}> 
           <Link
             to='/'
             onClick={handleHomeClick}
@@ -217,17 +236,17 @@ const NavBar = ({ setShowLogin, showLogin }) => {
             <button onClick={() => setShowLogin(true)}>sign in</button>
           ) : (
             <div className='navbar-profile'>
-              <div className="profile-info">
+              <div className="profile-info" onClick={toggleProfileDropdown}>
                 <img src={assets.profile_icon} alt="Profile" />
                 {userName && <span className="profile-name">{userName}</span>}
               </div>
-              <ul className="nav-profile-dropdown">
-                <li onClick={() => { navigate('/profile'); closeMobileMenu(); }}>
+              <ul className={`nav-profile-dropdown ${showProfileDropdown ? 'show' : ''}`}> 
+                <li onClick={() => { navigate('/profile'); closeMobileMenu(); setShowProfileDropdown(false); }}>  
                   <img src={assets.profile_icon} alt="Profile" />
                   <p>Profile</p>
                 </li>
                 <hr />
-                <li onClick={() => { navigate('/myorders'); closeMobileMenu(); }}>
+                <li onClick={() => { navigate('/myorders'); closeMobileMenu(); setShowProfileDropdown(false); }}>  
                   <img src={assets.basket_icon} alt="Orders" />
                   <p>Orders</p>
                 </li>
