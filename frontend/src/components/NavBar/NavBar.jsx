@@ -15,8 +15,8 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  // Initialize from localStorage so name shows right away if available
-  const [userName, setUserName] = useState(() => localStorage.getItem('userName') || "");
+  // Do NOT initialize from localStorage — always fetch from backend when token exists
+  const [userName, setUserName] = useState("");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { getTotalCartAmount, token, setToken, cartItems, url } = useContext(StoreContext)
   const navigate = useNavigate();
@@ -54,31 +54,36 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     };
     fetchLogo();
 
-    // Fetch user data from database
+    // Fetch user data from backend (MongoDB) whenever we have a token (from context or storage)
     const fetchUserData = async () => {
-      const userId = localStorage.getItem("userId");
-      const storedToken = localStorage.getItem("token");
-      
+      // Prefer token from context, fallback to sessionStorage/localStorage
+      const storedToken = token || sessionStorage.getItem("token") || localStorage.getItem("token");
+      const userId = sessionStorage.getItem("userId") || localStorage.getItem("userId");
+
       if (userId && storedToken) {
         try {
           const response = await axios.get(`${url}/api/user/${userId}`, {
             headers: { token: storedToken }
           });
-          if (response.data.success) {
-            const name = response.data.data.name || "";
-            setUserName(name);
-            // persist so the name shows immediately on next load
-            try { localStorage.setItem('userName', name); } catch(e) { /* ignore */ }
+          if (response.data && response.data.success) {
+            // Only set state from API result (MongoDB)
+            setUserName(response.data.data.name || "");
+          } else {
+            // If API says unauthenticated or missing, clear any displayed name
+            setUserName("");
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
+          setUserName("");
         }
+      } else {
+        // No token/userId -> ensure username cleared
+        setUserName("");
       }
     };
 
-    if (token) {
-      fetchUserData();
-    }
+    // Run fetchUserData on mount and whenever token/url change
+    fetchUserData();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [token, url]);
@@ -86,28 +91,35 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   // Fetch unread notifications count
   useEffect(() => {
     const fetchUnreadCount = async () => {
-      const userId = localStorage.getItem("userId");
-      const storedToken = localStorage.getItem("token");
+      const storedToken = token || sessionStorage.getItem("token") || localStorage.getItem("token");
+      const userId = sessionStorage.getItem("userId") || localStorage.getItem("userId");
 
       if (userId && storedToken) {
         try {
           const response = await axios.get(`${url}/api/notifications/${userId}/unread-count`, {
             headers: { token: storedToken }
           });
-          if (response.data.success) {
+          if (response.data && response.data.success) {
             setUnreadCount(response.data.count);
+          } else {
+            setUnreadCount(0);
           }
         } catch (error) {
           console.error("Error fetching unread count:", error);
+          setUnreadCount(0);
         }
+      } else {
+        setUnreadCount(0);
       }
     };
 
-    if (token) {
+    if (token || sessionStorage.getItem("token") || localStorage.getItem("token")) {
       fetchUnreadCount();
       // Refresh every 30 seconds
       const interval = setInterval(fetchUnreadCount, 30000);
       return () => clearInterval(interval);
+    } else {
+      setUnreadCount(0);
     }
   }, [token, url]);
 
