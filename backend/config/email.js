@@ -1,26 +1,17 @@
-import pkg from 'nodemailer';
-const { createTransport } = pkg;
+import { Resend } from 'resend';
 
-// Email transporter configuration
-const createTransporter = () => {
-  // Use environment variables for email configuration
-  const emailService = process.env.EMAIL_SERVICE || 'gmail';
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
+// Initialize Resend client
+const resendApiKey = process.env.RESEND_API_KEY;
+const emailFrom = process.env.EMAIL_FROM;
 
-  if (!emailUser || !emailPass) {
-    console.warn('⚠️  Email credentials not configured. Email features will be disabled.');
-    return null;
-  }
+let resendClient = null;
 
-  return createTransport({
-    service: emailService,
-    auth: {
-      user: emailUser,
-      pass: emailPass // App password for Gmail
-    }
-  });
-};
+if (resendApiKey) {
+  resendClient = new Resend(resendApiKey);
+  console.log('✅ Resend initialized');
+} else {
+  console.warn('⚠️ Resend credentials not configured. Email features will be disabled.');
+}
 
 // Email templates
 export const emailTemplates = {
@@ -132,25 +123,27 @@ export const emailTemplates = {
 // Send email function
 export const sendEmail = async ({ to, subject, html }) => {
   try {
-    const transporter = createTransporter();
-    
-    if (!transporter) {
-      console.log('📧 Email not sent (no credentials configured):', subject);
+    if (!resendClient || !emailFrom) {
+      console.log('⚠️ Resend credentials not configured. Email not sent:', subject);
       return { success: false, message: 'Email service not configured' };
     }
 
-    const mailOptions = {
-      from: `"OrderUP" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html
-    };
+    console.log(`📧 Sending email via Resend...`);
+    console.log(`   To: ${to}`);
+    console.log(`   From: OrderUP <${emailFrom}>`);
+    console.log(`   Subject: ${subject}`);
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const data = await resendClient.emails.send({
+      from: `OrderUP <${emailFrom}>`,
+      to: [to],
+      subject: subject,
+      html: html,
+    });
+
+    console.log(`✅ Email sent successfully via Resend. Message ID: ${data.id}`);
+    return { success: true, messageId: data.id };
   } catch (error) {
-    console.error('❌ Email sending failed:', error);
+    console.error('❌ Resend email sending failed:', error);
     return { success: false, message: error.message };
   }
 };
