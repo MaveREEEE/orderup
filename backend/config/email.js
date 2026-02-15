@@ -1,25 +1,13 @@
-import pkg from 'nodemailer';
-const { createTransport } = pkg;
+import sgMail from '@sendgrid/mail';
 
-// Email transporter configuration
-const createTransporter = () => {
-  // Use environment variables for email configuration
-  const emailService = process.env.EMAIL_SERVICE || 'gmail';
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  if (!emailUser || !emailPass) {
-    console.warn('⚠️  Email credentials not configured. Email features will be disabled.');
-    return null;
+const initializeSendGrid = () => {
+  const apiKey = process.env.SENDGRID_API_KEY;
+  if (!apiKey) {
+    console.warn('⚠️  SendGrid API key not configured. Email features will be disabled.');
+    return false;
   }
-
-  return createTransport({
-    service: emailService,
-    auth: {
-      user: emailUser,
-      pass: emailPass // App password for Gmail
-    }
-  });
+  sgMail.setApiKey(apiKey);
+  return true;
 };
 
 // Email templates
@@ -28,23 +16,13 @@ export const emailTemplates = {
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #ff7043;">Order Confirmation</h2>
       <p>Dear ${orderData.customerName},</p>
-      <p>Thank you for your order! Your order has been received and is being processed.</p>
+      <p>Thank you for your order! We've received it and will start preparing it soon.</p>
       
       <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-        <h3 style="margin-top: 0;">Order Details</h3>
+        <h3>Order Details</h3>
         <p><strong>Order ID:</strong> ${orderData.orderId}</p>
-        <p><strong>Order Type:</strong> ${orderData.orderType}</p>
-        <p><strong>Total Amount:</strong> ₱${orderData.amount.toFixed(2)}</p>
-        <p><strong>Payment Method:</strong> ${orderData.paymentMethod}</p>
-      </div>
-      
-      <div style="margin: 20px 0;">
-        <h4>Items Ordered:</h4>
-        <ul>
-          ${orderData.items.map(item => `
-            <li>${item.name} x${item.quantity} - ₱${(item.price * item.quantity).toFixed(2)}</li>
-          `).join('')}
-        </ul>
+        <p><strong>Total:</strong> ₱${orderData.amount.toFixed(2)}</p>
+        <p><strong>Delivery Address:</strong> ${orderData.address}</p>
       </div>
       
       <p>We'll notify you when your order status changes.</p>
@@ -93,8 +71,8 @@ export const emailTemplates = {
   emailVerification: (verificationData) => `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #ff7043;">Verify Your Email</h2>
-      <p>Welcome to OrderUP, ${verificationData.name}!</p>
-      <p>Please verify your email address to complete your registration:</p>
+      <p>Hello ${verificationData.name},</p>
+      <p>Please verify your email address by clicking the button below:</p>
       
       <div style="text-align: center; margin: 30px 0;">
         <a href="${verificationData.verificationUrl}" 
@@ -109,6 +87,21 @@ export const emailTemplates = {
       <p style="color: #999; font-size: 12px; margin-top: 30px;">
         Or copy and paste this link: ${verificationData.verificationUrl}
       </p>
+    </div>
+  `,
+
+  orderDelivered: (orderData) => `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #4caf50;">Order Delivered!</h2>
+      <p>Dear ${orderData.customerName},</p>
+      <p>Your order has been successfully delivered.</p>
+      
+      <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+        <p><strong>Order ID:</strong> ${orderData.orderId}</p>
+        <p><strong>Delivered on:</strong> ${new Date().toLocaleDateString()}</p>
+      </div>
+      
+      <p>We hope you enjoyed your meal and look forward to serving you again soon!</p>
     </div>
   `,
 
@@ -132,25 +125,23 @@ export const emailTemplates = {
 // Send email function
 export const sendEmail = async ({ to, subject, html }) => {
   try {
-    const transporter = createTransporter();
-    
-    if (!transporter) {
-      console.log('📧 Email not sent (no credentials configured):', subject);
+    if (!initializeSendGrid()) {
+      console.log('📧 Email not sent (SendGrid not configured):', subject);
       return { success: false, message: 'Email service not configured' };
     }
 
-    const mailOptions = {
-      from: `"OrderUP" <${process.env.EMAIL_USER}>`,
+    const msg = {
       to,
+      from: process.env.EMAIL_USER, // Must be verified in SendGrid dashboard
       subject,
       html
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    const response = await sgMail.send(msg);
+    console.log('✅ Email sent via SendGrid to:', to);
+    return { success: true, messageId: response[0].headers['x-message-id'] };
   } catch (error) {
-    console.error('❌ Email sending failed:', error);
+    console.error('❌ SendGrid email failed:', error.response?.body || error);
     return { success: false, message: error.message };
   }
 };

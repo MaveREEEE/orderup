@@ -119,20 +119,29 @@ POST /api/order/cancel (requires auth)
 Add these environment variables to `backend/.env`:
 
 ```env
-# Email Configuration (Gmail example)
-EMAIL_SERVICE=gmail
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-specific-password
+# SendGrid Configuration (Free tier: 100 emails/day)
+SENDGRID_API_KEY=SG.your_api_key_here
+EMAIL_USER=your-verified-email@example.com
 
 # Frontend/Admin URLs for email links
 FRONTEND_URL=http://localhost:5173
 ADMIN_URL=http://localhost:5174
 ```
 
-**For Gmail:**
-1. Enable 2-Factor Authentication
-2. Generate App Password: https://myaccount.google.com/apppasswords
-3. Use the 16-character app password as `EMAIL_PASS`
+**Setup Instructions:**
+1. Sign up for free SendGrid account: https://sendgrid.com/free/
+2. Verify your email address
+3. Go to Settings > API Keys > Create API Key
+4. Give it "Full Access" permissions
+5. Copy the API key to `SENDGRID_API_KEY`
+6. Go to Settings > Sender Authentication
+7. Verify a sender email (use this as `EMAIL_USER`)
+
+**Benefits:**
+- ✅ 100 emails/day free forever
+- ✅ Much faster than Gmail (~1-2 seconds vs 5-10 seconds)
+- ✅ More reliable delivery
+- ✅ Better for production use
 
 **Note:** Email features will gracefully fail if credentials are not configured (console warning only).
 
@@ -267,9 +276,8 @@ frontend/src/
 ## 🚀 Production Deployment Notes
 
 ### Email Service
-- **Development:** Use Gmail with app password
-- **Production:** Consider using:
-  - SendGrid (recommended)
+- **Development:** Use SendGrid free tier (100 emails/day)
+- **Production:** SendGrid is production-ready, or consider:
   - AWS SES
   - Mailgun
   - Other professional email services
@@ -277,9 +285,8 @@ frontend/src/
 ### Environment Variables
 Make sure to set in production:
 ```env
-EMAIL_SERVICE=gmail  # or sendgrid, etc.
+SENDGRID_API_KEY=your-production-api-key
 EMAIL_USER=production@yourdomain.com
-EMAIL_PASS=your-secure-password
 FRONTEND_URL=https://your-frontend-domain.com
 ADMIN_URL=https://your-admin-domain.com
 ```
