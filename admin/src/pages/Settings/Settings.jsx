@@ -313,13 +313,13 @@ const Settings = ({ url }) => {
             </div>
           </div>
           <div className="form-group">
-            <label>Hero Title</label>
+            <label>Main Banner Title</label>
             <input
               type="text"
               name="heroTitle"
               value={settings.heroTitle}
               onChange={handleChange}
-              placeholder="Enter hero title"
+              placeholder="Enter main banner title"
             />
           </div>
           <div className="form-group">
@@ -329,7 +329,7 @@ const Settings = ({ url }) => {
               name="heroSubtitle"
               value={settings.heroSubtitle}
               onChange={handleChange}
-              placeholder="Enter hero subtitle"
+              placeholder="Enter main banner subtitle"
             />
           </div>
 
