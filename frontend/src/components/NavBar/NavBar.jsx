@@ -15,7 +15,8 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [userName, setUserName] = useState("");
+  // Initialize from localStorage so name shows right away if available
+  const [userName, setUserName] = useState(() => localStorage.getItem('userName') || "");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { getTotalCartAmount, token, setToken, cartItems, url } = useContext(StoreContext)
   const navigate = useNavigate();
@@ -64,7 +65,10 @@ const NavBar = ({ setShowLogin, showLogin }) => {
             headers: { token: storedToken }
           });
           if (response.data.success) {
-            setUserName(response.data.data.name);
+            const name = response.data.data.name || "";
+            setUserName(name);
+            // persist so the name shows immediately on next load
+            try { localStorage.setItem('userName', name); } catch(e) { /* ignore */ }
           }
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -120,11 +124,22 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   }, [showProfileDropdown]);
 
   const logout = () => {
-    sessionStorage.removeItem("token")
-    sessionStorage.removeItem("userId")
-    sessionStorage.removeItem("userName")
-    sessionStorage.removeItem("userType")
-    sessionStorage.removeItem("userRole")
+    // Clear both sessionStorage and localStorage to be safe
+    try {
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("userId");
+      sessionStorage.removeItem("userName");
+      sessionStorage.removeItem("userType");
+      sessionStorage.removeItem("userRole");
+    } catch(e) {}
+    try {
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userType");
+      localStorage.removeItem("userRole");
+    } catch(e) {}
+
     setToken("")
     setUserName("")
     setShowProfileDropdown(false)
