@@ -14,7 +14,7 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClic
   }
 
   useEffect(() => {
-    const recommenderUrl = import.meta.env.VITE_RECOMMENDER_URL || 'http://127.0.0.1:8000'
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000'
 
     if (!userId) {
       setMlRecs([])
@@ -25,7 +25,7 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClic
 
     const fetchRecs = async () => {
       try {
-        const res = await fetch(`${recommenderUrl}/recommend/${encodeURIComponent(userId)}?top_n=5`, {
+        const res = await fetch(`${backendUrl}/api/recommend/${encodeURIComponent(userId)}?top_n=5`, {
           signal: controller.signal
         })
 
