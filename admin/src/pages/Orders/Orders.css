@@ -298,6 +298,10 @@
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
+.status-select.order-received {
+  background: #eef2ff;
+}
+
 .status-select.food-processing { 
   background: var(--background-color, #fff); 
 }
@@ -312,6 +316,10 @@
 
 .status-select.delivered { 
   background: var(--background-color, #e6ffe9); 
+}
+
+.status-select.cancelled {
+  background: #fee2e2;
 }
 
 .view-details-btn {

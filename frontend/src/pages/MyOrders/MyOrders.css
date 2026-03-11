@@ -157,6 +157,15 @@
     color: #856404;
 }
 
+.status-badge.order-received {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.status-badge.order-received .status-dot {
+    color: #64748b;
+}
+
 .status-badge.food-processing .status-dot {
     color: #ffc107;
 }
@@ -186,6 +195,15 @@
 
 .status-badge.delivered .status-dot {
     color: #198754;
+}
+
+.status-badge.cancelled {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status-badge.cancelled .status-dot {
+    color: #dc2626;
 }
 
 /* Modal Styles */

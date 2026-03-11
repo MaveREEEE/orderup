@@ -4,6 +4,34 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { assets } from '../../assets/assets'
 
+const ORDER_STATUSES = [
+  'Order Received',
+  'Food is being processed',
+  'Food is Ready',
+  'Food is being delivered',
+  'Food is delivered'
+]
+
+const statusAliases = {
+  'Food Processing': 'Food is being processed',
+  'Food Ready': 'Food is Ready',
+  'Out for Delivery': 'Food is being delivered',
+  Delivered: 'Food is delivered'
+}
+
+const normalizeStatus = (status = '') => statusAliases[status] || status
+
+const getStatusClass = (status = '') => {
+  const normalized = normalizeStatus(status)
+  if (normalized === 'Order Received') return 'order-received'
+  if (normalized === 'Food is being processed') return 'food-processing'
+  if (normalized === 'Food is Ready') return 'food-ready'
+  if (normalized === 'Food is being delivered') return 'out-for-delivery'
+  if (normalized === 'Food is delivered') return 'delivered'
+  if (normalized.toLowerCase() === 'cancelled') return 'cancelled'
+  return normalized.toLowerCase().replace(/\s+/g, '-')
+}
+
 const Orders = ({ url }) => {
   const [orders, setOrders] = useState([])
   const [filteredOrders, setFilteredOrders] = useState([])
@@ -79,7 +107,7 @@ const Orders = ({ url }) => {
 
     // Status filter
     if (statusFilter !== 'All') {
-      result = result.filter(order => order.status === statusFilter)
+      result = result.filter(order => normalizeStatus(order.status) === statusFilter)
     }
 
     // Type filter
@@ -167,9 +195,10 @@ const Orders = ({ url }) => {
         <p className="list-title">Orders Management</p>
         <div className="list-stats">
           <span className="stats-badge">Total: {orders.length}</span>
-          <span className="stats-badge">Processing: {orders.filter(o => o.status === "Food Processing").length}</span>
-          <span className="stats-badge">Ready: {orders.filter(o => o.status === "Food Ready").length}</span>
-          <span className="stats-badge">Delivered: {orders.filter(o => o.status === "Delivered").length}</span>
+          <span className="stats-badge">Received: {orders.filter(o => normalizeStatus(o.status) === "Order Received").length}</span>
+          <span className="stats-badge">Processing: {orders.filter(o => normalizeStatus(o.status) === "Food is being processed").length}</span>
+          <span className="stats-badge">Ready: {orders.filter(o => normalizeStatus(o.status) === "Food is Ready").length}</span>
+          <span className="stats-badge">Delivered: {orders.filter(o => normalizeStatus(o.status) === "Food is delivered").length}</span>
         </div>
       </div>
 
@@ -194,10 +223,9 @@ const Orders = ({ url }) => {
             className="filter-select"
           >
             <option value="All">All Status</option>
-            <option value="Food Processing">Food Processing</option>
-            <option value="Food Ready">Food Ready</option>
-            <option value="Out for Delivery">Out for Delivery</option>
-            <option value="Delivered">Delivered</option>
+            {ORDER_STATUSES.map((status) => (
+              <option key={status} value={status}>{status}</option>
+            ))}
           </select>
         </div>
 
@@ -275,14 +303,13 @@ const Orders = ({ url }) => {
                     <td className="payment-cell">{order.paymentMethod}</td>
                     <td>
                       <select
-                        className={`status-select ${order.status.toLowerCase().replace(/\s+/g, '-')}`}
-                        value={order.status}
+                        className={`status-select ${getStatusClass(order.status)}`}
+                        value={normalizeStatus(order.status)}
                         onChange={(e) => statusHandler(e, order._id)}
                       >
-                        <option value="Food Processing">Food Processing</option>
-                        <option value="Food Ready">Food Ready</option>
-                        <option value="Out for Delivery">Out for Delivery</option>
-                        <option value="Delivered">Delivered</option>
+                        {ORDER_STATUSES.map((status) => (
+                          <option key={status} value={status}>{status}</option>
+                        ))}
                       </select>
                     </td>
                   </tr>

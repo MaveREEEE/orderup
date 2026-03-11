@@ -156,7 +156,7 @@ const Dashboard = ({ url }) => {
     const filteredOrders = filterOrdersByRange(orders, dateFilter, filterType);
     const totalSales = filteredOrders.reduce((sum, o) => sum + (o.amount || 0), 0);
     const totalOrders = filteredOrders.length;
-    const deliveredOrders = filteredOrders.filter(o => o.status === "Delivered").length;
+    const deliveredOrders = filteredOrders.filter(o => o.status === "Food is delivered" || o.status === "Delivered").length;
     const avgOrderValue = totalOrders ? totalSales / totalOrders : 0;
 
     // Top Selling Items - Aggregate items from FILTERED orders to reflect current filter

@@ -190,7 +190,7 @@ const Report = ({ url, token }) => {
   const totals = useMemo(() => {
     const totalSales = filteredOrders.reduce((s, o) => s + (o.amount || 0), 0)
     const totalOrders = filteredOrders.length
-    const delivered = filteredOrders.filter((o) => o.status === 'Delivered').length
+    const delivered = filteredOrders.filter((o) => o.status === 'Food is delivered' || o.status === 'Delivered').length
     const pickup = filteredOrders.filter((o) => (o.orderType || '').toLowerCase().includes('pick')).length
     const dineIn = filteredOrders.filter((o) => (o.orderType || '').toLowerCase().includes('dine')).length
     const reservations = filteredOrders.filter((o) => o.address?.reservationDate).length

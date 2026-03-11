@@ -36,7 +36,7 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: { type: String },
   paymentProofImage: { type: String },
   notes: { type: String },
-  status: { type: String, default: "Food Processing" },
+  status: { type: String, default: "Order Received" },
   date: { type: Date, default: Date.now },
   payment: { type: Boolean, default: false }
 });

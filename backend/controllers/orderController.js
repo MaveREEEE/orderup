@@ -116,7 +116,7 @@ const placeOrder = async (req, res) => {
             orderType: orderType || "Delivery",
             paymentMethod: paymentMethod || "Cash",
             paymentProofImage: paymentProofImage || "",
-            status: "Food Processing",
+            status: "Order Received",
             payment: false,
             date: new Date(),
             promoCode: promoCode || null,
@@ -263,7 +263,7 @@ const placeDineInOrder = async (req, res) => {
             address: { tableNumber, name: "Dine-In" },
             orderType: "Dine In",
             paymentMethod: "Cash",
-            status: "Food Processing",
+            status: "Order Received",
             payment: false,
             date: new Date(),
             notes: notes || ""
@@ -309,7 +309,7 @@ const updateStatus = async (req, res) => {
 
         order.status = status;
         
-        if (status === "Delivered") {
+        if (status === "Food is delivered" || status === "Delivered") {
             order.payment = true;
         }
 
@@ -401,11 +401,12 @@ const cancelOrder = async (req, res) => {
             return res.json({ success: false, message: "Order not found" });
         }
 
-        // Only allow cancellation if order is in "Food Processing" status
-        if (order.status !== "Food Processing") {
+        // Only allow cancellation while order is not yet prepared for release
+        const cancellableStatuses = ["Order Received", "Food is being processed", "Food Processing"];
+        if (!cancellableStatuses.includes(order.status)) {
             return res.json({ 
                 success: false, 
-                message: "Order can only be cancelled when in 'Food Processing' status" 
+                message: "Order can only be cancelled when status is 'Order Received' or 'Food is being processed'" 
             });
         }
 

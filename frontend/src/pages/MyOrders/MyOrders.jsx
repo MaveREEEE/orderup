@@ -6,6 +6,26 @@ import { assets } from '../../assets/assets';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
+const statusAliases = {
+    'Food Processing': 'Food is being processed',
+    'Food Ready': 'Food is Ready',
+    'Out for Delivery': 'Food is being delivered',
+    Delivered: 'Food is delivered'
+}
+
+const normalizeStatus = (status = '') => statusAliases[status] || status
+
+const getStatusClass = (status = '') => {
+    const normalized = normalizeStatus(status)
+    if (normalized === 'Order Received') return 'order-received'
+    if (normalized === 'Food is being processed') return 'food-processing'
+    if (normalized === 'Food is Ready') return 'food-ready'
+    if (normalized === 'Food is being delivered') return 'out-for-delivery'
+    if (normalized === 'Food is delivered') return 'delivered'
+    if (normalized.toLowerCase() === 'cancelled') return 'cancelled'
+    return normalized.toLowerCase().replace(/\s+/g, '-')
+}
+
 const MyOrders = () => {
     const { url, token, userId, addToCart } = useContext(StoreContext);
     const navigate = useNavigate();
@@ -248,15 +268,15 @@ const MyOrders = () => {
                                         </td>
                                         <td className="amount-cell">₱{Number(order.amount).toFixed(2)}</td>
                                         <td>
-                                            <span className={`status-badge ${order.status.toLowerCase().replace(/\s+/g,'-')}`}>
+                                            <span className={`status-badge ${getStatusClass(order.status)}`}>
                                                 <span className="status-dot">●</span>
-                                                {order.status}
+                                                {normalizeStatus(order.status)}
                                             </span>
                                         </td>
                                         <td className="actions-cell">
                                             {(order.items.every(item => userRatings[`${item._id}-${order._id}`]) || 
-                                              order.status === "Food Ready" || 
-                                              order.status === "Delivered") && (
+                                              normalizeStatus(order.status) === "Food is Ready" || 
+                                              normalizeStatus(order.status) === "Food is delivered") && (
                                                 <button
                                                     className="reorder-btn"
                                                     onClick={() => handleReorder(order)}
