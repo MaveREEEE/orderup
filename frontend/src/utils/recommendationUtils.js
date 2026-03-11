@@ -22,9 +22,9 @@ export const useRecommendations = (userId, topN = 10) => {
       setLoading(true);
       setError(null);
       try {
-        const recommenderUrl = import.meta.env.VITE_RECOMMENDER_URL || 'http://127.0.0.1:8000';
-        const response = await axios.get(`${recommenderUrl}/recommend/${userId}?top_n=${topN}`, {
-          timeout: 5000 // 5 second timeout
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+        const response = await axios.get(`${backendUrl}/api/recommend/${userId}?top_n=${topN}`, {
+          timeout: 30000
         });
         
         if (response.data && response.data.recommendations) {
@@ -51,9 +51,9 @@ export const useRecommendations = (userId, topN = 10) => {
  */
 export const getRecommendations = async (userId, topN = 10) => {
   try {
-    const recommenderUrl = import.meta.env.VITE_RECOMMENDER_URL || 'http://127.0.0.1:8000';
-    const response = await axios.get(`${recommenderUrl}/recommend/${userId}?top_n=${topN}`, {
-      timeout: 5000
+    const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000';
+    const response = await axios.get(`${backendUrl}/api/recommend/${userId}?top_n=${topN}`, {
+      timeout: 30000
     });
     return response.data.recommendations || [];
   } catch (error) {
