@@ -17,6 +17,7 @@ import DineIn from './pages/DineIn/DineIn'
 import Login from './pages/Login/Login'
 import PromoCode from './pages/PromoCode/PromoCode'
 import Reviews from './pages/Reviews/Reviews'
+import Allergens from './pages/Allergens/Allergens'
 import { applyTheme, applyStoredTheme } from './utils/themeUtils'
 
 const App = () => {
@@ -69,6 +70,7 @@ const App = () => {
             <Route path="/settings" element={<Settings url={url} token={token} />} />
             <Route path="/dine-in" element={<DineIn url={url} token={token} />} />
             <Route path="/promocode" element={<PromoCode url={url} />} />
+            <Route path="/allergens" element={<Allergens url={url} />} />
           </Routes>
         </div>
       </div>

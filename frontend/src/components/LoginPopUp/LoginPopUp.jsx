@@ -13,8 +13,26 @@ const LoginPopUp = ({ setShowLogin }) => {
         email: "",
         password: "",
         phone: "",
-        address: ""
+        address: "",
+        foodPreferences: "",
+        allergens: []
     })
+
+    // Static preference options - food preferences
+    const preferenceOptions = [
+        "Spicy food",
+        "Filipino dishes",
+        "Chicken",
+        "Beef",
+        "Seafood",
+        "Pork",
+        "Vegetarian",
+        "Noodles",
+        "Rice meals",
+        "Desserts"
+    ]
+    
+    const [allergenOptions, setAllergenOptions] = useState([])
     const [loading, setLoading] = useState(false)
     const [showTerms, setShowTerms] = useState(false)
     const [settings, setSettings] = useState({
@@ -32,13 +50,56 @@ const LoginPopUp = ({ setShowLogin }) => {
                 console.error("Error fetching settings:", error)
             }
         }
+        
+        const fetchAllergens = async () => {
+            try {
+                const response = await axios.get(`${url}/api/allergens`)
+                if (response.data.success) {
+                    setAllergenOptions(response.data.data || [])
+                }
+            } catch (error) {
+                console.error("Error fetching allergens:", error)
+            }
+        }
+        
         fetchSettings()
+        fetchAllergens()
     }, [url])
 
     const onChangeHandler = (event) => {
         const name = event.target.name
         const value = event.target.value
         setData(data => ({ ...data, [name]: value }))
+    }
+
+    const togglePreference = (preference) => {
+        const prefs = data.foodPreferences ? data.foodPreferences.split(',').map(p => p.trim()) : []
+        if (prefs.includes(preference)) {
+            setData(data => ({
+                ...data,
+                foodPreferences: prefs.filter(p => p !== preference).join(', ')
+            }))
+        } else {
+            setData(data => ({
+                ...data,
+                foodPreferences: [...prefs, preference].join(', ')
+            }))
+        }
+    }
+
+    const toggleAllergen = (allergen) => {
+        const allergenName = allergen.name || allergen
+        if (data.allergens.includes(allergenName)) {
+            setData(data => ({
+                ...data,
+                allergens: data.allergens.filter(a => a !== allergenName)
+            }))
+        } else {
+            setData(data => ({
+                ...data,
+                allergens: [...data.allergens, allergenName]
+            }))
+        }
     }
 
     const onLogin = async (event) => {
@@ -61,7 +122,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                 email: data.email.trim(),
                 password: data.password,
                 phone: data.phone.trim(),
-                address: data.address.trim()
+                address: data.address.trim(),
+                foodPreferences: data.foodPreferences.trim(),
+                allergens: data.allergens
             }
         }
 
@@ -108,7 +171,9 @@ const LoginPopUp = ({ setShowLogin }) => {
                         email: "",
                         password: "",
                         phone: "",
-                        address: ""
+                        address: "",
+                        foodPreferences: "",
+                        allergens: []
                     })
                 }
             } else {
@@ -130,67 +195,146 @@ const LoginPopUp = ({ setShowLogin }) => {
 
     return (
         <div className='login-popup'>
-            <form onSubmit={onLogin} className="login-popup-container">
+            <form onSubmit={onLogin} className={`login-popup-container ${currState === "Sign Up" ? "signup-mode" : ""}`}>
                 <div className="login-popup-title">
                     <h2>{currState}</h2>
                     <img onClick={() => setShowLogin(false)} src={assets.cross_icon} alt="" />
                 </div>
                 <div className="login-popup-inputs">
-                    {currState === "Sign Up" && (
+                    {currState === "Sign Up" ? (
+                        <div className="signup-two-rows">
+                            <div className="signup-top-row">
+                                <div className="preferences-section">
+                                    <label>Food Preferences (Optional)</label>
+                                    <div className="preferences-grid">
+                                        {preferenceOptions.map((pref) => (
+                                            <label key={pref}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={data.foodPreferences ? data.foodPreferences.split(',').map(p => p.trim()).includes(pref) : false}
+                                                    onChange={() => togglePreference(pref)}
+                                                />
+                                                {pref}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="allergens-section">
+                                    <label>Allergies (Optional)</label>
+                                    <div className="allergens-grid">
+                                        {allergenOptions.length > 0 ? (
+                                            allergenOptions.map((allergen) => (
+                                                <label key={allergen._id}>
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={data.allergens.includes(allergen.name)}
+                                                        onChange={() => toggleAllergen(allergen)}
+                                                    />
+                                                    {allergen.name}
+                                                </label>
+                                            ))
+                                        ) : (
+                                            <p className="allergens-loading">Loading allergens...</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="signup-other-row">
+                                <div className="form-field">
+                                    <label htmlFor="name">Name</label>
+                                    <input
+                                        id='name'
+                                        name='name'
+                                        onChange={onChangeHandler}
+                                        value={data.name}
+                                        type="text"
+                                        placeholder='Enter your name'
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-field">
+                                    <label htmlFor="phone">Phone</label>
+                                    <input
+                                        id='phone'
+                                        name='phone'
+                                        onChange={onChangeHandler}
+                                        value={data.phone}
+                                        type="tel"
+                                        placeholder='Enter your phone number'
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-field full-width">
+                                    <label htmlFor="address">Address</label>
+                                    <input
+                                        id='address'
+                                        name='address'
+                                        onChange={onChangeHandler}
+                                        value={data.address}
+                                        type="text"
+                                        placeholder='Enter your delivery address'
+                                        maxLength={200}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-field">
+                                    <label htmlFor="email">Email</label>
+                                    <input
+                                        id='email'
+                                        name='email'
+                                        onChange={onChangeHandler}
+                                        value={data.email}
+                                        type="email"
+                                        placeholder='Enter your email'
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-field">
+                                    <label htmlFor="password">Password</label>
+                                    <input
+                                        id='password'
+                                        name='password'
+                                        onChange={onChangeHandler}
+                                        value={data.password}
+                                        type="password"
+                                        placeholder='Enter your password'
+                                        required
+                                        minLength="6"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
                         <>
-                            <label htmlFor="name">Name</label>
+                            <label htmlFor="email">Email</label>
                             <input
-                                id='name'
-                                name='name'
+                                id='email'
+                                name='email'
                                 onChange={onChangeHandler}
-                                value={data.name}
-                                type="text"
-                                placeholder='Enter your name'
+                                value={data.email}
+                                type="email"
+                                placeholder='Enter your email'
                                 required
                             />
-                            <label htmlFor="phone">Phone</label>
+                            <label htmlFor="password">Password</label>
                             <input
-                                id='phone'
-                                name='phone'
+                                id='password'
+                                name='password'
                                 onChange={onChangeHandler}
-                                value={data.phone}
-                                type="tel"
-                                placeholder='Enter your phone number'
+                                value={data.password}
+                                type="password"
+                                placeholder='Enter your password'
                                 required
-                            />
-                            <label htmlFor="address">Address</label>
-                            <input
-                                id='address'
-                                name='address'
-                                onChange={onChangeHandler}
-                                value={data.address}
-                                type="text"
-                                placeholder='Enter your delivery address'
-                                required
+                                minLength="6"
                             />
                         </>
                     )}
-                    <label htmlFor="email">Email</label>
-                    <input
-                        id='email'
-                        name='email'
-                        onChange={onChangeHandler}
-                        value={data.email}
-                        type="email"
-                        placeholder='Enter your email'
-                        required
-                    />
-                    <label htmlFor="password">Password</label>
-                    <input
-                        id='password'
-                        name='password'
-                        onChange={onChangeHandler}
-                        value={data.password}
-                        type="password"
-                        placeholder='Enter your password'
-                        required
-                        minLength="6"
-                    />
                 </div>
                 <div className="login-popup-condition">
                     <input type="checkbox" required />

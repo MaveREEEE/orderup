@@ -17,18 +17,18 @@ const settingsRouter = express.Router()
 settingsRouter.put(
   "/hero-background",
   authMiddleware,
-  checkRole(['superadmin']),
+  checkRole(['itadmin']),
   brandingUpload.single('heroBackground'),
   updateHeroBackground
 )
 
 // Routes 
 settingsRouter.get("/", getSettings)
-settingsRouter.put("/update", authMiddleware, checkRole(['superadmin']), updateSettings)
+settingsRouter.put("/update", authMiddleware, checkRole(['itadmin']), updateSettings)
 settingsRouter.put(
   "/branding", 
   authMiddleware, 
-  checkRole(['superadmin']), 
+  checkRole(['itadmin']), 
   brandingUpload.single('logo'),
   updateBranding
 )
@@ -36,7 +36,7 @@ settingsRouter.put(
 settingsRouter.put(
   "/favicon", 
   authMiddleware, 
-  checkRole(['superadmin']), 
+  checkRole(['itadmin']), 
   brandingUpload.single('favicon'),
   updateFavicon
 )

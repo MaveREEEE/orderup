@@ -273,7 +273,7 @@
     text-transform: capitalize;
 }
 
-.role-badge.role-superadmin {
+.role-badge.role-itadmin {
     background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
     color: #92400e;
     border: 1px solid #fbbf24;
@@ -363,7 +363,7 @@
     }
 }
 
-.role-badge.role-superadmin {
+.role-badge.role-itadmin {
     animation: badgePulse 3s ease-in-out infinite;
 }
 /* Mobile Responsiveness */

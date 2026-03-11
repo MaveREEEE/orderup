@@ -34,6 +34,7 @@ const orderSchema = new mongoose.Schema({
   },
   orderType: { type: String },
   paymentMethod: { type: String },
+  paymentProofImage: { type: String },
   notes: { type: String },
   status: { type: String, default: "Food Processing" },
   date: { type: Date, default: Date.now },

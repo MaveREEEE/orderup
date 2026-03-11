@@ -44,7 +44,7 @@ const Dashboard = ({ url }) => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = sessionStorage.getItem("token");
                 const res = await axios.get(url + "/api/order/list", {
                     headers: { token }
                 });
@@ -85,7 +85,7 @@ const Dashboard = ({ url }) => {
     useEffect(() => {
         const fetchExpiringItems = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = sessionStorage.getItem("token");
                 const res = await axios.get(url + "/api/inventory/expiring-soon", {
                     headers: { token }
                 });
@@ -159,14 +159,14 @@ const Dashboard = ({ url }) => {
     const deliveredOrders = filteredOrders.filter(o => o.status === "Delivered").length;
     const avgOrderValue = totalOrders ? totalSales / totalOrders : 0;
 
-    // Top Selling Items - Aggregate items by name to avoid duplicates
+    // Top Selling Items - Aggregate items from FILTERED orders to reflect current filter
     const itemAggregation = {};
-    Object.values(itemStatsByType).forEach(typeItems => {
-        typeItems.forEach(item => {
+    filteredOrders.forEach(order => {
+        order.items.forEach(item => {
             if (!itemAggregation[item.name]) {
                 itemAggregation[item.name] = { name: item.name, count: 0, image: item.image };
             }
-            itemAggregation[item.name].count += item.count;
+            itemAggregation[item.name].count += item.quantity;
         });
     });
     const allSellingData = Object.values(itemAggregation)

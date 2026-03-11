@@ -39,11 +39,21 @@ const FoodItem = ({
     >
       <div className="food-item-img-container">
         <img className="food-item-image" src={getImageUrl(image)} alt="" />
+        {isOutOfStock && (
+          <div className="unavailable-overlay">
+            <span className="unavailable-text">UNAVAILABLE</span>
+          </div>
+        )}
         {formattedAvg && (
           <div className="item-rating item-rating-badge">
             <span className="item-rating-star">★</span>
             <span className="item-rating-value">{formattedAvg}</span>
             <span className="item-rating-count">({ratingCount})</span>
+          </div>
+        )}
+        {totalStock <= 10 && totalStock > 0 && (
+          <div className="low-stock-badge">
+            {totalStock} left
           </div>
         )}
       </div>
@@ -58,9 +68,6 @@ const FoodItem = ({
             currency: 'PHP',
           }).format(price)}
         </p>
-        {totalStock <= 10 && totalStock > 0 && (
-          <span className="low-stock-warning">Only {totalStock} left!</span>
-        )}
         {/* Description clamped for consistent card height */}
         <p className={`food-item-desc${hideDescriptionOnMobile ? ' hide-desc-mobile' : ''}`}>{description}</p>
         {!isOutOfStock && onView && (

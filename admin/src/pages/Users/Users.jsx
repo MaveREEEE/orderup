@@ -20,10 +20,26 @@ const Users = ({ url }) => {
       canManageMenu: false,
       canViewReports: false,
       canManageSettings: false,
-      canManagePromoCodes: false
+      canManagePromoCodes: false,
+      canManageAllergens: false
     },
     isActive: true
   })
+
+  const defaultPermissions = {
+    canManageUsers: false,
+    canManageOrders: false,
+    canManageInventory: false,
+    canManageMenu: false,
+    canViewReports: false,
+    canManageSettings: false,
+    canManagePromoCodes: false,
+    canManageAllergens: false
+  }
+
+  const ensureAllPermissions = (permissions) => {
+    return { ...defaultPermissions, ...permissions }
+  }
 
   useEffect(() => {
     const role = sessionStorage.getItem("userRole") || sessionStorage.getItem("role")
@@ -52,7 +68,7 @@ const Users = ({ url }) => {
   e.preventDefault()
   try {
     const token = sessionStorage.getItem("token")
-    const isAdminRole = ["superadmin", "admin", "staff"].includes(formData.role)
+    const isAdminRole = ["itadmin", "admin", "staff"].includes(formData.role)
     const endpoint = isAdminRole
       ? url + "/api/admin/create"
       : url + "/api/user/create"
@@ -105,7 +121,7 @@ const Users = ({ url }) => {
     }
     try {
       const token = sessionStorage.getItem("token")
-      const isAdminRole = ["superadmin", "admin", "staff"].includes(user.role)
+      const isAdminRole = ["itadmin", "admin", "staff"].includes(user.role)
       const endpoint = isAdminRole
         ? url + `/api/admin/delete/${user._id}`
         : url + `/api/user/delete/${user._id}`
@@ -129,15 +145,7 @@ const Users = ({ url }) => {
         email: user.email,
         password: '',
         role: user.role,
-        permissions: user.permissions || {
-          canManageUsers: false,
-          canManageOrders: false,
-          canManageInventory: false,
-          canManageMenu: false,
-          canViewReports: false,
-          canManageSettings: false,
-          canManagePromoCodes: false
-        },
+        permissions: ensureAllPermissions(user.permissions),
         isActive: user.isActive
       })
     } else {
@@ -147,15 +155,7 @@ const Users = ({ url }) => {
         email: '',
         password: '',
         role: 'staff',
-        permissions: {
-          canManageUsers: false,
-          canManageOrders: false,
-          canManageInventory: false,
-          canManageMenu: false,
-          canViewReports: false,
-          canManageSettings: false,
-          canManagePromoCodes: false
-        },
+        permissions: defaultPermissions,
         isActive: true
       })
     }
@@ -188,7 +188,7 @@ const Users = ({ url }) => {
 
   const getRoleBadgeClass = (role) => {
     switch(role) {
-      case 'superadmin': return 'role-superadmin'
+      case 'itadmin': return 'role-itadmin'
       case 'admin': return 'role-admin'
       case 'staff': return 'role-staff'
       default: return ''
@@ -241,7 +241,7 @@ const Users = ({ url }) => {
                   >
                     Edit
                   </button>
-                  {currentRole === 'superadmin' && user.role === 'customer' && (
+                  {currentRole === 'itadmin' && user.role === 'customer' && (
                     <button 
                       className="delete-btn"
                       onClick={() => handleDelete(user)}
@@ -290,7 +290,7 @@ const Users = ({ url }) => {
                 />
               </div>
 
-              {(!editUser || currentRole === 'superadmin') && (
+              {(!editUser || currentRole === 'itadmin') && (
                 <div className="form-group">
                   <label>Password {editUser ? "(leave blank to keep current)" : "*"}</label>
                   <input
@@ -314,7 +314,7 @@ const Users = ({ url }) => {
                 >
                   <option value="staff">Staff</option>
                   <option value="admin">Admin</option>
-                  <option value="superadmin">SuperAdmin</option>
+                  <option value="itadmin">IT Admin</option>
                 </select>
               </div>
 
@@ -401,6 +401,16 @@ const Users = ({ url }) => {
                       onChange={handleChange}
                     />
                     Manage Promo Codes
+                  </label>
+
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      name="permissions.canManageAllergens"
+                      checked={formData.permissions.canManageAllergens}
+                      onChange={handleChange}
+                    />
+                    Manage Allergens
                   </label>
                 </div>
               </div>

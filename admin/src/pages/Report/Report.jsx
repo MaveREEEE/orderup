@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+ import React, { useEffect, useMemo, useState } from 'react'
 import axios from 'axios'
 import './Report.css'
 import { toast } from 'react-toastify'
@@ -35,13 +35,78 @@ const getWeekNumber = (date) => {
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
 }
 
+// Simple Calendar Component
+const Calendar = ({ year, month, dateGranularity, onSelect, selectedDate, selectedWeek }) => {
+  const getDaysInMonth = (y, m) => new Date(y, m, 0).getDate()
+  const getFirstDayOfMonth = (y, m) => new Date(y, m - 1, 1).getDay()
+  const daysInMonth = getDaysInMonth(year, month)
+  const firstDay = getFirstDayOfMonth(year, month)
+  const days = []
+
+  for (let i = 0; i < firstDay; i++) days.push(null)
+  for (let d = 1; d <= daysInMonth; d++) days.push(d)
+
+  const monthName = new Date(year, month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+
+  // Helper function to parse date string safely
+  const parseLocalDate = (dateStr) => {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    return new Date(y, m - 1, d)
+  }
+
+  return (
+    <div className="calendar-widget">
+      <div className="calendar-header">
+        <h3>{monthName}</h3>
+      </div>
+      <div className="calendar-grid">
+        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((d) => (
+          <div key={d} className="calendar-dow">
+            {d}
+          </div>
+        ))}
+        {days.map((d, idx) => {
+          if (d === null) return <div key={`empty-${idx}`} className="calendar-day empty"></div>
+
+          const date = new Date(year, month - 1, d)
+          let isSelected = false
+
+          if (dateGranularity === 'daily' && selectedDate) {
+            const selectedDateObj = parseLocalDate(selectedDate)
+            isSelected = selectedDateObj.toDateString() === date.toDateString()
+          } else if (dateGranularity === 'weekly') {
+            const weekNum = getWeekNumber(date)
+            isSelected = weekNum === selectedWeek
+          }
+
+          return (
+            <div
+              key={d}
+              className={`calendar-day ${isSelected ? 'selected' : ''}`}
+              onClick={() => onSelect(date)}
+            >
+              {d}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 const Report = ({ url, token }) => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [preset, setPreset] = useState('thisMonth')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
+  const [dateGranularity, setDateGranularity] = useState('daily')
+  const [calendarYear, setCalendarYear] = useState(new Date().getFullYear())
+  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth() + 1)
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0])
+  const [selectedWeek, setSelectedWeek] = useState(getWeekNumber(new Date()))
   const [generatedOn, setGeneratedOn] = useState(new Date())
+  const [showCalendarModal, setShowCalendarModal] = useState(false)
 
   const fetchOrders = async () => {
     try {
@@ -71,23 +136,66 @@ const Report = ({ url, token }) => {
   const filterStart = customStart ? startOfDay(customStart) : presetStart
   const filterEnd = customEnd ? endOfDay(customEnd) : presetEnd
 
+  // Determine filter dates based on granularity
+  const getGranularFilterDates = () => {
+    if (dateGranularity === 'yearly') {
+      return {
+        start: new Date(calendarYear, 0, 1),
+        end: endOfDay(new Date(calendarYear, 11, 31))
+      }
+    } else if (dateGranularity === 'monthly') {
+      return {
+        start: new Date(calendarYear, calendarMonth - 1, 1),
+        end: endOfDay(new Date(calendarYear, calendarMonth, 0))
+      }
+    } else if (dateGranularity === 'weekly') {
+      const jan1 = new Date(calendarYear, 0, 1)
+      const startDate = new Date(jan1)
+      startDate.setDate(jan1.getDate() + (selectedWeek - 1) * 7)
+      const endDate = new Date(startDate)
+      endDate.setDate(startDate.getDate() + 6)
+      return {
+        start: startDate,
+        end: endOfDay(endDate)
+      }
+    } else {
+      // daily - use selected date or range
+      if (selectedDate && customEnd) {
+        return {
+          start: startOfDay(selectedDate),
+          end: endOfDay(customEnd)
+        }
+      } else if (selectedDate) {
+        return {
+          start: startOfDay(selectedDate),
+          end: endOfDay(selectedDate)
+        }
+      }
+      const { start: presetStart, end: presetEnd } = presetRange(preset)
+      return { start: presetStart, end: presetEnd }
+    }
+  }
+
+  const { start: granularStart, end: granularEnd } = getGranularFilterDates()
+
   const filteredOrders = useMemo(() => {
     return orders.filter((o) => {
       const d = new Date(o.date)
-      const afterStart = filterStart ? d >= filterStart : true
-      const beforeEnd = filterEnd ? d <= filterEnd : true
+      const afterStart = granularStart ? d >= granularStart : true
+      const beforeEnd = granularEnd ? d <= granularEnd : true
       return afterStart && beforeEnd
     })
-  }, [orders, filterStart, filterEnd])
+  }, [orders, granularStart, granularEnd, dateGranularity, calendarYear, calendarMonth, selectedWeek, selectedDate, customEnd])
 
   const totals = useMemo(() => {
     const totalSales = filteredOrders.reduce((s, o) => s + (o.amount || 0), 0)
     const totalOrders = filteredOrders.length
     const delivered = filteredOrders.filter((o) => o.status === 'Delivered').length
-    const takeout = filteredOrders.filter((o) => (o.orderType || '').toLowerCase().includes('pick')).length
+    const pickup = filteredOrders.filter((o) => (o.orderType || '').toLowerCase().includes('pick')).length
+    const dineIn = filteredOrders.filter((o) => (o.orderType || '').toLowerCase().includes('dine')).length
     const reservations = filteredOrders.filter((o) => o.address?.reservationDate).length
     const avgOrderValue = totalOrders ? totalSales / totalOrders : 0
-    return { totalSales, totalOrders, delivered, takeout, reservations, avgOrderValue }
+    return { totalSales, totalOrders, delivered, pickup, dineIn, reservations, avgOrderValue }
   }, [filteredOrders])
 
   const categorySummary = useMemo(() => {
@@ -118,7 +226,7 @@ const Report = ({ url, token }) => {
       })
     })
     return Array.from(map.values())
-      .sort((a, b) => b.qty - a.qty || b.sales - a.sales)
+      .sort((a, b) => b.sales - a.sales || b.qty - a.qty)
       .slice(0, 5)
       .map((it, idx) => ({ ...it, rank: idx + 1 }))
   }, [filteredOrders])
@@ -135,7 +243,7 @@ const Report = ({ url, token }) => {
     return Array.from(map.values())
   }, [filteredOrders])
 
-  const leastItems = useMemo(() => {
+  const leastOrdered = useMemo(() => {
     const map = new Map()
     filteredOrders.forEach((order) => {
       (order.items || []).forEach((item) => {
@@ -156,15 +264,36 @@ const Report = ({ url, token }) => {
   const weeklySummary = useMemo(() => {
     const map = new Map()
     filteredOrders.forEach((o) => {
-      const wk = getWeekNumber(o.date)
-      const entry = map.get(wk) || { week: wk, sales: 0 }
+      const d = new Date(o.date)
+      let key, label
+      
+      if (dateGranularity === 'yearly') {
+        key = d.getFullYear()
+        label = `${key}`
+      } else if (dateGranularity === 'monthly') {
+        const y = d.getFullYear()
+        const m = String(d.getMonth() + 1).padStart(2, '0')
+        key = `${y}-${m}`
+        label = new Date(y, d.getMonth()).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
+      } else if (dateGranularity === 'weekly') {
+        const wk = getWeekNumber(o.date)
+        const y = d.getFullYear()
+        key = `${y}-W${String(wk).padStart(2, '0')}`
+        label = `Week ${wk}`
+      } else {
+        // daily
+        key = d.toLocaleDateString('en-CA')
+        label = new Date(key).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+      }
+      
+      const entry = map.get(key) || { label, sales: 0, key }
       entry.sales += o.amount || 0
-      map.set(wk, entry)
+      map.set(key, entry)
     })
     return Array.from(map.values())
-      .sort((a, b) => a.week - b.week)
-      .map((w) => ({ label: `Week ${w.week}`, value: w.sales }))
-  }, [filteredOrders])
+      .sort((a, b) => a.key.localeCompare(b.key))
+      .map((w) => ({ label: w.label, value: w.sales }))
+  }, [filteredOrders, dateGranularity])
 
   // Daily sales trend for line chart
   const dailyTrend = useMemo(() => {
@@ -189,11 +318,34 @@ const Report = ({ url, token }) => {
     return hours
   }, [filteredOrders])
 
+  const orderTypeRevenue = useMemo(() => {
+    const revenue = { delivery: 0, pickup: 0, dineIn: 0 }
+    filteredOrders.forEach((o) => {
+      const type = (o.orderType || '').toLowerCase()
+      if (type.includes('pick')) {
+        revenue.pickup += o.amount || 0
+      } else if (type.includes('dine')) {
+        revenue.dineIn += o.amount || 0
+      } else {
+        revenue.delivery += o.amount || 0
+      }
+    })
+    return [
+      { label: 'Delivery', value: revenue.delivery },
+      { label: 'Pick-up', value: revenue.pickup },
+      { label: 'Dine-in', value: revenue.dineIn }
+    ].filter(item => item.value > 0)
+  }, [filteredOrders])
+
   const pieSlices = categorySummary.map((c) => c.sales)
   const pieLabels = categorySummary.map((c) => c.category)
 
   const renderBarChartSVG = (values = [], labels = []) => {
-    const max = Math.max(...values, 1)
+    // Find max and round to nearest 500/1000
+    const maxVal = Math.max(...values, 1)
+    const step = maxVal <= 500 ? 100 : maxVal <= 5000 ? 500 : maxVal <= 50000 ? 5000 : 50000
+    const max = Math.ceil(maxVal / step) * step
+    
     const width = 340
     const height = Math.max(values.length * 26 + 20, 100)
     const barHeight = 14
@@ -210,7 +362,7 @@ const Report = ({ url, token }) => {
                 {labels[i]}
               </text>
               <rect x={leftLabelWidth} y={y - 4} width={barW} height={barHeight} rx="6" fill="#ff7043" />
-              <text x={leftLabelWidth + barW + 6} y={y + 8} fontSize="11" fill="#374151">
+              <text x={leftLabelWidth + barW + 6} y={y + 8} fontSize="11" fill="#374151" textAnchor="start">
                 {formatCurrency(v)}
               </text>
             </g>
@@ -228,7 +380,9 @@ const Report = ({ url, token }) => {
     const chartWidth = width - padding.left - padding.right
     const chartHeight = height - padding.top - padding.bottom
 
-    const maxSales = Math.max(...data.map((d) => d.sales), 1)
+    const maxSalesVal = Math.max(...data.map((d) => d.sales), 1)
+    const step = maxSalesVal <= 500 ? 100 : maxSalesVal <= 5000 ? 500 : maxSalesVal <= 50000 ? 5000 : 50000
+    const maxSales = Math.ceil(maxSalesVal / step) * step
     const xStep = chartWidth / Math.max(data.length - 1, 1)
 
     const points = data
@@ -239,16 +393,23 @@ const Report = ({ url, token }) => {
       })
       .join(' ')
 
+    // Generate Y-axis grid lines at 500-unit intervals
+    const gridLines = []
+    for (let val = 0; val <= maxSales; val += 500) {
+      gridLines.push(val)
+    }
+
     return (
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height}>
-        {/* Grid lines */}
-        {[0, 0.25, 0.5, 0.75, 1].map((pct) => {
+        {/* Grid lines at 500-unit intervals */}
+        {gridLines.map((val) => {
+          const pct = val / maxSales
           const y = padding.top + chartHeight * (1 - pct)
           return (
-            <g key={pct}>
+            <g key={val}>
               <line x1={padding.left} y1={y} x2={width - padding.right} y2={y} stroke="#e5e7eb" strokeWidth="1" />
               <text x={padding.left - 8} y={y + 4} fontSize="11" fill="#6b7280" textAnchor="end">
-                {formatCurrency(maxSales * pct)}
+                {formatCurrency(val)}
               </text>
             </g>
           )
@@ -370,16 +531,15 @@ const Report = ({ url, token }) => {
         <h1>Sales Report</h1>
         <p>Generated on: {generatedOn.toLocaleString()}</p>
         <p>
-          Period: {filterStart ? filterStart.toLocaleDateString() : 'All time'}
-          {filterEnd ? ` - ${filterEnd.toLocaleDateString()}` : ''}
+          Period: {granularStart ? granularStart.toLocaleDateString() : 'All time'}
+          {granularEnd ? ` - ${granularEnd.toLocaleDateString()}` : ''}
         </p>
       </div>
 
       <div className="report-header">
         <div>
           <h1>Sales Report</h1>
-          <p className="report-subtitle">View, filter, and print summarized sales performance.</p>
-        </div>
+                </div>
         <div className="report-actions" data-print-hide>
           <div className="report-meta">
             <span>Generated: {generatedOn.toLocaleString()}</span>
@@ -395,26 +555,200 @@ const Report = ({ url, token }) => {
 
       <div className="report-filters" data-print-hide>
         <div className="filter-group">
-          <label>Preset</label>
-          <select value={preset} onChange={(e) => setPreset(e.target.value)}>
-            <option value="thisMonth">This month</option>
-            <option value="lastMonth">Last month</option>
-            <option value="thisYear">This year</option>
-            <option value="all">All time</option>
+          <label>Filter</label>
+          <select value={dateGranularity} onChange={(e) => {
+            setDateGranularity(e.target.value)
+            setShowCalendarModal(true)
+          }}>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+            <option value="yearly">Yearly</option>
           </select>
         </div>
-        <div className="filter-group">
-          <label>Start date</label>
-          <input type="date" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
-        </div>
-        <div className="filter-group">
-          <label>End date</label>
-          <input type="date" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
-        </div>
-        <div className="filter-group inline-note">
-          <span>Custom dates override the preset when filled.</span>
-        </div>
+
+        <button
+          type="button"
+          className="ghost-btn"
+          onClick={() => setShowCalendarModal(true)}
+        >
+          Select {dateGranularity === 'daily' ? 'Date' : dateGranularity === 'weekly' ? 'Week' : dateGranularity === 'monthly' ? 'Month' : 'Year'}
+        </button>
+
+        {selectedDate && dateGranularity === 'daily' && (
+          <div className="selected-badge">
+            {new Date(selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            {customEnd && ` to ${new Date(customEnd).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+          </div>
+        )}
+
+        {dateGranularity === 'weekly' && (
+          <div className="selected-badge">
+            {(() => {
+              const jan1 = new Date(calendarYear, 0, 1)
+              const startDate = new Date(jan1)
+              startDate.setDate(jan1.getDate() + (selectedWeek - 1) * 7)
+              const endDate = new Date(startDate)
+              endDate.setDate(startDate.getDate() + 6)
+              return `${startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+            })()}
+          </div>
+        )}
+
+        {dateGranularity === 'monthly' && (
+          <div className="selected-badge">
+            {new Date(calendarYear, calendarMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </div>
+        )}
+
+        {dateGranularity === 'yearly' && (
+          <div className="selected-badge">
+            {calendarYear}
+          </div>
+        )}
       </div>
+
+      {/* Calendar Modal */}
+      {showCalendarModal && (
+        <div className="modal-overlay" onClick={() => setShowCalendarModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Select {dateGranularity === 'daily' ? 'Date' : dateGranularity === 'weekly' ? 'Week' : dateGranularity === 'monthly' ? 'Month' : 'Year'}</h2>
+              <button className="modal-close" onClick={() => setShowCalendarModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body">
+              {dateGranularity === 'yearly' && (
+                <div className="year-picker-modal">
+                  <label>Select Year</label>
+                  <div className="year-controls">
+                    <button onClick={() => setCalendarYear(calendarYear - 1)}>◀</button>
+                    <input 
+                      type="number" 
+                      min="2020" 
+                      max={new Date().getFullYear() + 1}
+                      value={calendarYear} 
+                      onChange={(e) => setCalendarYear(parseInt(e.target.value))}
+                    />
+                    <button onClick={() => setCalendarYear(calendarYear + 1)}>▶</button>
+                  </div>
+                </div>
+              )}
+
+              {dateGranularity === 'monthly' && (
+                <>
+                  <div className="year-controls">
+                    <button onClick={() => setCalendarYear(calendarYear - 1)}>◀ Year</button>
+                    <input 
+                      type="number" 
+                      min="2020" 
+                      max={new Date().getFullYear() + 1}
+                      value={calendarYear} 
+                      onChange={(e) => setCalendarYear(parseInt(e.target.value))}
+                    />
+                    <button onClick={() => setCalendarYear(calendarYear + 1)}>Year ▶</button>
+                  </div>
+                  <div className="months-grid">
+                    {['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'].map((month, idx) => (
+                      <button
+                        key={idx + 1}
+                        className={`month-btn ${calendarMonth === idx + 1 ? 'selected' : ''}`}
+                        onClick={() => {
+                          setCalendarMonth(idx + 1)
+                          setShowCalendarModal(false)
+                        }}
+                      >
+                        {month}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {dateGranularity === 'weekly' && (
+                <>
+                  <div className="month-nav">
+                    <button onClick={() => {
+                      if (calendarMonth === 1) {
+                        setCalendarMonth(12)
+                        setCalendarYear(calendarYear - 1)
+                      } else {
+                        setCalendarMonth(calendarMonth - 1)
+                      }
+                    }}>Prev</button>
+                    <h3>{new Date(calendarYear, calendarMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                    <button onClick={() => {
+                      if (calendarMonth === 12) {
+                        setCalendarMonth(1)
+                        setCalendarYear(calendarYear + 1)
+                      } else {
+                        setCalendarMonth(calendarMonth + 1)
+                      }
+                    }}>Next </button>
+                  </div>
+                  <Calendar 
+                    year={calendarYear} 
+                    month={calendarMonth}
+                    dateGranularity="weekly"
+                    onSelect={(date) => {
+                      const weekNum = getWeekNumber(date)
+                      setSelectedWeek(weekNum)
+                      setCalendarYear(date.getFullYear())
+                      setCalendarMonth(date.getMonth() + 1)
+                    }}
+                    selectedDate={null}
+                    selectedWeek={selectedWeek}
+                  />
+                </>
+              )}
+
+              {dateGranularity === 'daily' && (
+                <>
+                  <div className="month-nav">
+                    <button onClick={() => {
+                      if (calendarMonth === 1) {
+                        setCalendarMonth(12)
+                        setCalendarYear(calendarYear - 1)
+                      } else {
+                        setCalendarMonth(calendarMonth - 1)
+                      }
+                    }}>◀ Prev</button>
+                    <h3>{new Date(calendarYear, calendarMonth - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</h3>
+                    <button onClick={() => {
+                      if (calendarMonth === 12) {
+                        setCalendarMonth(1)
+                        setCalendarYear(calendarYear + 1)
+                      } else {
+                        setCalendarMonth(calendarMonth + 1)
+                      }
+                    }}>Next ▶</button>
+                  </div>
+                  <Calendar 
+                    year={calendarYear} 
+                    month={calendarMonth}
+                    dateGranularity="daily"
+                    onSelect={(date) => {
+                      // Format date as YYYY-MM-DD in local timezone
+                      const year = date.getFullYear()
+                      const month = String(date.getMonth() + 1).padStart(2, '0')
+                      const day = String(date.getDate()).padStart(2, '0')
+                      const dateStr = `${year}-${month}-${day}`
+                      setSelectedDate(dateStr)
+                      setCalendarYear(date.getFullYear())
+                      setCalendarMonth(date.getMonth() + 1)
+                    }}
+                    selectedDate={selectedDate}
+                  />
+                </>
+              )}
+            </div>
+
+            <div className="modal-footer">
+              <button className="ghost-btn" onClick={() => setShowCalendarModal(false)}>Close</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {loading ? (
         <div className="report-card">Loading report…</div>
@@ -424,29 +758,162 @@ const Report = ({ url, token }) => {
             <div className="kpi-card">
               <p className="kpi-label">Total Sales</p>
               <p className="kpi-value accent">{formatCurrency(totals.totalSales)}</p>
-              <p className="kpi-note">Sum of all filtered orders</p>
             </div>
             <div className="kpi-card">
               <p className="kpi-label">Total Orders</p>
               <p className="kpi-value">{totals.totalOrders}</p>
-              <p className="kpi-note">Orders in range</p>
             </div>
             <div className="kpi-card">
               <p className="kpi-label">Avg Order Value</p>
               <p className="kpi-value">{formatCurrency(totals.avgOrderValue || 0)}</p>
-              <p className="kpi-note">Revenue per order</p>
             </div>
             <div className="kpi-card">
-              <p className="kpi-label">Delivered / Pick-up</p>
-              <p className="kpi-value">
-                {totals.delivered} / {totals.takeout}
-              </p>
-              <p className="kpi-note">Completed by type</p>
+              <p className="kpi-label">Delivered</p>
+              <p className="kpi-value">{totals.delivered}</p>
+            </div>
+            <div className="kpi-card">
+              <p className="kpi-label">Pick-up</p>
+              <p className="kpi-value">{totals.pickup}</p>
+            </div>
+            <div className="kpi-card">
+              <p className="kpi-label">Dine-in</p>
+              <p className="kpi-value">{totals.dineIn}</p>
             </div>
             <div className="kpi-card">
               <p className="kpi-label">Reservations</p>
               <p className="kpi-value">{totals.reservations}</p>
-              <p className="kpi-note">With reservation info</p>
+            </div>
+          </div>
+
+          <div className="report-grid">
+            <div className="report-card">
+              <div className="card-title">Best Sellers</div>
+              <div className="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Item</th>
+                      <th>Quantity</th>
+                      <th className="text-right">Total Sales</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {topItems.length ? (
+                      topItems.map((it) => (
+                        <tr key={it.rank}>
+                          <td>{it.rank}</td>
+                          <td>{it.name}</td>
+                          <td>{it.qty}</td>
+                          <td className="text-right">{formatCurrency(it.sales)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="muted">
+                          No data for the selected range.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="report-card">
+              <div className="card-title">Least Ordered Items</div>
+              <div className="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Rank</th>
+                      <th>Item</th>
+                      <th>Quantity</th>
+                      <th className="text-right">Total Sales</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {leastOrdered.length ? (
+                      leastOrdered.map((it) => (
+                        <tr key={it.rank}>
+                          <td>{it.rank}</td>
+                          <td>{it.name}</td>
+                          <td>{it.qty}</td>
+                          <td className="text-right">{formatCurrency(it.sales)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={4} className="muted">
+                          No data for the selected range.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div className="report-grid">
+            <div className="report-card">
+              <div className="card-title">Revenue by Order Type</div>
+              {orderTypeRevenue.length > 0 ? (
+                <>
+                  <div className="chart-container" style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                    {renderPieSVG(
+                      orderTypeRevenue.map(item => item.value),
+                      orderTypeRevenue.map(item => item.label)
+                    )}
+                  </div>
+                  <div className="pie-legend">
+                    {orderTypeRevenue.map((item, idx) => {
+                      const colors = ['#ff7043', '#10b981', '#3b82f6']
+                      const total = orderTypeRevenue.reduce((sum, i) => sum + i.value, 0)
+                      const percentage = ((item.value / total) * 100).toFixed(1)
+                      return (
+                        <div key={idx} className="legend-item">
+                          <span className="legend-color" style={{ backgroundColor: colors[idx] }}></span>
+                          <span className="legend-label">{item.label}</span>
+                          <span className="legend-value">{formatCurrency(item.value)} ({percentage}%)</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              ) : (
+                <p className="muted">No order type data available.</p>
+              )}
+            </div>
+
+            <div className="report-card">
+              <div className="card-title">Sales by Category</div>
+              {categorySummary.length > 0 ? (
+                <>
+                  <div className="chart-container" style={{ display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
+                    {renderPieSVG(
+                      categorySummary.map(item => item.sales),
+                      categorySummary.map(item => item.category)
+                    )}
+                  </div>
+                  <div className="pie-legend">
+                    {categorySummary.map((item, idx) => {
+                      const colors = ['#ff7043', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899']
+                      const total = categorySummary.reduce((sum, i) => sum + i.sales, 0)
+                      const percentage = ((item.sales / total) * 100).toFixed(1)
+                      return (
+                        <div key={idx} className="legend-item">
+                          <span className="legend-color" style={{ backgroundColor: colors[idx % colors.length] }}></span>
+                          <span className="legend-label">{item.category}</span>
+                          <span className="legend-value">{formatCurrency(item.sales)} ({percentage}%)</span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </>
+              ) : (
+                <p className="muted">No category data available.</p>
+              )}
             </div>
           </div>
 
@@ -464,116 +931,11 @@ const Report = ({ url, token }) => {
             {/* Peak Hours Heatmap */}
             <div className="report-card chart-wide">
               <div className="card-title">Peak Hours Analysis</div>
-              <p className="chart-subtitle">Order volume by hour of day</p>
               {peakHours.some((h) => h.orders > 0) ? (
                 <div className="chart-container">{renderHeatmapSVG(peakHours)}</div>
               ) : (
                 <p className="muted">No hourly data available.</p>
               )}
-            </div>
-
-            <div className="report-card">
-              <div className="card-title">Weekly Sales</div>
-              {weeklySummary.length ? (
-                renderBarChartSVG(
-                  weeklySummary.map((w) => w.value),
-                  weeklySummary.map((w) => w.label)
-                )
-              ) : (
-                <p className="muted">No data for the selected range.</p>
-              )}
-            </div>
-
-            <div className="report-card">
-              <div className="card-title">Least Performing Items</div>
-              <div className="table-wrapper">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Rank</th>
-                      <th>Item</th>
-                      <th>Qty</th>
-                      <th>Total Sales</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leastItems.length ? (
-                      leastItems.map((it) => (
-                        <tr key={it.rank}>
-                          <td>{it.rank}</td>
-                          <td>{it.name}</td>
-                          <td>{it.qty}</td>
-                          <td>{formatCurrency(it.sales)}</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan={4} className="muted">
-                          No data for the selected range.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-
-          <div className="report-card">
-            <div className="card-title">Top Items</div>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Rank</th>
-                    <th>Item</th>
-                    <th>Qty</th>
-                    <th>Total Sales</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {topItems.length ? (
-                    topItems.map((it) => (
-                      <tr key={it.rank}>
-                        <td>{it.rank}</td>
-                        <td>{it.name}</td>
-                        <td>{it.qty}</td>
-                        <td>{formatCurrency(it.sales)}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={4} className="muted">
-                        No data for the selected range.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="report-card">
-            <div className="card-title">Sales by Day</div>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Day</th>
-                    <th>Orders</th>
-                    <th>Total Sales</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dailySummary.map((d) => (
-                    <tr key={d.day}>
-                      <td>{d.day}</td>
-                      <td>{d.orders}</td>
-                      <td>{formatCurrency(d.sales)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         </>

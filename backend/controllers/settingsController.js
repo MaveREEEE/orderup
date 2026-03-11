@@ -20,7 +20,7 @@ const getSettings = async (req, res) => {
   }
 };
 
-// Update settings (SuperAdmin only)
+// Update settings (IT Admin only)
 const updateSettings = async (req, res) => {
   try {
     const updates = req.body;

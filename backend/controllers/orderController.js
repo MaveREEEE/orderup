@@ -34,12 +34,31 @@ const listOrders = async (req, res) => {
 // Place order from frontend
 const placeOrder = async (req, res) => {
     try {
-        const { userId, items, amount, address, orderType, paymentMethod, promoCode, subtotal, discount } = req.body;
+        const parsedItems = typeof req.body.items === "string" ? JSON.parse(req.body.items) : req.body.items;
+        const parsedAddress = typeof req.body.address === "string" ? JSON.parse(req.body.address) : req.body.address;
+
+        const userId = req.body.userId;
+        const items = parsedItems;
+        const amount = Number(req.body.amount);
+        const address = parsedAddress;
+        const orderType = req.body.orderType;
+        const paymentMethod = req.body.paymentMethod;
+        const promoCode = req.body.promoCode;
+        const subtotal = Number(req.body.subtotal);
+        const discount = Number(req.body.discount);
+        const paymentProofImage = req.file?.path || req.body.paymentProofImage;
 
         if (!userId || !items || !items.length || amount === undefined || !address) {
             return res.json({ 
                 success: false, 
                 message: "Missing required fields" 
+            });
+        }
+
+        if (paymentMethod === "Gcash" && !paymentProofImage) {
+            return res.json({
+                success: false,
+                message: "GCash payment screenshot is required"
             });
         }
 
@@ -96,12 +115,13 @@ const placeOrder = async (req, res) => {
             address: normalizedAddress,
             orderType: orderType || "Delivery",
             paymentMethod: paymentMethod || "Cash",
+            paymentProofImage: paymentProofImage || "",
             status: "Food Processing",
             payment: false,
             date: new Date(),
             promoCode: promoCode || null,
-            subtotal: subtotal || amount,
-            discount: discount || 0
+            subtotal: Number.isFinite(subtotal) ? subtotal : amount,
+            discount: Number.isFinite(discount) ? discount : 0
         });
 
         await newOrder.save();

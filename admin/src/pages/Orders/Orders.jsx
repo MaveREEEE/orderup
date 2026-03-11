@@ -13,6 +13,7 @@ const Orders = ({ url }) => {
   const [paymentFilter, setPaymentFilter] = useState('All')
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [showModal, setShowModal] = useState(false)
+  const [showProofModal, setShowProofModal] = useState(false)
 
   const getImageUrl = (img) => {
     if (!img) return ''
@@ -149,6 +150,15 @@ const Orders = ({ url }) => {
   const closeModal = () => {
     setShowModal(false)
     setSelectedOrder(null)
+    setShowProofModal(false)
+  }
+
+  const openProofModal = () => {
+    setShowProofModal(true)
+  }
+
+  const closeProofModal = () => {
+    setShowProofModal(false)
   }
 
   return (
@@ -215,6 +225,7 @@ const Orders = ({ url }) => {
           >
             <option value="All">All Payments</option>
             <option value="Cash">Cash</option>
+            <option value="Gcash">Gcash</option>
             <option value="Card">Card</option>
           </select>
         </div>
@@ -233,7 +244,6 @@ const Orders = ({ url }) => {
               <th>Order Date</th>
               <th>ID</th>
               <th>Type</th>
-              <th>Customer / Info</th>
               <th>Order Details</th>
               <th>Payment</th>
               <th>Status</th>
@@ -254,31 +264,7 @@ const Orders = ({ url }) => {
                         {order.orderType || 'Other'}
                       </span>
                     </td>
-                    <td className="customer-cell">
-                      <div className="customer-name">
-                        {addr.name
-                          ? addr.name
-                          : `${addr.firstName || ''} ${addr.lastName || ''}`.trim() || 'Customer'}
-                      </div>
-                      {addr.phone && (
-                        <div className="sub-info">{addr.phone}</div>
-                      )}
-                      {order.orderType === 'Pick Up' && addr.pickupNumber && (
-                        <div className="sub-info">Pickup #{addr.pickupNumber}</div>
-                      )}
-                      {addr.tableNumber && (
-                        <div className="sub-info">Table {addr.tableNumber}</div>
-                      )}
-                      {addr.reservationDate && (
-                        <div className="sub-info reservation">
-                          {formatReservation(addr)}
-                        </div>
-                      )}
-                    </td>
                     <td>
-                      {order.orderType === 'Delivery' && (addr.fullAddress || addr.address) && (
-                        <div className="sub-info">{addr.fullAddress || addr.address}</div>
-                      )}
                       <button
                         className="view-details-btn"
                         onClick={() => openModal(order)}
@@ -304,7 +290,7 @@ const Orders = ({ url }) => {
               })
             ) : (
               <tr>
-                <td colSpan="7" className="no-results">
+                <td colSpan="6" className="no-results">
                   {searchTerm || statusFilter !== 'All' || typeFilter !== 'All' || paymentFilter !== 'All'
                     ? 'No orders match your filters'
                     : 'No orders available'}
@@ -325,6 +311,56 @@ const Orders = ({ url }) => {
             </div>
 
             <div className="modal-body">
+              <div className="customer-info-section">
+                <h3>Customer Information</h3>
+                <div className="info-grid">
+                  {(() => {
+                    const addr = parseAddress(selectedOrder.address)
+                    const customerName = addr.name
+                      ? addr.name
+                      : `${addr.firstName || ''} ${addr.lastName || ''}`.trim() || 'Customer'
+                    
+                    return (
+                      <>
+                        <div className="info-row">
+                          <span className="info-label">Name:</span>
+                          <span className="info-value">{customerName}</span>
+                        </div>
+                        {addr.phone && (
+                          <div className="info-row">
+                            <span className="info-label">Phone:</span>
+                            <span className="info-value">{addr.phone}</span>
+                          </div>
+                        )}
+                        {selectedOrder.orderType === 'Pick Up' && addr.pickupNumber && (
+                          <div className="info-row">
+                            <span className="info-label">Pickup Number:</span>
+                            <span className="info-value">#{addr.pickupNumber}</span>
+                          </div>
+                        )}
+                        {addr.tableNumber && (
+                          <div className="info-row">
+                            <span className="info-label">Table:</span>
+                            <span className="info-value">{addr.tableNumber}</span>
+                          </div>
+                        )}
+                        {addr.reservationDate && (
+                          <div className="info-row">
+                            <span className="info-label">Reservation:</span>
+                            <span className="info-value">{formatReservation(addr)}</span>
+                          </div>
+                        )}
+                        {selectedOrder.orderType === 'Delivery' && (addr.fullAddress || addr.address) && (
+                          <div className="info-row">
+                            <span className="info-label">Address:</span>
+                            <span className="info-value">{addr.fullAddress || addr.address}</span>
+                          </div>
+                        )}
+                      </>
+                    )
+                  })()}
+                </div>
+              </div>
 
               <div className="items-section">
                 <h3>Ordered Items</h3>
@@ -353,23 +389,46 @@ const Orders = ({ url }) => {
               </div>
 
               <div className="order-summary">
-                {(() => {
-                  const addr = parseAddress(selectedOrder.address)
-                  
-                  if (selectedOrder.orderType === 'Pick Up' || selectedOrder.orderType === 'Pre-Order') return null
-                  if (!addr.fullAddress && !addr.address) return null
-                  return (
-                    <div className="summary-row">
-                      <span>Address:</span>
-                      <span className="address-text">{addr.fullAddress || addr.address}</span>
-                    </div>
-                  )
-                })()}
+                {selectedOrder.paymentMethod === 'Gcash' && (
+                  <div className="gcash-proof-row">
+                    <span className="gcash-proof-label">GCash Receipt:</span>
+                    {selectedOrder.paymentProofImage ? (
+                      <button
+                        type="button"
+                        className="gcash-proof-btn"
+                        onClick={openProofModal}
+                      >
+                        View Attached Image
+                      </button>
+                    ) : (
+                      <span className="gcash-proof-missing">No image attached</span>
+                    )}
+                  </div>
+                )}
+
                 <div className="summary-row total">
                   <span>Grand Total:</span>
                   <span>₱{Number(selectedOrder.amount).toFixed(2)}</span>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showProofModal && selectedOrder?.paymentProofImage && (
+        <div className="proof-modal-overlay" onClick={closeProofModal}>
+          <div className="proof-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="proof-modal-header">
+              <h3>GCash Payment Proof</h3>
+              <button type="button" className="proof-modal-close" onClick={closeProofModal}>&times;</button>
+            </div>
+            <div className="proof-modal-body">
+              <img
+                src={selectedOrder.paymentProofImage}
+                alt="GCash payment proof"
+                className="proof-modal-image"
+              />
             </div>
           </div>
         </div>

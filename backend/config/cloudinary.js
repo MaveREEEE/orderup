@@ -38,7 +38,18 @@ const brandingStorage = new CloudinaryStorage({
   }
 });
 
+// Storage for GCash payment proof uploads
+const gcashProofStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'orderup/gcash-proofs',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    transformation: [{ width: 1200, height: 1200, crop: 'limit' }]
+  }
+});
+
 export const foodUpload = multer({ storage: foodStorage });
 export const categoryUpload = multer({ storage: categoryStorage });
 export const brandingUpload = multer({ storage: brandingStorage });
+export const gcashProofUpload = multer({ storage: gcashProofStorage });
 export { cloudinary };

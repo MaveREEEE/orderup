@@ -13,11 +13,11 @@ userRouter.get("/profile", getUserProfile);
 // Customer profile update (authenticated users)
 userRouter.put("/profile/update/:id", authMiddleware, updateOwnProfile);
 
-// User management endpoints (superadmin only)
-userRouter.get("/list", authMiddleware, checkRole(['superadmin']), listUsers);
-userRouter.post("/create", authMiddleware, checkRole(['superadmin']), createUser);
-userRouter.put("/update/:id", authMiddleware, checkRole(['superadmin']), updateUser);
-userRouter.delete("/delete/:id", authMiddleware, checkRole(['superadmin']), deleteUser);
+// User management endpoints (itadmin only)
+userRouter.get("/list", authMiddleware, checkRole(['itadmin']), listUsers);
+userRouter.post("/create", authMiddleware, checkRole(['itadmin']), createUser);
+userRouter.put("/update/:id", authMiddleware, checkRole(['itadmin']), updateUser);
+userRouter.delete("/delete/:id", authMiddleware, checkRole(['itadmin']), deleteUser);
 
 // Get user by id (must be last to avoid catching /list)
 userRouter.get("/:id", authMiddleware, async (req, res) => {

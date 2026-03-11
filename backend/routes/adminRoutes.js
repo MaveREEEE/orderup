@@ -20,13 +20,13 @@ adminRouter.post("/login", loginAdmin);
 // Admin profile (auth required, no role check)
 adminRouter.get("/profile", authMiddleware, getAdminProfile);
 
-// Admin management - specific routes first (superadmin only)
-adminRouter.get("/list", authMiddleware, checkRole(['superadmin']), listAdmins);
-adminRouter.post("/create", authMiddleware, checkRole(['superadmin']), registerAdmin);
-adminRouter.put("/update/:id", authMiddleware, checkRole(['superadmin']), updateAdmin);
-adminRouter.delete("/delete/:id", authMiddleware, checkRole(['superadmin']), deleteAdmin);
+// Admin management - specific routes first (itadmin only)
+adminRouter.get("/list", authMiddleware, checkRole(['itadmin']), listAdmins);
+adminRouter.post("/create", authMiddleware, checkRole(['itadmin']), registerAdmin);
+adminRouter.put("/update/:id", authMiddleware, checkRole(['itadmin']), updateAdmin);
+adminRouter.delete("/delete/:id", authMiddleware, checkRole(['itadmin']), deleteAdmin);
 
 // Get admin by ID - must be last to avoid catching /list, /create, etc
-adminRouter.get("/:id", authMiddleware, checkRole(['superadmin']), getAdminById);
+adminRouter.get("/:id", authMiddleware, checkRole(['itadmin']), getAdminById);
 
 export default adminRouter;

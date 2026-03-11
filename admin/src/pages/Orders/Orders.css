@@ -550,6 +550,105 @@
   color: var(--primary-color, tomato);
 }
 
+.gcash-proof-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(0, 0, 0, 0.12);
+}
+
+.gcash-proof-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color, #374151);
+}
+
+.gcash-proof-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary-color, tomato), var(--secondary-color, #ff4500));
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gcash-proof-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.95);
+}
+
+.gcash-proof-missing {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.proof-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 16px;
+}
+
+.proof-modal-content {
+  width: 100%;
+  max-width: 720px;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+}
+
+.proof-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.proof-modal-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: var(--text-color, #1f2937);
+}
+
+.proof-modal-close {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.proof-modal-body {
+  padding: 16px;
+  overflow: auto;
+}
+
+.proof-modal-image {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .list-table {
@@ -618,5 +717,10 @@
 
   .modal-body {
     padding: 16px;
+  }
+
+  .gcash-proof-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }

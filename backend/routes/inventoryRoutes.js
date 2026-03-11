@@ -11,7 +11,7 @@ inventoryRouter.get("/low-stock", authMiddleware, getLowStockItems)
 inventoryRouter.get("/expiring-soon", authMiddleware, getExpiringItems)
 
 // Add/Remove batch endpoints
-inventoryRouter.post("/add-batch", authMiddleware, checkRole(['superadmin', 'admin']), addBatch)
-inventoryRouter.post("/remove-batch", authMiddleware, checkRole(['superadmin', 'admin']), removeBatch)
+inventoryRouter.post("/add-batch", authMiddleware, checkRole(['itadmin', 'admin']), addBatch)
+inventoryRouter.post("/remove-batch", authMiddleware, checkRole(['itadmin', 'admin']), removeBatch)
 
 export default inventoryRouter

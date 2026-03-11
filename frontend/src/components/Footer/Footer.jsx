@@ -53,7 +53,6 @@ const Footer = () => {
             src={settings.logo ? getBrandingUrl(settings.logo) : assets.logo} 
             alt={settings.siteName || "OrderUP"} 
           />
-          <p>{settings.siteDescription}</p>
           
         </div>
         <div className="footer-content-center">

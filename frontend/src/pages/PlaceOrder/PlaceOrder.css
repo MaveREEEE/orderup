@@ -38,7 +38,7 @@
     border: 2px solid #e0e0e0;
     border-radius: 8px;
     outline: none;
-    font-size: 1rem;
+    font-size: 1.05rem;
     transition: all 0.3s ease;
     background: #fafafa;
     box-sizing: border-box;
@@ -354,6 +354,43 @@
     font-size: 1.1rem;
 }
 
+.gcash-upload-section {
+    margin: 0 20px 16px 20px;
+    padding: 12px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.gcash-upload-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #444;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.gcash-upload-label span {
+    color: #dc3545;
+}
+
+.gcash-upload-section input[type="file"] {
+    width: 100%;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.gcash-upload-preview {
+    margin-top: 10px;
+    width: 100%;
+    max-height: 220px;
+    object-fit: contain;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    padding: 6px;
+}
+
 .gcash-modal-actions {
     padding: 0 20px 20px 20px;
     display: flex;
@@ -530,6 +567,11 @@
         padding: 8px 12px;
         font-size: 0.9rem;
     }
+
+    .gcash-upload-section {
+        margin: 0 16px 12px 16px;
+        padding: 10px;
+    }
     
     .gcash-amount strong {
         font-size: 1rem;
@@ -632,6 +674,19 @@
         margin: 0 12px 8px 12px;
         padding: 6px 8px;
         font-size: 0.85rem;
+    }
+
+    .gcash-upload-section {
+        margin: 0 12px 8px 12px;
+        padding: 8px;
+    }
+
+    .gcash-upload-label {
+        font-size: 0.8rem;
+    }
+
+    .gcash-upload-preview {
+        max-height: 140px;
     }
     
     .gcash-amount strong {

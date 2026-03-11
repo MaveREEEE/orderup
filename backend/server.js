@@ -18,6 +18,7 @@ import promoCodeRouter from "./routes/promoCodeRoutes.js"
 import recommendRouter from "./routes/recommendRoutes.js";
 import passwordRouter from "./routes/passwordRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
+import allergenRouter from "./routes/allergenRoutes.js";
 
 
 //app config
@@ -46,6 +47,7 @@ app.use("/api/promo", promoCodeRouter);
 app.use("/api/recommend", recommendRouter);
 app.use("/api/password", passwordRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/allergens", allergenRouter);
 
 app.get("/",(req,res)=>{
     res.send("API Working")

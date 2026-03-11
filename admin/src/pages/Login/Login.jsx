@@ -25,12 +25,13 @@ const Login = ({ url, setToken, setUserRole }) => {
       console.log("Response:", response.data)
 
       if (response.data.success) {
-        const { token, userType, role, name } = response.data
+        const { token, userType, role, name, permissions } = response.data
 
         if (userType === 'admin') {
           sessionStorage.setItem("token", token)
           sessionStorage.setItem("userRole", role)
           sessionStorage.setItem("userType", "admin")
+          sessionStorage.setItem("userPermissions", JSON.stringify(permissions))
           setToken(token)
           setUserRole(role)
           toast.success(`Welcome ${name}!`)
@@ -68,7 +69,6 @@ const Login = ({ url, setToken, setUserRole }) => {
             <img src={assets.logo} alt="OrderUP logo" className="login-logo" />
           </div>
           <h1>Admin Panel</h1>
-          <p>Sign in to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

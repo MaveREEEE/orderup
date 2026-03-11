@@ -3,6 +3,18 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import validator from "validator";
 
+// Default permissions structure
+const defaultPermissions = {
+  canManageUsers: false,
+  canManageOrders: false,
+  canManageInventory: false,
+  canManageMenu: false,
+  canViewReports: false,
+  canManageSettings: false,
+  canManagePromoCodes: false,
+  canManageAllergens: false
+}
+
 // Create token
 const createToken = (id, role) => {
     return jwt.sign({ id, role, type: "admin" }, process.env.JWT_SECRET);
@@ -20,7 +32,7 @@ const registerAdmin = async (req, res) => {
       email,
       password: hash,
       role: role || "staff",
-      permissions: permissions || {},
+      permissions: { ...defaultPermissions, ...permissions },
       isActive: isActive !== undefined ? isActive : true
     })
     await admin.save()
@@ -77,6 +89,9 @@ const getAdminProfile = async (req, res) => {
             return res.json({ success: false, message: "Admin not found" });
         }
         
+        // Ensure all permissions exist
+        const permissions = { ...defaultPermissions, ...admin.permissions }
+        
         res.json({ 
             success: true, 
             admin: {
@@ -84,7 +99,7 @@ const getAdminProfile = async (req, res) => {
                 name: admin.name,
                 email: admin.email,
                 role: admin.role,
-                permissions: admin.permissions,
+                permissions,
                 isActive: admin.isActive
             }
         });
@@ -98,7 +113,13 @@ const getAdminProfile = async (req, res) => {
 const listAdmins = async (req, res) => {
     try {
         const admins = await adminModel.find({}).select('-password');
-        res.json({ success: true, data: admins });
+        // Ensure all admins have all permission keys
+        const adminsWithAllPermissions = admins.map(admin => {
+            const adminObj = admin.toObject()
+            adminObj.permissions = { ...defaultPermissions, ...adminObj.permissions }
+            return adminObj
+        })
+        res.json({ success: true, data: adminsWithAllPermissions });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Error fetching admins" });
@@ -115,7 +136,11 @@ const getAdminById = async (req, res) => {
             return res.json({ success: false, message: "Admin not found" });
         }
         
-        res.json({ success: true, data: admin });
+        // Ensure all permissions exist
+        const adminObj = admin.toObject()
+        adminObj.permissions = { ...defaultPermissions, ...adminObj.permissions }
+        
+        res.json({ success: true, data: adminObj });
     } catch (error) {
         console.log(error);
         res.json({ success: false, message: "Error fetching admin" });
@@ -127,12 +152,20 @@ const updateAdmin = async (req, res) => {
   try {
     const { id } = req.params
     const { name, email, password, role, permissions, isActive } = req.body
+    
     const admin = await adminModel.findById(id)
     if (!admin) return res.json({ success: false, message: "Admin not found" })
+    
     admin.name = name || admin.name
     admin.email = email || admin.email
     admin.role = role || admin.role
-    admin.permissions = permissions || admin.permissions
+    
+    // Merge permissions: defaults -> existing -> new (new values override)
+    if (permissions) {
+      const existingPerms = admin.permissions || {}
+      admin.permissions = { ...defaultPermissions, ...existingPerms, ...permissions }
+    }
+    
     admin.isActive = isActive !== undefined ? isActive : admin.isActive
     if (password) {
       const hash = await bcrypt.hash(password, 10)
@@ -141,6 +174,7 @@ const updateAdmin = async (req, res) => {
     await admin.save()
     res.json({ success: true })
   } catch (error) {
+    console.log(error)
     res.json({ success: false, message: "Error updating admin" })
   }
 };
@@ -160,9 +194,9 @@ const deleteAdmin = async (req, res) => {
             return res.json({ success: false, message: "Admin not found" });
         }
 
-        // Prevent deleting superadmin
-        if (admin.role === 'superadmin') {
-            return res.json({ success: false, message: "Cannot delete superadmin account" });
+        // Prevent deleting itadmin
+        if (admin.role === 'itadmin') {
+            return res.json({ success: false, message: "Cannot delete itadmin account" });
         }
 
         await adminModel.findByIdAndDelete(id);

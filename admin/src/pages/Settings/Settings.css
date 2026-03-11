@@ -74,6 +74,14 @@
   font-family: inherit;
 }
 
+.char-count {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+  text-align: right;
+}
+
 /* Logo Upload */
 .logo-upload {
   display: flex;
@@ -116,26 +124,30 @@
 }
 
 .color-input {
+  position: relative;
   display: flex;
-  gap: 10px;
-  align-items: center;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
 }
 
 .color-input input[type="color"] {
-  width: 60px;
-  height: 40px;
+  width: 100%;
+  height: 80px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   cursor: pointer;
 }
 
 .color-input input[type="text"] {
-  flex: 1;
-  padding: 10px;
+  margin-top: 8px;
+  padding: 6px;
+  width: 100%;
   border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 13px;
+  border-radius: 4px;
+  font-size: 12px;
   font-family: monospace;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 /* Features */
@@ -250,6 +262,59 @@
   background: #4b5563;
 }
 
+/* Theme Presets */
+.themes-container {
+  margin-top: 24px;
+}
+
+.themes-container h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 12px;
+}
+
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+}
+
+.theme-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border: 2px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.theme-btn:hover {
+  border-color: var(--primary-color, #ff7043);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.theme-preview {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.theme-color {
+  flex: 1;
+  height: 24px;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .settings-container {
@@ -261,7 +326,8 @@
   }
 
   .colors-grid,
-  .features-grid {
+  .features-grid,
+  .preferences-allergens-grid {
     grid-template-columns: 1fr;
   }
 
@@ -273,4 +339,168 @@
   .color-input input[type="color"] {
     width: 100%;
   }
+}
+
+/* Preferences & Allergens Styles */
+.preferences-allergens-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.subsection {
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.subsection h4 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+}
+
+.input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pref-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+
+.pref-input:focus {
+  outline: none;
+  border-color: var(--primary-color, tomato);
+  box-shadow: 0 0 0 3px rgba(255, 112, 67, 0.1);
+}
+
+.add-pref-btn {
+  padding: 10px 16px;
+  background: var(--primary-color, tomato);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-pref-btn:hover {
+  background: var(--secondary-color, orangered);
+}
+
+.items-list {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+}
+
+.item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s;
+}
+
+.item-row:hover {
+  background: #f9fafb;
+}
+
+.item-row:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  flex: 1;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid var(--primary-color, tomato);
+  border-radius: 4px;
+  font-size: 13px;
+  margin-right: 8px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.edit-btn,
+.delete-btn,
+.save-btn,
+.cancel-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn {
+  background: #3b82f6;
+  color: white;
+}
+
+.edit-btn:hover {
+  background: #1d4ed8;
+}
+
+.delete-btn {
+  background: #ef4444;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+}
+
+.save-btn {
+  background: #10b981;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #059669;
+}
+
+.cancel-btn {
+  background: #999;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #777;
+}
+
+.empty-message {
+  padding: 16px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  font-style: italic;
 }

@@ -72,6 +72,7 @@ const login = async (req, res) => {
                 role: admin.role,
                 name: admin.name,
                 email: admin.email,
+                permissions: admin.permissions,
                 redirectTo: '/admin',
                 message: "Admin login successful" 
             });
@@ -143,7 +144,7 @@ const login = async (req, res) => {
 // Register customer (admin accounts created separately)
 const register = async (req, res) => {
     try {
-        const { name, email, password, phone, address } = req.body;
+        const { name, email, password, phone, address, foodPreferences, allergens } = req.body;
 
         console.log("Registration attempt for:", email);
 
@@ -186,7 +187,9 @@ const register = async (req, res) => {
             phone: phone ? phone.trim() : "",
             address: address ? address.trim() : "",
             role: 'customer',
-            cartData: {}
+            cartData: {},
+            foodPreferences: foodPreferences || "",
+            allergens: allergens || []
         });
 
         await newUser.save();

@@ -6,7 +6,7 @@ const adminSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { 
     type: String, 
-    enum: ['superadmin', 'admin', 'staff'],
+    enum: ['itadmin', 'admin', 'staff'],
     default: 'staff'
   },
   permissions: {
@@ -16,7 +16,8 @@ const adminSchema = new mongoose.Schema({
     canManageMenu: { type: Boolean, default: false },
     canViewReports: { type: Boolean, default: false },
     canManageSettings: { type: Boolean, default: false },
-    canManagePromoCodes: { type: Boolean, default: false }  // NEW
+    canManagePromoCodes: { type: Boolean, default: false },
+    canManageAllergens: { type: Boolean, default: false }
   },
   isActive: { type: Boolean, default: true },
   // Password reset

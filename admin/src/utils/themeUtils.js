@@ -8,12 +8,12 @@ export const applyTheme = async (url) => {
       const settings = data.data;
       const root = document.documentElement;
       
-      // Apply colors as CSS variables
-      root.style.setProperty('--primary-color', settings.primaryColor || '#ff7043');
-      root.style.setProperty('--secondary-color', settings.secondaryColor || '#ff4500');
-      root.style.setProperty('--accent-color', settings.accentColor || '#e85a4f');
-      root.style.setProperty('--text-color', settings.textColor || '#333333');
-      root.style.setProperty('--background-color', settings.backgroundColor || '#fcfcfc');
+      // Apply colors as CSS variables (trim whitespace from colors)
+      root.style.setProperty('--primary-color', (settings.primaryColor || '#ff7043').trim());
+      root.style.setProperty('--secondary-color', (settings.secondaryColor || '#ff4500').trim());
+      root.style.setProperty('--accent-color', (settings.accentColor || '#e85a4f').trim());
+      root.style.setProperty('--text-color', (settings.textColor || '#333333').trim());
+      root.style.setProperty('--background-color', (settings.backgroundColor || '#fcfcfc').trim());
       
       // Store in localStorage for quick access
       localStorage.setItem('theme', JSON.stringify({

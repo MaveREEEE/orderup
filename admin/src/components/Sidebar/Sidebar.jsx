@@ -6,12 +6,22 @@ import { NavLink, useLocation } from 'react-router-dom'
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const [isListMenuOpen, setIsListMenuOpen] = useState(false);
     const [userRole, setUserRole] = useState(null);
+    const [userPermissions, setUserPermissions] = useState({});
     const location = useLocation();
 
-    // Get user role from sessionStorage
+    // Get user role and permissions from sessionStorage
     useEffect(() => {
         const role = sessionStorage.getItem("userRole") || sessionStorage.getItem("role");
         setUserRole(role);
+        
+        const permissionsStr = sessionStorage.getItem("userPermissions");
+        if (permissionsStr) {
+            try {
+                setUserPermissions(JSON.parse(permissionsStr));
+            } catch (e) {
+                setUserPermissions({});
+            }
+        }
     }, []);
 
     // Role-based access control
@@ -120,7 +130,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             </button>
 
             <div className="sidebar-options">
-                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <NavLink 
                         to='/dashboard' 
                         className="sidebar-option" 
@@ -132,7 +142,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     </NavLink>
                 )}
 
-                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <NavLink 
                         to='/dine-in' 
                         className="sidebar-option" 
@@ -145,7 +155,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 )}
 
                 {/* List Items with Submenu */}
-                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <div className="sidebar-option-group">
                     <div
                         className={`sidebar-option has-submenu ${isListMenuOpen ? 'active' : ''}`}
@@ -177,6 +187,17 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                             <img src={assets.order_list} alt="All Items" className="submenu-icon" />
                             <p>All Items</p>
                         </NavLink>
+                        {userPermissions.canManageAllergens && (
+                            <NavLink 
+                                to='/allergens' 
+                                className="sidebar-submenu-option" 
+                                data-tooltip="Allergens" 
+                                onClick={handleSubmenuClick} 
+                            >
+                                <img src={assets.settings} alt="Allergens" className="submenu-icon" />
+                                <p>Allergens</p>
+                            </NavLink>
+                        )}
                         <NavLink 
                             to='/category' 
                             className="sidebar-submenu-option" 
@@ -199,7 +220,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                 </div>
                 )}
 
-                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <NavLink 
                         to='/orders' 
                         className="sidebar-option" 
@@ -210,7 +231,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         <p>Orders</p>
                     </NavLink>
                 )}
-                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <NavLink 
                         to='/reviews' 
                         className="sidebar-option" 
@@ -221,7 +242,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         <p>Reviews</p>
                     </NavLink>
                 )}
-                {hasAccess(['superadmin', 'admin', 'staff']) && (
+                {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <NavLink 
                         to='/inventory' 
                         className="sidebar-option" 
@@ -232,13 +253,18 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         <p>Inventory</p>
                     </NavLink>
                 )}
-                {hasAccess(['superadmin', 'admin']) && (
-                    <NavLink to='/promocode' className="sidebar-option">
-                        <img src={assets.promo_icon} alt="" />
+                {hasAccess(['itadmin', 'admin']) && (
+                    <NavLink 
+                        to='/promocode' 
+                        className="sidebar-option"
+                        data-tooltip="Promo Codes"
+                        onClick={handleNavClick}
+                    >
+                        <img src={assets.promo_icon} alt="Promo Codes" />
                         <p>Promo Codes</p>
                     </NavLink>
                 )}
-                {hasAccess(['superadmin', 'admin']) && (
+                {hasAccess(['itadmin', 'admin']) && (
                     <NavLink 
                         to='/report' 
                         className="sidebar-option" 
@@ -249,7 +275,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         <p>Report</p>
                     </NavLink>
                 )}
-                {hasAccess(['superadmin']) && (
+                {hasAccess(['itadmin']) && (
                     <NavLink 
                         to='/users' 
                         className="sidebar-option" 
@@ -260,7 +286,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         <p>Users</p>
                     </NavLink>
                 )}
-                {hasAccess(['superadmin', 'admin']) && (
+                {hasAccess(['itadmin', 'admin']) && (
                     <NavLink 
                         to='/settings' 
                         className="sidebar-option" 

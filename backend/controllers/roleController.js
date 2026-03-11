@@ -7,7 +7,7 @@ const getRoles = async (req, res) => {
     
     const roleData = [
       {
-        name: 'superadmin',
+        name: 'itadmin',
         description: 'Full system access with all permissions',
         permissions: {
           canManageUsers: true,
@@ -18,8 +18,8 @@ const getRoles = async (req, res) => {
           canManageSettings: true,
           canManagePromoCodes: true
         },
-        active: roles.includes('superadmin'),
-        count: await adminModel.countDocuments({ role: 'superadmin' })
+        active: roles.includes('itadmin'),
+        count: await adminModel.countDocuments({ role: 'itadmin' })
       },
       {
         name: 'admin',
@@ -69,7 +69,7 @@ const createRole = async (req, res) => {
       return res.json({ success: false, message: "Admin ID and role are required" });
     }
     
-    const validRoles = ['superadmin', 'admin', 'staff'];
+    const validRoles = ['itadmin', 'admin', 'staff'];
     if (!validRoles.includes(role)) {
       return res.json({ success: false, message: "Invalid role. Valid roles: " + validRoles.join(', ') });
     }
@@ -84,7 +84,7 @@ const createRole = async (req, res) => {
     if (permissions) {
       admin.permissions = permissions;
     } else {
-      if (role === 'superadmin') {
+      if (role === 'itadmin') {
         admin.permissions = {
           canManageUsers: true,
           canManageOrders: true,
@@ -148,14 +148,14 @@ const updateRole = async (req, res) => {
       return res.json({ success: false, message: "Admin not found" });
     }
     
-    // Prevent changing superadmin role
-    if (admin.role === 'superadmin' && role && role !== 'superadmin') {
-      return res.json({ success: false, message: "Cannot change superadmin role" });
+    // Prevent changing itadmin role
+    if (admin.role === 'itadmin' && role && role !== 'itadmin') {
+      return res.json({ success: false, message: "Cannot change itadmin role" });
     }
     
     // Update role if provided
     if (role) {
-      const validRoles = ['superadmin', 'admin', 'staff'];
+      const validRoles = ['itadmin', 'admin', 'staff'];
       if (!validRoles.includes(role)) {
         return res.json({ success: false, message: "Invalid role" });
       }
@@ -200,9 +200,9 @@ const deleteRole = async (req, res) => {
       return res.json({ success: false, message: "Admin not found" });
     }
     
-    // Prevent deleting superadmin
-    if (admin.role === 'superadmin') {
-      return res.json({ success: false, message: "Cannot delete superadmin" });
+    // Prevent deleting itadmin
+    if (admin.role === 'itadmin') {
+      return res.json({ success: false, message: "Cannot delete itadmin" });
     }
     
     // Delete admin
@@ -220,7 +220,7 @@ const getAdminsByRole = async (req, res) => {
   try {
     const { role } = req.params;
     
-    const validRoles = ['superadmin', 'admin', 'staff'];
+    const validRoles = ['itadmin', 'admin', 'staff'];
     if (!validRoles.includes(role)) {
       return res.json({ success: false, message: "Invalid role" });
     }
@@ -249,9 +249,9 @@ const updatePermissions = async (req, res) => {
       return res.json({ success: false, message: "Admin not found" });
     }
     
-    // Superadmin always has all permissions
-    if (admin.role === 'superadmin') {
-      return res.json({ success: false, message: "Cannot modify superadmin permissions" });
+    // IT Admin always has all permissions
+    if (admin.role === 'itadmin') {
+      return res.json({ success: false, message: "Cannot modify itadmin permissions" });
     }
     
     // Update only the provided permissions

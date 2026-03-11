@@ -9,10 +9,13 @@ const userSchema = new mongoose.Schema({
   cartData: { type: Object, default: {} },
   role: { 
     type: String, 
-    enum: ['customer', 'staff', 'admin', 'superadmin'],
+    enum: ['customer', 'staff', 'admin', 'itadmin'],
     default: "customer"
   },
   isActive: { type: Boolean, default: true },
+  // Food preferences for recommendations
+  foodPreferences: { type: String, default: "" },
+  allergens: { type: [String], default: [] },
   // Email verification
   isEmailVerified: { type: Boolean, default: false },
   emailVerificationToken: { type: String },

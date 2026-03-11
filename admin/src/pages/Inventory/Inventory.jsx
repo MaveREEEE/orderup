@@ -9,6 +9,11 @@ const Inventory = ({ url }) => {
     const [expiringItems, setExpiringItems] = useState([])
     const [showAddBatchModal, setShowAddBatchModal] = useState(false)
     const [selectedItem, setSelectedItem] = useState(null)
+    const [filteredInventory, setFilteredInventory] = useState([])
+    const [searchTerm, setSearchTerm] = useState("")
+    const [sortBy, setSortBy] = useState("a-z")
+    const [filterCategory, setFilterCategory] = useState("all")
+    const [categories, setCategories] = useState([])
     const [batchForm, setBatchForm] = useState({
         quantity: '',
         productionDate: '',
@@ -28,12 +33,27 @@ const Inventory = ({ url }) => {
                     a.name.localeCompare(b.name)
                 )
                 setInventory(sortedInventory)
+                setFilteredInventory(sortedInventory)
             } else {
                 toast.error(response.data.message || "Error fetching inventory")
             }
         } catch (error) {
             console.log("Error fetching inventory:", error)
             toast.error("Error fetching inventory")
+        }
+    }
+
+    const fetchCategories = async () => {
+        try {
+            const response = await axios.get(url + "/api/category/list")
+            if (response.data.success) {
+                setCategories(response.data.data || [])
+            } else {
+                toast.error("Failed to fetch categories")
+            }
+        } catch (error) {
+            console.log("Error fetching categories:", error)
+            toast.error("Failed to fetch categories")
         }
     }
 
@@ -80,12 +100,19 @@ const Inventory = ({ url }) => {
     const addBatch = async (e) => {
         e.preventDefault()
         
-        if (!batchForm.quantity || !batchForm.productionDate) {
-            toast.error("Please fill in all required fields")
+        if (!batchForm.quantity) {
+            toast.error("Please fill in quantity")
             return
         }
 
-        if (batchForm.hasExpiry && !batchForm.expirationDate) {
+        const isDessert = isDessertCategory(selectedItem.category)
+        
+        if (isDessert && !batchForm.productionDate) {
+            toast.error("Please fill in production date for desserts")
+            return
+        }
+
+        if (isDessert && batchForm.hasExpiry && !batchForm.expirationDate) {
             toast.error("Please fill in expiration date")
             return
         }
@@ -93,8 +120,8 @@ const Inventory = ({ url }) => {
         const batchData = {
             itemId: selectedItem._id,
             quantity: parseInt(batchForm.quantity),
-            productionDate: batchForm.productionDate,
-            expirationDate: batchForm.hasExpiry ? batchForm.expirationDate : null
+            productionDate: isDessert ? batchForm.productionDate : null,
+            expirationDate: isDessert && batchForm.hasExpiry ? batchForm.expirationDate : null
         }
 
         try {
@@ -157,11 +184,60 @@ const Inventory = ({ url }) => {
         return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
     }
 
+    const isDessertCategory = (category) => {
+        return category && category.toLowerCase().trim().includes('dessert')
+    }
+
     useEffect(() => {
         fetchInventory()
+        fetchCategories()
         fetchLowStockItems()
         fetchExpiringItems()
     }, [url])
+
+    useEffect(() => {
+        let result = [...inventory]
+
+        if (filterCategory !== "all") {
+            result = result.filter(item => item.category === filterCategory)
+        }
+
+        if (searchTerm) {
+            result = result.filter(item => 
+                item.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+        }
+
+        switch (sortBy) {
+            case "a-z":
+                result.sort((a, b) => a.name.localeCompare(b.name))
+                break
+            case "z-a":
+                result.sort((a, b) => b.name.localeCompare(a.name))
+                break
+            case "stock-low":
+                result.sort((a, b) => {
+                    const stockA = a.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
+                    const stockB = b.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
+                    return stockA - stockB
+                })
+                break
+            case "stock-high":
+                result.sort((a, b) => {
+                    const stockA = a.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
+                    const stockB = b.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
+                    return stockB - stockA
+                })
+                break
+            case "category":
+                result.sort((a, b) => a.category.localeCompare(b.category))
+                break
+            default:
+                break
+        }
+
+        setFilteredInventory(result)
+    }, [inventory, sortBy, filterCategory, searchTerm])
 
     const getImageUrl = (img) => {
         if (!img) return ''
@@ -186,7 +262,7 @@ const Inventory = ({ url }) => {
                                     <div className="alert-details">
                                         <strong>{item.name}</strong>
                                         <span>Batch expires in {getDaysUntilExpiry(item.expirationDate)} days</span>
-                                        <span className="alert-date">Qty: {item.quantity} | Exp: {formatDate(item.expirationDate)}</span>
+                                        <span className="alert-date">Quantity: {item.quantity} | Exp: {formatDate(item.expirationDate)}</span>
                                     </div>
                                 </div>
                             ))}
@@ -227,12 +303,58 @@ const Inventory = ({ url }) => {
             {/* Inventory Grid */}
             <div className="inventory-list">
                 <div className="list-header">
-                    <h2>All Items ({inventory.length})</h2>
+                    <h2>All Items ({filteredInventory.length})</h2>
                 </div>
 
-                {inventory.length > 0 ? (
+                {/* Filters Section */}
+                <div className="inventory-filters">
+                    <div className="filter-group">
+                        <label>Search:</label>
+                        <input
+                            type="text"
+                            placeholder="Search by name..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="search-input"
+                        />
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Sort by:</label>
+                        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
+                            <option value="a-z">A-Z</option>
+                            <option value="z-a">Z-A</option>
+                            <option value="stock-low">Stock: Low to High</option>
+                            <option value="stock-high">Stock: High to Low</option>
+                            <option value="category">Category</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Category:</label>
+                        <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="filter-select">
+                            <option value="all">All Categories</option>
+                            {categories.map(cat => (
+                                <option key={cat._id} value={cat.name}>{cat.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <button 
+                        className="clear-filters-btn"
+                        onClick={() => {
+                            setSortBy("a-z")
+                            setFilterCategory("all")
+                            setSearchTerm("")
+                        }}
+                    >
+                        Clear Filters
+                    </button>
+                </div>
+
+                {filteredInventory.length > 0 ? (
                     <div className="inventory-grid">
-                        {inventory.map((item) => {
+                        {filteredInventory.map((item) => {
                             const totalStock = item.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
                             const hasBatches = item.batches && item.batches.length > 0
                             
@@ -256,6 +378,7 @@ const Inventory = ({ url }) => {
                                         {hasBatches ? (
                                             <div className="batches-list">
                                                 {item.batches.map((batch, idx) => {
+                                                    const isDessert = isDessertCategory(item.category)
                                                     const daysLeft = batch.expirationDate ? getDaysUntilExpiry(batch.expirationDate) : null
                                                     const isExpiring = daysLeft !== null && daysLeft <= 3
                                                     const isExpired = daysLeft !== null && daysLeft < 0
@@ -263,9 +386,11 @@ const Inventory = ({ url }) => {
                                                     return (
                                                         <div key={batch._id || idx} className={`batch-item ${isExpired ? 'expired' : isExpiring ? 'expiring' : ''}`}>
                                                             <div className="batch-info">
-                                                                <span className="batch-qty">Qty: {batch.quantity}</span>
-                                                                <span className="batch-prod">Prod: {formatDate(batch.productionDate)}</span>
-                                                                {batch.expirationDate && (
+                                                                <span className="batch-qty">Quantity: {batch.quantity}</span>
+                                                                {isDessert && batch.productionDate && (
+                                                                    <span className="batch-prod">Prod: {formatDate(batch.productionDate)}</span>
+                                                                )}
+                                                                {isDessert && batch.expirationDate && (
                                                                     <span className="batch-exp">
                                                                         Exp: {formatDate(batch.expirationDate)}
                                                                         {daysLeft !== null && (
@@ -289,7 +414,7 @@ const Inventory = ({ url }) => {
                                                 })}
                                             </div>
                                         ) : (
-                                            <span className="no-batches">No batches</span>
+                                            <span className="no-batches">No stock</span>
                                         )}
                                     </div>
 
@@ -353,42 +478,46 @@ const Inventory = ({ url }) => {
                                 />
                             </div>
 
-                            <div className="form-group">
-                                <label htmlFor="productionDate">Production Date: <span className="required">*</span></label>
-                                <input
-                                    id="productionDate"
-                                    type="date"
-                                    value={batchForm.productionDate}
-                                    onChange={(e) => setBatchForm({ ...batchForm, productionDate: e.target.value })}
-                                    required
-                                    max={new Date().toISOString().split('T')[0]}
-                                />
-                            </div>
+                            {isDessertCategory(selectedItem.category) && (
+                                <>
+                                    <div className="form-group">
+                                        <label htmlFor="productionDate">Production Date: <span className="required">*</span></label>
+                                        <input
+                                            id="productionDate"
+                                            type="date"
+                                            value={batchForm.productionDate}
+                                            onChange={(e) => setBatchForm({ ...batchForm, productionDate: e.target.value })}
+                                            required
+                                            max={new Date().toISOString().split('T')[0]}
+                                        />
+                                    </div>
 
-                            <div className="form-group checkbox-group">
-                                <label>
-                                    <input
-                                        type="checkbox"
-                                        checked={batchForm.hasExpiry}
-                                        onChange={(e) => setBatchForm({ ...batchForm, hasExpiry: e.target.checked, expirationDate: '' })}
-                                    />
-                                    <span>This item has an expiration date</span>
-                                </label>
-                                <small>Check this for perishable items like pastries, fresh food, etc.</small>
-                            </div>
+                                    <div className="form-group checkbox-group">
+                                        <label>
+                                            <input
+                                                type="checkbox"
+                                                checked={batchForm.hasExpiry}
+                                                onChange={(e) => setBatchForm({ ...batchForm, hasExpiry: e.target.checked, expirationDate: '' })}
+                                            />
+                                            <span>This dessert has an expiration date</span>
+                                        </label>
+                                        <small>Check this for perishable desserts</small>
+                                    </div>
 
-                            {batchForm.hasExpiry && (
-                                <div className="form-group">
-                                    <label htmlFor="expirationDate">Expiration Date: <span className="required">*</span></label>
-                                    <input
-                                        id="expirationDate"
-                                        type="date"
-                                        value={batchForm.expirationDate}
-                                        onChange={(e) => setBatchForm({ ...batchForm, expirationDate: e.target.value })}
-                                        required
-                                        min={batchForm.productionDate || new Date().toISOString().split('T')[0]}
-                                    />
-                                </div>
+                                    {batchForm.hasExpiry && (
+                                        <div className="form-group">
+                                            <label htmlFor="expirationDate">Expiration Date: <span className="required">*</span></label>
+                                            <input
+                                                id="expirationDate"
+                                                type="date"
+                                                value={batchForm.expirationDate}
+                                                onChange={(e) => setBatchForm({ ...batchForm, expirationDate: e.target.value })}
+                                                required
+                                                min={batchForm.productionDate || new Date().toISOString().split('T')[0]}
+                                            />
+                                        </div>
+                                    )}
+                                </>
                             )}
 
                             <div className="modal-actions">

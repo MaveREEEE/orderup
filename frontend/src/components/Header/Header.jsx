@@ -32,7 +32,7 @@ const Header = () => {
           };
           fetchSettings();
        }, [url]);
-   const [bestSellers, setBestSellers] = useState([]);
+   const [carouselItems, setCarouselItems] = useState([]);
    const [currentIndex, setCurrentIndex] = useState(0);
    const [showModal, setShowModal] = useState(false);
    const [selectedItem, setSelectedItem] = useState(null);
@@ -42,30 +42,56 @@ const Header = () => {
       return img.startsWith('http') ? img : ''
    }
 
+   // Get seed for today's date (resets daily)
+   const getTodaySeed = () => {
+      const today = new Date();
+      return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+   };
+
+   // Seeded random number generator for consistent daily randomness
+   const seededRandom = (seed) => {
+      const x = Math.sin(seed++) * 10000;
+      return x - Math.floor(x);
+   };
+
    useEffect(() => {
-      // Get top 5 best selling items (sorted by number of ratings/sales)
+      // Get top 5 best selling items and 3 random featured items
       if (food_list && food_list.length > 0) {
+         // Get best sellers
          const sorted = [...food_list].sort((a, b) => {
             const ratingCountA = a.ratings?.length || 0;
             const ratingCountB = b.ratings?.length || 0;
             return ratingCountB - ratingCountA;
          });
-         setBestSellers(sorted.slice(0, 5));
+         const bestSellers = sorted.slice(0, 5).map(item => ({ ...item, badge: 'Best Seller' }));
+
+         // Get 3 random featured items (excluding best sellers)
+         const remainingItems = food_list.filter(item => 
+            !bestSellers.some(bs => bs._id === item._id)
+         );
+
+         // Use today's seed for consistent randomness throughout the day
+         const seed = getTodaySeed();
+         const shuffled = [...remainingItems].sort(() => seededRandom(seed) - 0.5);
+         const featured = shuffled.slice(0, 3).map(item => ({ ...item, badge: 'Featured' }));
+
+         // Combine and set carousel items
+         setCarouselItems([...bestSellers, ...featured]);
       }
    }, [food_list]);
 
    // Auto-swipe functionality
    useEffect(() => {
-      if (bestSellers.length === 0) return;
+      if (carouselItems.length === 0) return;
       
       const interval = setInterval(() => {
          setCurrentIndex((prevIndex) => 
-            prevIndex === bestSellers.length - 1 ? 0 : prevIndex + 1
+            prevIndex === carouselItems.length - 1 ? 0 : prevIndex + 1
          );
       }, 3000); // Auto-swipe every 3 seconds
 
       return () => clearInterval(interval);
-   }, [bestSellers]);
+   }, [carouselItems]);
 
    const goToSlide = (index) => {
       setCurrentIndex(index);
@@ -73,13 +99,13 @@ const Header = () => {
 
    const goToPrevious = () => {
       setCurrentIndex((prevIndex) => 
-         prevIndex === 0 ? bestSellers.length - 1 : prevIndex - 1
+         prevIndex === 0 ? carouselItems.length - 1 : prevIndex - 1
       );
    };
 
    const goToNext = () => {
       setCurrentIndex((prevIndex) => 
-         prevIndex === bestSellers.length - 1 ? 0 : prevIndex + 1
+         prevIndex === carouselItems.length - 1 ? 0 : prevIndex + 1
       );
    };
 
@@ -97,26 +123,28 @@ const Header = () => {
                   <button className="hero-btn secondary" onClick={() => document.getElementById('explore-menu')?.scrollIntoView({ behavior: 'smooth' })}>View Menu</button>
                </div>
             </div>
-            {/* Right: Best Sellers Carousel */}
-            {bestSellers.length > 0 && (
+            {/* Right: Best Sellers & Featured Carousel */}
+            {carouselItems.length > 0 && (
                <div className="hero-carousel">
                   <div className="carousel-container-hero">
                      <button className="carousel-btn prev" onClick={goToPrevious}>❮</button>
                      <div className="best-seller-card">
-                        <div className="best-seller-badge">Best Seller</div>
+                        <div className={`best-seller-badge ${carouselItems[currentIndex].badge === 'Featured' ? 'featured' : ''}`}>
+                           {carouselItems[currentIndex].badge}
+                        </div>
                         <img
-                           src={getImageUrl(bestSellers[currentIndex].image)}
-                           alt={bestSellers[currentIndex].name}
+                           src={getImageUrl(carouselItems[currentIndex].image)}
+                           alt={carouselItems[currentIndex].name}
                            className="best-seller-image"
                         />
                         <div className="best-seller-info">
                            <div className="best-seller-header">
-                              <h4>{bestSellers[currentIndex].name}</h4>
-                              <span className="best-seller-price">₱{bestSellers[currentIndex].price}</span>
+                              <h4>{carouselItems[currentIndex].name}</h4>
+                              <span className="best-seller-price">₱{carouselItems[currentIndex].price}</span>
                            </div>
                            <div className="best-seller-footer">
                               <button className="best-seller-btn" onClick={() => {
-                                 setSelectedItem(bestSellers[currentIndex]);
+                                 setSelectedItem(carouselItems[currentIndex]);
                                  setShowModal(true);
                               }}>Order Now</button>
                            </div>
@@ -125,7 +153,7 @@ const Header = () => {
                      <button className="carousel-btn next" onClick={goToNext}>❯</button>
                   </div>
                   <div className="carousel-dots">
-                     {bestSellers.map((_, index) => (
+                     {carouselItems.map((_, index) => (
                         <span
                            key={index}
                            className={`dot ${index === currentIndex ? 'active' : ''}`}

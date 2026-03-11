@@ -59,8 +59,8 @@ export const checkPermission = (permission) => {
         return res.json({ success: false, message: "Admin not found" })
       }
 
-      // Superadmin always has all permissions
-      if (admin.role === 'superadmin') {
+      // IT Admin always has all permissions
+      if (admin.role === 'itadmin') {
         req.admin = admin;
         return next();
       }

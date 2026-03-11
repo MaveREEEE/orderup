@@ -1,5 +1,5 @@
 .cart {
-    margin-top: 100px;
+    margin-top: 80px;
     padding: 0 20px;
     max-width: 1200px;
     margin-left: auto;
@@ -11,7 +11,7 @@
     grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr 0.5fr;
     align-items: center;
     color: gray;
-    font-size: max(1vw, 12px);
+    font-size: max(1vw, 14px);
     font-weight: 600;
     padding: 0 10px;
     text-transform: uppercase;
@@ -19,7 +19,7 @@
 }
 
 .cart-items-item {
-    margin: 10px 0px;
+    margin: 8px 0;
     color: black;
     padding: 15px 10px;
     background: #fafafa;
@@ -44,7 +44,7 @@
     height: 1px;
     background-color: #e2e2e2;
     border: none;
-    margin: 15px 0;
+    margin: 10px 0;
 }
 
 .cart-items-item .cross {
@@ -114,10 +114,10 @@
 }
 
 .cart-bottom {
-    margin-top: 80px;
+    margin-top: 40px;
     display: flex;
     justify-content: space-between;
-    gap: max(12vw, 20px);
+    gap: clamp(20px, 4vw, 40px);
 }
 
 .cart-total {
@@ -308,7 +308,7 @@
 
 @media (max-width: 1024px) {
     .cart {
-        margin-top: 80px;
+        margin-top: 70px;
         padding: 0 16px;
     }
     
@@ -327,8 +327,8 @@
     }
     
     .cart-bottom {
-        margin-top: 60px;
-        gap: 30px;
+        margin-top: 32px;
+        gap: 24px;
     }
     
     .cart-total,
@@ -506,7 +506,7 @@
     .cart-bottom {
         flex-direction: column-reverse;
         gap: 20px;
-        margin-top: 40px;
+        margin-top: 28px;
     }
     
     .cart-promocode {
@@ -648,6 +648,11 @@
     .cart-total,
     .cart-promocode {
         padding: 16px;
+    }
+
+    .cart-bottom {
+        margin-top: 20px;
+        gap: 14px;
     }
     
     .cart-total h2 {

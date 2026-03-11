@@ -20,13 +20,13 @@ categoryRouter.get("/list", listCategory);
 categoryRouter.get("/:id", getCategoryById);
 
 // Archive routes - MUST BE BEFORE /:id
-categoryRouter.get("/archived/list", authMiddleware, checkRole(['superadmin', 'admin']), listArchivedCategories);
-categoryRouter.post("/restore", authMiddleware, checkRole(['superadmin', 'admin']), restoreCategory);
-categoryRouter.post("/permanently-delete", authMiddleware, checkRole(['superadmin', 'admin']), permanentlyDeleteCategory);
+categoryRouter.get("/archived/list", authMiddleware, checkRole(['itadmin', 'admin']), listArchivedCategories);
+categoryRouter.post("/restore", authMiddleware, checkRole(['itadmin', 'admin']), restoreCategory);
+categoryRouter.post("/permanently-delete", authMiddleware, checkRole(['itadmin', 'admin']), permanentlyDeleteCategory);
 
 // Protected routes
-categoryRouter.post("/add", authMiddleware, checkRole(['superadmin', 'admin']), categoryUpload.single("image"), addCategory);
-categoryRouter.put("/update/:id", authMiddleware, checkRole(['superadmin', 'admin']), categoryUpload.single("image"), updateCategory);
-categoryRouter.post("/remove", authMiddleware, checkRole(['superadmin', 'admin']), removeCategory);
+categoryRouter.post("/add", authMiddleware, checkRole(['itadmin', 'admin']), categoryUpload.single("image"), addCategory);
+categoryRouter.put("/update/:id", authMiddleware, checkRole(['itadmin', 'admin']), categoryUpload.single("image"), updateCategory);
+categoryRouter.post("/remove", authMiddleware, checkRole(['itadmin', 'admin']), removeCategory);
 
 export default categoryRouter;

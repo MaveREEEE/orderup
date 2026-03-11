@@ -40,17 +40,18 @@ const Settings = ({ url }) => {
   const [faviconFile, setFaviconFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
-  const [BgFile, setHeroBgFile] = useState(null)
+  const [heroBgFile, setHeroBgFile] = useState(null)
   const [heroBgPreview, setHeroBgPreview] = useState(null)
-    const handleHeroBgChange = (e) => {
-      const file = e.target.files[0]
-      if (file) {
-        setHeroBgFile(file)
-        setHeroBgPreview(URL.createObjectURL(file))
-      }
-    }
   const [loading, setLoading] = useState(false)
   const [reloadingRecs, setReloadingRecs] = useState(false)
+
+  const handleHeroBgChange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setHeroBgFile(file)
+      setHeroBgPreview(URL.createObjectURL(file))
+    }
+  }
 
   const getBrandingUrl = (img) => {
     if (!img) return null
@@ -63,7 +64,7 @@ const Settings = ({ url }) => {
 
   const fetchSettings = async () => {
     try {
-      const token = sessionStorage.getItem("token");
+      const token = localStorage.getItem("token");
       const response = await axios.get(url + "/api/settings/", {
         headers: { token }
       })
@@ -256,16 +257,67 @@ const Settings = ({ url }) => {
     }
   }
 
-  const resetColors = () => {
+  const applyThemePreset = (theme) => {
     setSettings(prev => ({
       ...prev,
+      primaryColor: theme.primaryColor,
+      secondaryColor: theme.secondaryColor,
+      accentColor: theme.accentColor,
+      textColor: theme.textColor,
+      backgroundColor: theme.backgroundColor
+    }))
+  }
+
+  const themes = [
+    {
+      name: 'Default',
       primaryColor: '#ff7043',
       secondaryColor: '#ff4500',
       accentColor: '#e85a4f',
       textColor: '#333333',
       backgroundColor: '#fcfcfc'
-    }))
-  }
+    },
+    {
+      name: 'Dark',
+      primaryColor: '#1f2937',
+      secondaryColor: '#111827',
+      accentColor: '#374151',
+      textColor: '#f3f4f6',
+      backgroundColor: '#0f172a'
+    },
+    {
+      name: 'Elegant',
+      primaryColor: '#8b5cf6',
+      secondaryColor: '#7c3aed',
+      accentColor: '#a78bfa',
+      textColor: '#1e293b',
+      backgroundColor: '#f8fafc'
+    },
+    {
+      name: 'Ocean',
+      primaryColor: '#0284c7',
+      secondaryColor: '#0369a1',
+      accentColor: '#06b6d4',
+      textColor: '#0c4a6e',
+      backgroundColor: '#ecf8ff'
+    },
+    {
+      name: 'Forest',
+      primaryColor: '#16a34a',
+      secondaryColor: '#15803d',
+      accentColor: '#22c55e',
+      textColor: '#1b4332',
+      backgroundColor: '#f0fdf4'
+    },
+    {
+      name: 'Crimson',
+      primaryColor: '#dc2626',
+      secondaryColor: '#b91c1c',
+      accentColor: '#ef4444',
+      textColor: '#7c2d12',
+      backgroundColor: '#fff7ed'
+    }
+  ]
 
   return (
     <div className="settings-container">
@@ -463,9 +515,27 @@ const Settings = ({ url }) => {
             </div>
           </div>
 
-          <button type="button" className="reset-btn" onClick={resetColors}>
-            Reset to Default Colors
-          </button>
+          <div className="themes-container">
+            <h4>Color Themes</h4>
+            <div className="themes-grid">
+              {themes.map((theme) => (
+                <button
+                  key={theme.name}
+                  type="button"
+                  className="theme-btn"
+                  onClick={() => applyThemePreset(theme)}
+                  title={theme.name}
+                >
+                  <div className="theme-preview">
+                    <div className="theme-color" style={{ backgroundColor: theme.primaryColor }}></div>
+                    <div className="theme-color" style={{ backgroundColor: theme.secondaryColor }}></div>
+                    <div className="theme-color" style={{ backgroundColor: theme.accentColor }}></div>
+                  </div>
+                  <span>{theme.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Company Section */}
@@ -480,7 +550,11 @@ const Settings = ({ url }) => {
               onChange={handleChange}
               placeholder="Share your restaurant story, values, and what makes you unique"
               rows="4"
+              maxLength="500"
             />
+            <small className="char-count">
+              {settings.aboutUs.length}/500 characters
+            </small>
           </div>
 
           <div className="form-group">

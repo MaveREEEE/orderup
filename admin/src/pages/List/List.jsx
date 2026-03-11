@@ -23,6 +23,7 @@ const List = ({ url, token }) => {
   const [filterCategory, setFilterCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [categories, setCategories] = useState([]);
+  const [allergenOptions, setAllergenOptions] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -149,9 +150,26 @@ const List = ({ url, token }) => {
     }
   };
 
+  const fetchAllergens = async () => {
+    try {
+      const response = await axios.get(`${url}/api/allergens`);
+      
+      if (response.data.success) {
+        const allergenNames = (response.data.data || []).map(item => item.name);
+        setAllergenOptions(allergenNames);
+      } else {
+        toast.error("Failed to fetch allergens");
+      }
+    } catch (error) {
+      console.error("Fetch allergens error:", error);
+      toast.error("Failed to fetch allergens");
+    }
+  };
+
   useEffect(() => {
     fetchList();
     fetchCategories();
+    fetchAllergens();
   }, [url]);
 
   useEffect(() => {
@@ -640,7 +658,7 @@ const List = ({ url, token }) => {
             
             <label>Allergens</label>
             <div className="edit-allergens-grid">
-              {allergensList.map((allergen) => (
+              {allergenOptions.map((allergen) => (
                 <label key={allergen} className="edit-allergen-checkbox">
                   <input
                     type="checkbox"

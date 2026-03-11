@@ -100,7 +100,7 @@ const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
             <>
               {userName && <p className="user-name">{userName}</p>}
               <p className="user-role">
-                {userRole === "superadmin" ? "Super Admin" : userRole === "admin" ? "Admin" : "Staff"}
+                {userRole === "itadmin" ? "IT Admin" : userRole === "admin" ? "Admin" : "Staff"}
               </p>
             </>
           )}

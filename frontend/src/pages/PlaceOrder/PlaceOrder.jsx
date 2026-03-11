@@ -9,6 +9,21 @@ import { toast } from 'react-toastify';
 const orderTypes = ["Pick Up", "Pre-Order", "Delivery"];
 const formatCurrency = (amount) => `₱${amount.toFixed(2)}`;
 
+const getTodayDateString = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getCurrentTimeString = () => {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+};
+
 const PlaceOrder = () => {
   const { getTotalCartAmount, token, food_list, cartItems, url } = useContext(StoreContext)
   const navigate = useNavigate();
@@ -17,6 +32,8 @@ const PlaceOrder = () => {
   const [paymentMethod, setPaymentMethod] = useState("Cash");
   const [showGcash, setShowGcash] = useState(false);
   const [appliedPromo, setAppliedPromo] = useState(null);
+  const [gcashReceiptFile, setGcashReceiptFile] = useState(null);
+  const [gcashReceiptPreview, setGcashReceiptPreview] = useState("");
   
   const [data, setData] = useState({
     name: "",
@@ -28,6 +45,10 @@ const PlaceOrder = () => {
     reservationTime: "",
     partySize: ""
   });
+
+  const todayDate = getTodayDateString();
+  const currentTime = getCurrentTimeString();
+  const minReservationTime = data.reservationDate === todayDate ? currentTime : undefined;
 
   // Prefill user details from profile
   useEffect(() => {
@@ -60,6 +81,14 @@ const PlaceOrder = () => {
     }
   }, [location]);
 
+  useEffect(() => {
+    return () => {
+      if (gcashReceiptPreview) {
+        URL.revokeObjectURL(gcashReceiptPreview);
+      }
+    };
+  }, [gcashReceiptPreview]);
+
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
@@ -78,8 +107,44 @@ const PlaceOrder = () => {
     return orderItems;
   }
 
+  const handleGcashReceiptUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file only.");
+      event.target.value = "";
+      return;
+    }
+
+    const maxSizeInBytes = 5 * 1024 * 1024;
+    if (file.size > maxSizeInBytes) {
+      toast.error("Image must be 5MB or smaller.");
+      event.target.value = "";
+      return;
+    }
+
+    setGcashReceiptFile(file);
+    setGcashReceiptPreview(URL.createObjectURL(file));
+  };
+
   const placeOrder = async (event) => {
     event.preventDefault();
+
+    if (data.orderType === "Pre-Order") {
+      const now = new Date();
+      const reservationDateTime = new Date(`${data.reservationDate}T${data.reservationTime}`);
+
+      if (!data.reservationDate || !data.reservationTime || Number.isNaN(reservationDateTime.getTime())) {
+        toast.error("Please select a valid reservation date and time.");
+        return;
+      }
+
+      if (reservationDateTime < now) {
+        toast.error("Pre-Order date and time cannot be in the past.");
+        return;
+      }
+    }
     
     const orderItems = getOrderItems();
     const userId = sessionStorage.getItem("userId");
@@ -126,6 +191,8 @@ const PlaceOrder = () => {
           toast.error("Error placing order: " + response.data.message);
         }
       } else if (paymentMethod === "Gcash") {
+        setGcashReceiptFile(null);
+        setGcashReceiptPreview("");
         setShowGcash(true);
       } else if (paymentMethod === "Card") {
         let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
@@ -183,6 +250,7 @@ const PlaceOrder = () => {
                 type="date"
                 value={data.reservationDate}
                 onChange={onChangeHandler}
+                min={todayDate}
               />
               <input
                 required
@@ -190,6 +258,7 @@ const PlaceOrder = () => {
                 type="time"
                 value={data.reservationTime}
                 onChange={onChangeHandler}
+                min={minReservationTime}
               />
               <input
                 required
@@ -293,13 +362,21 @@ const PlaceOrder = () => {
       </form>
 
       {showGcash && (
-        <div className="gcash-modal" onClick={() => setShowGcash(false)}>
+        <div className="gcash-modal" onClick={() => {
+          setShowGcash(false)
+          setGcashReceiptFile(null)
+          setGcashReceiptPreview("")
+        }}>
           <div className="gcash-modal-content" onClick={e => e.stopPropagation()}>
             <div className="gcash-modal-header">
               <h3>GCash Payment</h3>
               <button
                 className="gcash-close-btn"
-                onClick={() => setShowGcash(false)}
+                onClick={() => {
+                  setShowGcash(false)
+                  setGcashReceiptFile(null)
+                  setGcashReceiptPreview("")
+                }}
                 aria-label="Close"
                 type="button"
               >
@@ -322,6 +399,25 @@ const PlaceOrder = () => {
               <strong>{formatCurrency(total)}</strong>
             </div>
 
+            <div className="gcash-upload-section">
+              <label htmlFor="gcashReceipt" className="gcash-upload-label">
+                Upload payment screenshot <span>*</span>
+              </label>
+              <input
+                id="gcashReceipt"
+                type="file"
+                accept="image/*"
+                onChange={handleGcashReceiptUpload}
+              />
+              {gcashReceiptPreview && (
+                <img
+                  src={gcashReceiptPreview}
+                  alt="GCash payment receipt preview"
+                  className="gcash-upload-preview"
+                />
+              )}
+            </div>
+
             <div className="gcash-modal-actions">
               <button
                 className="gcash-confirm-btn"
@@ -331,6 +427,26 @@ const PlaceOrder = () => {
                   if (!userId) {
                     toast.error("User ID not found. Please login again.");
                     return;
+                  }
+
+                  if (!gcashReceiptFile) {
+                    toast.error("Please upload your GCash payment screenshot before confirming.");
+                    return;
+                  }
+
+                  if (data.orderType === "Pre-Order") {
+                    const now = new Date();
+                    const reservationDateTime = new Date(`${data.reservationDate}T${data.reservationTime}`);
+
+                    if (!data.reservationDate || !data.reservationTime || Number.isNaN(reservationDateTime.getTime())) {
+                      toast.error("Please select a valid reservation date and time.");
+                      return;
+                    }
+
+                    if (reservationDateTime < now) {
+                      toast.error("Pre-Order date and time cannot be in the past.");
+                      return;
+                    }
                   }
 
                   const orderItems = getOrderItems();
@@ -344,22 +460,24 @@ const PlaceOrder = () => {
                       partySize: data.partySize
                     }
 
-                    let orderData = {
-                      userId,
-                      address: addressPayload,
-                      items: orderItems,
-                      amount: total,
-                      subtotal: subtotal,
-                      discount: discount,
-                      promoCode: appliedPromo?.code || null,
-                      orderType: data.orderType,
-                      paymentMethod: "Gcash"
-                    };
+                    const formData = new FormData();
+                    formData.append("userId", userId);
+                    formData.append("address", JSON.stringify(addressPayload));
+                    formData.append("items", JSON.stringify(orderItems));
+                    formData.append("amount", String(total));
+                    formData.append("subtotal", String(subtotal));
+                    formData.append("discount", String(discount));
+                    formData.append("promoCode", appliedPromo?.code || "");
+                    formData.append("orderType", data.orderType);
+                    formData.append("paymentMethod", "Gcash");
+                    formData.append("paymentProofImage", gcashReceiptFile);
 
                   try {
-                    let response = await axios.post(url + "/api/order/place", orderData, { headers: { token } });
+                    let response = await axios.post(url + "/api/order/place", formData, { headers: { token } });
                     if (response.data.success) {
                       setShowGcash(false);
+                      setGcashReceiptFile(null);
+                      setGcashReceiptPreview("");
                       toast.success("Order placed successfully!");
                       window.location.replace("/myorders");
                     } else {
@@ -376,7 +494,11 @@ const PlaceOrder = () => {
               <button
                 className="gcash-cancel-btn"
                 type="button"
-                onClick={() => setShowGcash(false)}
+                onClick={() => {
+                  setShowGcash(false)
+                  setGcashReceiptFile(null)
+                  setGcashReceiptPreview("")
+                }}
               >
                 Cancel
               </button>

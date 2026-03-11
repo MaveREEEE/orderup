@@ -67,7 +67,7 @@
 }
 
 .food-item-name {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
     margin: 0;
     color: var(--text-color);
@@ -75,7 +75,7 @@
 }
 
 .food-item-name-rating p{
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 500;
     margin: 0 5px 0 0;
 }
@@ -86,7 +86,7 @@
 
 .food-item-desc{
     color: #888;
-    font-size: 11px;
+    font-size: 13px;
     margin: 4px 0 8px 0;
     line-height: 1.3;
     display: -webkit-box;
@@ -98,7 +98,7 @@
 
 .food-item-price{
     color: var(--primary-color);
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 500px;
     margin: 4px 0px;
     text-align: center;
@@ -143,11 +143,46 @@
     margin-top: auto; /* ensure sold out button aligns as well */
 }
 
-.low-stock-warning {
-    color: #ef4444;
+.low-stock-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
     font-size: 12px;
-    font-weight: 600;
-    margin: 2px 0;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(255, 112, 67, 0.4);
+    z-index: 1;
+    text-transform: lowercase;
+}
+
+.unavailable-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.unavailable-text {
+    color: white;
+    font-size: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transform: rotate(-15deg);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    border: 3px solid white;
 }
 
 .food-item-info button:hover {
