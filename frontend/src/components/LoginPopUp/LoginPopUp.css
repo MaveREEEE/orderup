@@ -452,3 +452,12 @@
         gap: 4px;
         padding: 6px;
     }
+    .signup-top-row,
+    .signup-other-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-field.full-width {
+        grid-column: auto;
+    }
+}
