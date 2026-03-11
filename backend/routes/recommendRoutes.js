@@ -3,6 +3,7 @@ import express from "express";
 const router = express.Router();
 
 router.get("/:userId", async (req, res) => {
+  let upstreamUrl = "";
   try {
     const { userId } = req.params;
     const { top_n = 10 } = req.query;
@@ -11,6 +12,7 @@ router.get("/:userId", async (req, res) => {
       process.env.VITE_RECOMMENDER_URL ||
       "https://orderuprecommender.onrender.com";
     const recommenderUrl = recommenderBase.replace(/\/$/, "");
+    upstreamUrl = recommenderUrl;
     const url = new URL(`${recommenderUrl}/recommend/${userId}`);
     url.searchParams.set("top_n", top_n);
 
@@ -27,6 +29,7 @@ router.get("/:userId", async (req, res) => {
 
     res.json({
       success: true,
+      upstream: upstreamUrl,
       recommendations: data.recommendations || [],
       count: (data.recommendations || []).length
     });
@@ -35,6 +38,7 @@ router.get("/:userId", async (req, res) => {
     // Recommender unavailable — return empty gracefully but include debug message
     res.json({
       success: false,
+      upstream: upstreamUrl || "unresolved",
       message: err?.message || "Recommender unavailable",
       recommendations: [],
       count: 0
