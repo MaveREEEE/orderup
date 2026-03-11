@@ -228,70 +228,70 @@ class HybridRecommender:
 
         return [self.inv_food_map[i] for i in items]
 
-    def hybrid_recommend_with_preferences(self, user_id, preferences_text=None, allergens=None, top_n=10):
-            def hybrid_recommend(self, user_id, top_n=10):
-                """Hybrid collaborative + content-based recommendation for existing users."""
-                self.initialize()
-
-                user_id = str(user_id)
-                user_hist = list(
-                    self.interactions[
-                        self.interactions["user_id"] == user_id
-                    ]["food_id"]
-                )
-
-                if not user_hist:
-                    popular = self.interactions["food_id"].value_counts().index.tolist()
-                    return popular[:top_n]
-
-                cf_items = self.cf_recommend(user_id, top_n * 2)
-                cbf_items = []
-
-                for food in user_hist[-3:]:
-                    cbf_items.extend(self.cbf_from_food(food, top_n=5))
-
-                scaler = MinMaxScaler()
-
-                cf_scores = [1 / (i + 1) for i in range(len(cf_items))]
-                cbf_scores = [1 / (i + 1) for i in range(len(cbf_items))]
-
-                if cf_scores:
-                    cf_scores = scaler.fit_transform(pd.DataFrame(cf_scores))
-                if cbf_scores:
-                    cbf_scores = scaler.fit_transform(pd.DataFrame(cbf_scores))
-
-                weight_cf = 0.8 if len(user_hist) >= 5 else 0.5
-                weight_cbf = 1 - weight_cf
-
-                scores = {}
-                for i, f in enumerate(cf_items):
-                    scores[f] = scores.get(f, 0) + weight_cf * cf_scores[i][0]
-                for i, f in enumerate(cbf_items):
-                    scores[f] = scores.get(f, 0) + weight_cbf * cbf_scores[i][0]
-
-                ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-                return [f for f, _ in ranked[:top_n]]
-
-        """Hybrid recommendation using stored preferences/allergens for new users"""
+    def hybrid_recommend(self, user_id, top_n=10):
+        """Hybrid collaborative + content-based recommendation for existing users."""
         self.initialize()
-        
+
         user_id = str(user_id)
-        
+        user_hist = list(
+            self.interactions[
+                self.interactions["user_id"] == user_id
+            ]["food_id"]
+        )
+
+        if not user_hist:
+            popular = self.interactions["food_id"].value_counts().index.tolist()
+            return popular[:top_n]
+
+        cf_items = self.cf_recommend(user_id, top_n * 2)
+        cbf_items = []
+
+        for food in user_hist[-3:]:
+            cbf_items.extend(self.cbf_from_food(food, top_n=5))
+
+        scaler = MinMaxScaler()
+
+        cf_scores = [1 / (i + 1) for i in range(len(cf_items))]
+        cbf_scores = [1 / (i + 1) for i in range(len(cbf_items))]
+
+        if cf_scores:
+            cf_scores = scaler.fit_transform(pd.DataFrame(cf_scores))
+        if cbf_scores:
+            cbf_scores = scaler.fit_transform(pd.DataFrame(cbf_scores))
+
+        weight_cf = 0.8 if len(user_hist) >= 5 else 0.5
+        weight_cbf = 1 - weight_cf
+
+        scores = {}
+        for i, f in enumerate(cf_items):
+            scores[f] = scores.get(f, 0) + weight_cf * cf_scores[i][0]
+        for i, f in enumerate(cbf_items):
+            scores[f] = scores.get(f, 0) + weight_cbf * cbf_scores[i][0]
+
+        ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        return [f for f, _ in ranked[:top_n]]
+
+    def hybrid_recommend_with_preferences(self, user_id, preferences_text=None, allergens=None, top_n=10):
+        """Hybrid recommendation using stored preferences/allergens for new users."""
+        self.initialize()
+
+        user_id = str(user_id)
+
         # Check if user has order history
         user_hist = list(
             self.interactions[
                 self.interactions["user_id"] == user_id
             ]["food_id"]
         )
-        
+
         # If user has preferences but no order history, use preference-based recommendations
         if not user_hist and preferences_text:
             return self.cbf_from_preferences(preferences_text, allergens, top_n)
-        
+
         # If user has order history, use standard hybrid
         if user_hist:
             return self.hybrid_recommend(user_id=user_id, top_n=top_n)
-        
+
         # No preferences and no history - return popular items
         popular = self.interactions["food_id"].value_counts().index.tolist()
         return popular[:top_n]
