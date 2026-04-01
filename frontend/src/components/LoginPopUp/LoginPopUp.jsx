@@ -116,6 +116,22 @@ const LoginPopUp = ({ setShowLogin }) => {
                 password: data.password
             }
         } else {
+            const selectedPreferences = data.foodPreferences
+                ? data.foodPreferences.split(',').map((p) => p.trim()).filter(Boolean)
+                : []
+
+            if (selectedPreferences.length < 1) {
+                toast.error("Please select at least one food preference.")
+                setLoading(false)
+                return
+            }
+
+            if (data.allergens.length < 1) {
+                toast.error("Please select at least one allergen.")
+                setLoading(false)
+                return
+            }
+
             newUrl += "/api/auth/register"
             payload = {
                 name: data.name.trim(),
@@ -123,7 +139,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                 password: data.password,
                 phone: data.phone.trim(),
                 address: data.address.trim(),
-                foodPreferences: data.foodPreferences.trim(),
+                foodPreferences: selectedPreferences.join(', '),
                 allergens: data.allergens
             }
         }
@@ -205,7 +221,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                         <div className="signup-two-rows">
                             <div className="signup-top-row">
                                 <div className="preferences-section">
-                                    <label>Food Preferences (Optional)</label>
+                                    <label>Food Preferences (Select at least 1)</label>
                                     <div className="preferences-grid">
                                         {preferenceOptions.map((pref) => (
                                             <label key={pref}>
@@ -221,7 +237,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                                 </div>
 
                                 <div className="allergens-section">
-                                    <label>Allergies (Optional)</label>
+                                    <label>Allergies (Select at least 1)</label>
                                     <div className="allergens-grid">
                                         {allergenOptions.length > 0 ? (
                                             allergenOptions.map((allergen) => (
