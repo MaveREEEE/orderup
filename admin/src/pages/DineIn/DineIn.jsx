@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import './DineIn.css';
@@ -19,7 +19,7 @@ const DineIn = ({ url, token }) => {
     return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
   }
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await axios.get(`${url}/api/category/list`);
       if (res.data.success) {
@@ -31,9 +31,9 @@ const DineIn = ({ url, token }) => {
     } catch (err) {
       console.error('Failed to load categories', err);
     }
-  };
+  }, [url]);
 
-  const fetchFoods = async () => {
+  const fetchFoods = useCallback(async () => {
     try {
       setLoading(true);
       const res = await axios.get(`${url}/api/food/list`);
@@ -45,17 +45,16 @@ const DineIn = ({ url, token }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchCategories();
     fetchFoods();
-  }, [url]);
+  }, [fetchCategories, fetchFoods]);
 
   const filteredFoods = useMemo(() => {
     const term = search.trim().toLowerCase();
     return foods.filter((item) => {
-      // Hide items with no stock (calculate total from batches)
       const totalStock = item.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
       if (totalStock === 0) return false;
       

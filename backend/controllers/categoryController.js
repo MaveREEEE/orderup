@@ -9,7 +9,7 @@ const listCategory = async (req, res) => {
         console.log("📂 Fetching categories...");
         const categories = await categoryModel.find({}).sort({ name: 1 });
         console.log(`✅ Found ${categories.length} categories`);
-        res.json({ success: true, data: categories, categories });
+        res.json({ success: true, data: categories });
     } catch (error) {
         console.log("❌ Error fetching categories:", error);
         res.json({ success: false, message: "Failed to fetch categories" });
@@ -43,7 +43,6 @@ const addCategory = async (req, res) => {
     }
     
     try {
-        // Check for duplicate
         const categoryExists = await categoryModel.findOne({ 
             name: { $regex: new RegExp(`^${name.trim()}$`, 'i') }
         });
@@ -81,11 +80,9 @@ const updateCategory = async (req, res) => {
             return res.json({ success: false, message: "Category not found" });
         }
 
-        // Prepare update data
         const updateData = {};
         
         if (name && name.trim()) {
-            // Check if new name conflicts with existing category
             const existingCategory = await categoryModel.findOne({
                 name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
                 _id: { $ne: id }
@@ -97,9 +94,7 @@ const updateCategory = async (req, res) => {
             updateData.name = name.trim();
         }
 
-        // Check if new image is uploaded
         if (req.file) {
-            // Use Cloudinary URL/path when available
             updateData.image = req.file.path || req.file.filename;
         }
 
@@ -130,19 +125,14 @@ const removeCategory = async (req, res) => {
             return res.json({ success: false, message: "Category not found" });
         }
 
-        // Archive before deleting - KEEP THE IMAGE
         await archivedCategoryModel.create({
             name: category.name,
-            image: category.image, // Save image filename
+            image: category.image, 
             originalId: category._id,
             deletedAt: new Date()
         });
 
-        // Delete from active categories
         await categoryModel.findByIdAndDelete(id);
-        
-        // DON'T delete the image file - keep it for restore
-        // The image stays in uploads/categories folder
         
         res.json({ success: true, message: "Category archived successfully" });
     } catch (error) {
@@ -161,7 +151,6 @@ const restoreCategory = async (req, res) => {
             return res.json({ success: false, message: "Archived category not found" });
         }
 
-        // Check if category with same name already exists
         const exists = await categoryModel.findOne({ 
             name: { $regex: new RegExp(`^${archivedCategory.name}$`, 'i') }
         });
@@ -170,10 +159,9 @@ const restoreCategory = async (req, res) => {
             return res.json({ success: false, message: "Category with this name already exists" });
         }
 
-        // Restore to active categories with image
         const restoredCategory = new categoryModel({
             name: archivedCategory.name,
-            image: archivedCategory.image // Restore with original image
+            image: archivedCategory.image 
         });
 
         await restoredCategory.save();
@@ -201,7 +189,7 @@ const listArchivedCategories = async (req, res) => {
     }
 };
 
-//Permanently delete archived category (optional - for cleanup)
+//Permanently delete archived category
 const permanentlyDeleteCategory = async (req, res) => {
     try {
         const { id } = req.body;
@@ -211,7 +199,6 @@ const permanentlyDeleteCategory = async (req, res) => {
             return res.json({ success: false, message: "Archived category not found" });
         }
 
-        // Delete the image file if it exists
         if (archivedCategory.image && !archivedCategory.image.startsWith("http")) {
             const imagePath = path.join(process.cwd(), "uploads/categories", archivedCategory.image);
             fs.unlink(imagePath, (err) => {
@@ -219,7 +206,6 @@ const permanentlyDeleteCategory = async (req, res) => {
             });
         }
 
-        // Delete from archived
         await archivedCategoryModel.findByIdAndDelete(id);
 
         res.json({ 

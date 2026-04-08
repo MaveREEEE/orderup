@@ -6,14 +6,12 @@ import { useNavigate } from 'react-router-dom'
 
 const Header = () => {
    const navigate = useNavigate();
-   const [menu, setMenu] = useState("home");
     const { food_list, url, addToCart } = useContext(StoreContext);
     const [heroSettings, setHeroSettings] = useState({
        heroBackground: '',
        heroTitle: 'Delicious Food Delivered Fast',
        heroSubtitle: 'Order your favorite meals and enjoy them at home',
     });
-       // Fetch hero settings from backend
        useEffect(() => {
           const fetchSettings = async () => {
              try {
@@ -26,8 +24,8 @@ const Header = () => {
                       heroSubtitle: data.data.heroSubtitle || 'Order your favorite meals and enjoy them at home',
                    });
                 }
-             } catch (e) {
-                // fallback to defaults
+             } catch {
+                  console.error("Error fetching settings");
              }
           };
           fetchSettings();
@@ -42,22 +40,18 @@ const Header = () => {
       return img.startsWith('http') ? img : ''
    }
 
-   // Get seed for today's date (resets daily)
    const getTodaySeed = () => {
       const today = new Date();
       return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
    };
 
-   // Seeded random number generator for consistent daily randomness
    const seededRandom = (seed) => {
       const x = Math.sin(seed++) * 10000;
       return x - Math.floor(x);
    };
 
    useEffect(() => {
-      // Get top 5 best selling items and 3 random featured items
       if (food_list && food_list.length > 0) {
-         // Get best sellers
          const sorted = [...food_list].sort((a, b) => {
             const ratingCountA = a.ratings?.length || 0;
             const ratingCountB = b.ratings?.length || 0;
@@ -65,22 +59,18 @@ const Header = () => {
          });
          const bestSellers = sorted.slice(0, 5).map(item => ({ ...item, badge: 'Best Seller' }));
 
-         // Get 3 random featured items (excluding best sellers)
          const remainingItems = food_list.filter(item => 
             !bestSellers.some(bs => bs._id === item._id)
          );
 
-         // Use today's seed for consistent randomness throughout the day
          const seed = getTodaySeed();
          const shuffled = [...remainingItems].sort(() => seededRandom(seed) - 0.5);
          const featured = shuffled.slice(0, 3).map(item => ({ ...item, badge: 'Featured' }));
 
-         // Combine and set carousel items
          setCarouselItems([...bestSellers, ...featured]);
       }
    }, [food_list]);
 
-   // Auto-swipe functionality
    useEffect(() => {
       if (carouselItems.length === 0) return;
       
@@ -88,7 +78,7 @@ const Header = () => {
          setCurrentIndex((prevIndex) => 
             prevIndex === carouselItems.length - 1 ? 0 : prevIndex + 1
          );
-      }, 3000); // Auto-swipe every 3 seconds
+      }, 3000);
 
       return () => clearInterval(interval);
    }, [carouselItems]);
@@ -111,10 +101,8 @@ const Header = () => {
 
    return (
       <div className='header'>
-         {/* Hero Banner with Carousel on the Right */}
          <div className="hero-banner" style={heroSettings.heroBackground ? { backgroundImage: `url(${heroSettings.heroBackground})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
             <div className="hero-overlay"></div>
-            {/* Left: Hero copy */}
             <div className="hero-content">
                <h1 className="hero-title">{heroSettings.heroTitle}</h1>
                <p className="hero-subtitle">{heroSettings.heroSubtitle}</p>
@@ -123,7 +111,7 @@ const Header = () => {
                   <button className="hero-btn secondary" onClick={() => document.getElementById('explore-menu')?.scrollIntoView({ behavior: 'smooth' })}>View Menu</button>
                </div>
             </div>
-            {/* Right: Best Sellers & Featured Carousel */}
+
             {carouselItems.length > 0 && (
                <div className="hero-carousel">
                   <div className="carousel-container-hero">
@@ -165,7 +153,6 @@ const Header = () => {
             )}
          </div>
 
-         {/* Food Item Modal */}
          {showModal && selectedItem && (
             <FoodItemModal
                item={selectedItem}

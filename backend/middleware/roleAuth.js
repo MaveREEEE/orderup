@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken"
 import adminModel from "../models/adminModel.js"
 
-// Check if user has required role
+//Check if user has required role
 export const checkRole = (allowedRoles) => {
   return async (req, res, next) => {
     try {
@@ -13,19 +13,16 @@ export const checkRole = (allowedRoles) => {
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
-      // Find admin user
       const admin = await adminModel.findById(decoded.id);
       
       if (!admin) {
         return res.json({ success: false, message: "Admin not found" })
       }
 
-      // Check if admin is active
       if (!admin.isActive) {
         return res.json({ success: false, message: "Account is inactive" })
       }
 
-      // Check if admin's role is in allowedRoles
       if (!allowedRoles.includes(admin.role)) {
         return res.json({ 
           success: false, 
@@ -42,7 +39,7 @@ export const checkRole = (allowedRoles) => {
   }
 }
 
-// Check if user has specific permission
+//Check if user has specific permission
 export const checkPermission = (permission) => {
   return async (req, res, next) => {
     try {
@@ -59,13 +56,11 @@ export const checkPermission = (permission) => {
         return res.json({ success: false, message: "Admin not found" })
       }
 
-      // IT Admin always has all permissions
       if (admin.role === 'itadmin') {
         req.admin = admin;
         return next();
       }
 
-      // Check specific permission
       if (!admin.permissions || !admin.permissions[permission]) {
         return res.json({ 
           success: false, 

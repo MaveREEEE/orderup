@@ -2,7 +2,7 @@ import inventoryModel from "../models/inventoryModel.js"
 import foodModel from "../models/foodModel.js"
 import mongoose from "mongoose"
 
-// Get all inventory (grouped by food item)
+//Get all inventory (grouped by food item)
 const listInventory = async (req, res) => {
   try {
     const foods = await foodModel.find().populate('batches')
@@ -13,7 +13,7 @@ const listInventory = async (req, res) => {
   }
 }
 
-// Get low stock items
+//Get low stock items
 const getLowStockItems = async (req, res) => {
   try {
     const foods = await foodModel.find()
@@ -29,7 +29,7 @@ const getLowStockItems = async (req, res) => {
   }
 }
 
-// Get expiring items (within 7 days)
+//Get expiring items (within 7 days)
 const getExpiringItems = async (req, res) => {
   try {
     const foods = await foodModel.find()
@@ -66,7 +66,7 @@ const getExpiringItems = async (req, res) => {
   }
 }
 
-// Add batch to food item
+//Add batch to food item
 const addBatch = async (req, res) => {
   try {
     const { itemId, quantity, productionDate, expirationDate } = req.body
@@ -77,7 +77,7 @@ const addBatch = async (req, res) => {
     }
 
     const newBatch = {
-      _id: new mongoose.Types.ObjectId(), // ← Fixed: use imported mongoose
+      _id: new mongoose.Types.ObjectId(),
       quantity: parseInt(quantity),
       productionDate: new Date(productionDate),
       expirationDate: expirationDate ? new Date(expirationDate) : null,
@@ -97,7 +97,7 @@ const addBatch = async (req, res) => {
   }
 }
 
-// Remove batch from food item
+//Remove batch from food item
 const removeBatch = async (req, res) => {
   try {
     const { itemId, batchId } = req.body

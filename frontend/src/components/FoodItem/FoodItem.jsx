@@ -1,10 +1,7 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import './FoodItem.css'
-import { assets } from '../../assets/assets'
-import { StoreContext } from '../../context/StoreContext'
 
 const FoodItem = ({
-  id,
   name,
   price,
   description,
@@ -15,8 +12,6 @@ const FoodItem = ({
   onView,
   hideDescriptionOnMobile = false,
 }) => {
-  const { url } = useContext(StoreContext)
-
   const getImageUrl = (img) => {
     if (!img) return ''
     return img.startsWith('http') ? img : ''

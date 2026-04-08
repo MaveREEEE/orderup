@@ -29,7 +29,6 @@ const Footer = () => {
   }
 
   useEffect(() => {
-    // Fetch settings from backend
     const fetchSettings = async () => {
       try {
         const res = await fetch(`${url}/api/settings/`)
@@ -48,12 +47,12 @@ const Footer = () => {
     <div className='footer' id='footer'>
       <div className="footer-content">
         <div className="footer-content-left">
-          <img 
-            style={{ width: '100px', height: 'auto' }} 
-            src={settings.logo ? getBrandingUrl(settings.logo) : assets.logo} 
-            alt={settings.siteName || "OrderUP"} 
+          <img
+            style={{ width: '100px', height: 'auto' }}
+            src={settings.logo ? getBrandingUrl(settings.logo) : assets.logo}
+            alt={settings.siteName || "OrderUP"}
           />
-          
+
         </div>
         <div className="footer-content-center">
           <h2>COMPANY</h2>
@@ -76,7 +75,7 @@ const Footer = () => {
                   <img src={assets.x_icon} alt="X" />
                 </a>
               )}
-          </div>
+            </div>
           </ul>
         </div>
         <div className="footer-content-right">
@@ -85,7 +84,7 @@ const Footer = () => {
             <li>Phone: {settings.phone || '(123) 456-7890'}</li>
             <li>Email: {settings.email || 'support@orderup.com'}</li>
             {settings.address && <li>Address: {settings.address}</li>}
-            
+
           </ul>
         </div>
       </div>

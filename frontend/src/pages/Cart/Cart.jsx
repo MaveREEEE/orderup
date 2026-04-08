@@ -17,7 +17,6 @@ const Cart = () => {
     return img.startsWith('http') ? img : ''
   }
 
-  // Fetch cart from database on component mount
   useEffect(() => {
     const fetchCartFromDB = async () => {
       if (userId && token) {
@@ -112,7 +111,7 @@ const Cart = () => {
         <br />
         <hr />
 
-        {food_list.map((item, index) => {
+        {food_list.map((item) => {
           if (cartItems[item._id] > 0) {
             return (
               <div key={item._id}>

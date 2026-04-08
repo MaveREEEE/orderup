@@ -8,7 +8,7 @@ const FoodDisplay = ({ category }) => {
   const { food_list, addToCart, url } = useContext(StoreContext);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  // Filter items by category and sort so unavailable items appear at bottom
+  //Filter items by category and sort
   const displayItems = food_list
     .filter(item => category === "All" || category === item.category)
     .sort((a, b) => {
@@ -17,7 +17,7 @@ const FoodDisplay = ({ category }) => {
       const aUnavailable = aStock === 0;
       const bUnavailable = bStock === 0;
       
-      // Available items first, unavailable at bottom
+      //Available items first, unavailable at bottom
       if (aUnavailable && !bUnavailable) return 1;
       if (!aUnavailable && bUnavailable) return -1;
       return 0;

@@ -21,7 +21,6 @@
     margin: 0;
 }
 
-/* Alerts Section - Grid Layout */
 .alerts-section {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -130,7 +129,6 @@
     font-weight: 600;
 }
 
-/* Inventory List */
 .inventory-list {
     background: var(--background-color, #ffffff);
     padding: 28px;
@@ -148,7 +146,7 @@
     color: var(--text-color, #333);
     margin: 0;
 }
-/* Inventory Filters */
+
 .inventory-filters {
     display: flex;
     gap: 12px;
@@ -202,7 +200,7 @@
 .clear-filters-btn:hover {
     background: rgba(0, 0, 0, 0.12);
 }
-/* Inventory Grid Layout */
+
 .inventory-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -303,7 +301,6 @@
     color: #991b1b;
 }
 
-/* Batches List in Card */
 .batches-list {
     display: flex;
     flex-direction: column;
@@ -423,7 +420,6 @@
     transform: translateY(-1px);
 }
 
-/* Modal */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -626,7 +622,6 @@
     margin: 0;
 }
 
-/* Responsive */
 @media (min-width: 1400px) {
     .inventory-grid {
         grid-template-columns: repeat(6, 1fr);

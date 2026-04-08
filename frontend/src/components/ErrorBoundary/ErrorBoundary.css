@@ -107,7 +107,6 @@
   word-wrap: break-word;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .error-boundary-content {
     padding: 40px 30px;

@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import adminModel from "../models/adminModel.js";
 import userModel from "../models/userModel.js";
 
-// Unified login - checks both admin and customer
+//Unified login
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -11,7 +11,6 @@ const login = async (req, res) => {
         console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━");
         console.log("Login attempt for:", email);
 
-        // Validate input
         if (!email || !password) {
             console.log("❌ Missing email or password");
             return res.json({ 
@@ -20,7 +19,6 @@ const login = async (req, res) => {
             });
         }
 
-        // First, check if user is an admin
         const admin = await adminModel.findOne({ email: email.toLowerCase().trim() });
         
         if (admin) {
@@ -28,7 +26,6 @@ const login = async (req, res) => {
             console.log("Role:", admin.role);
             console.log("Active:", admin.isActive);
 
-            // Verify admin is active
             if (!admin.isActive) {
                 console.log("❌ Admin account is inactive");
                 return res.json({ 
@@ -37,7 +34,6 @@ const login = async (req, res) => {
                 });
             }
 
-            // Verify password
             console.log("🔐 Verifying password...");
             const isMatch = await bcrypt.compare(password, admin.password);
             console.log("Password match:", isMatch);
@@ -50,7 +46,6 @@ const login = async (req, res) => {
                 });
             }
 
-            // Generate token WITH ROLE
             const token = jwt.sign(
                 { 
                     id: admin._id, 
@@ -80,13 +75,11 @@ const login = async (req, res) => {
 
         console.log("ℹ️  Not found in admin collection");
 
-        // If not admin, check if user is a customer
         const customer = await userModel.findOne({ email: email.toLowerCase().trim() });
         
         if (customer) {
             console.log("✅ Found customer:", customer.email);
 
-            // Verify password
             const isMatch = await bcrypt.compare(password, customer.password);
 
             if (!isMatch) {
@@ -97,7 +90,6 @@ const login = async (req, res) => {
                 });
             }
 
-            // Generate token WITH ROLE
             const token = jwt.sign(
                 { 
                     id: customer._id, 
@@ -122,7 +114,6 @@ const login = async (req, res) => {
             });
         }
 
-        // User not found in either collection
         console.log("❌ User not found in any collection");
         console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
         
@@ -141,14 +132,13 @@ const login = async (req, res) => {
     }
 };
 
-// Register customer (admin accounts created separately)
+//Register customer
 const register = async (req, res) => {
     try {
         const { name, email, password, phone, address, foodPreferences, allergens } = req.body;
 
         console.log("Registration attempt for:", email);
 
-        // Validate input
         if (!name || !email || !password) {
             return res.json({ 
                 success: false, 
@@ -163,7 +153,6 @@ const register = async (req, res) => {
             });
         }
 
-        // Check if user already exists (both admin and customer)
         const adminExists = await adminModel.findOne({ email: email.toLowerCase().trim() });
         const customerExists = await userModel.findOne({ email: email.toLowerCase().trim() });
 
@@ -175,11 +164,9 @@ const register = async (req, res) => {
             });
         }
 
-        // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        // Create new customer
         const newUser = new userModel({
             name: name.trim(),
             email: email.toLowerCase().trim(),
@@ -195,7 +182,6 @@ const register = async (req, res) => {
         await newUser.save();
         console.log("✅ Customer registered:", newUser.email);
 
-        // Generate token WITH ROLE
         const token = jwt.sign(
             { 
                 id: newUser._id, 
@@ -225,8 +211,4 @@ const register = async (req, res) => {
     }
 };
 
-// Export with correct names
 export { login, register };
-
-// Also export with alternative names for backward compatibility
-export { login as unifiedLogin, register as registerCustomer };

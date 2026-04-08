@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import './Allergens.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -10,23 +10,23 @@ const Allergens = ({ url }) => {
   const [editingId, setEditingId] = useState(null)
   const [editValue, setEditValue] = useState('')
 
-  useEffect(() => {
-    fetchAllergens()
-  }, [])
-
-  const fetchAllergens = async () => {
+  const fetchAllergens = useCallback(async () => {
     try {
       setLoading(true)
       const response = await axios.get(`${url}/api/allergens`)
       if (response.data.success) {
         setAllergens(response.data.data || [])
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to load allergens')
     } finally {
       setLoading(false)
     }
-  }
+  }, [url])
+
+  useEffect(() => {
+    fetchAllergens()
+  }, [fetchAllergens])
 
   const handleAdd = async () => {
     if (!newAllergen.trim()) {
@@ -57,7 +57,7 @@ const Allergens = ({ url }) => {
           setAllergens(allergens.filter(a => a._id !== id))
           toast.success('Allergen deleted successfully')
         }
-      } catch (error) {
+      } catch {
         toast.error('Failed to delete allergen')
       }
     }
@@ -79,7 +79,7 @@ const Allergens = ({ url }) => {
         setEditingId(null)
         toast.success('Allergen updated successfully')
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to update allergen')
     }
   }

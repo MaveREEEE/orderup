@@ -20,7 +20,6 @@ const adminSchema = new mongoose.Schema({
     canManageAllergens: { type: Boolean, default: false }
   },
   isActive: { type: Boolean, default: true },
-  // Password reset
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
 }, { timestamps: true });

@@ -2,14 +2,12 @@ import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import multer from 'multer';
 
-// Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Storage for food items
 const foodStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -19,7 +17,6 @@ const foodStorage = new CloudinaryStorage({
   }
 });
 
-// Storage for categories
 const categoryStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -29,7 +26,6 @@ const categoryStorage = new CloudinaryStorage({
   }
 });
 
-// Storage for branding (logo/favicon)
 const brandingStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
@@ -38,7 +34,6 @@ const brandingStorage = new CloudinaryStorage({
   }
 });
 
-// Storage for GCash payment proof uploads
 const gcashProofStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {

@@ -9,7 +9,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const [userPermissions, setUserPermissions] = useState({});
     const location = useLocation();
 
-    // Get user role and permissions from sessionStorage
     useEffect(() => {
         const role = sessionStorage.getItem("userRole") || sessionStorage.getItem("role");
         setUserRole(role);
@@ -18,13 +17,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         if (permissionsStr) {
             try {
                 setUserPermissions(JSON.parse(permissionsStr));
-            } catch (e) {
+            } catch {
                 setUserPermissions({});
             }
         }
     }, []);
 
-    // Role-based access control
     const hasAccess = (requiredRoles) => {
         if (!userRole) return false;
         if (!requiredRoles || requiredRoles.length === 0) return true;
@@ -33,7 +31,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
 
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
-        // Close submenu when collapsing sidebar
         if (!isCollapsed) {
             setIsListMenuOpen(false);
         }
@@ -43,11 +40,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         e.preventDefault();
         e.stopPropagation();
 
-        // Don't allow submenu toggle when sidebar is collapsed
+
         if (isCollapsed) {
-            // Expand sidebar first
             setIsCollapsed(false);
-            // Then open submenu
             setTimeout(() => {
                 setIsListMenuOpen(true);
             }, 150);
@@ -55,19 +50,16 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             setIsListMenuOpen(!isListMenuOpen);
         }
     };
-
-    // Auto-open submenu if on a submenu page
+e
     useEffect(() => {
         if (location.pathname === '/list' || location.pathname === '/category' || location.pathname === '/add') {
             setIsListMenuOpen(true);
-            // Make sure sidebar is expanded when on submenu pages
             if (window.innerWidth > 768) {
                 setIsCollapsed(false);
             }
         }
     }, [location.pathname, setIsCollapsed]);
 
-    // Close sidebar on mobile when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (window.innerWidth <= 768 && !isCollapsed) {
@@ -88,7 +80,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         };
     }, [isCollapsed, setIsCollapsed]);
 
-    // Handle responsive behavior
     useEffect(() => {
         const handleResize = () => {
             if (window.innerWidth <= 768) {
@@ -102,7 +93,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     }, [setIsCollapsed]);
 
     const handleSubmenuClick = () => {
-        // On mobile, close sidebar after clicking submenu item
         if (window.innerWidth <= 768) {
             setIsCollapsed(true);
             setIsListMenuOpen(false);
@@ -154,7 +144,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                     </NavLink>
                 )}
 
-                {/* List Items with Submenu */}
                 {hasAccess(['itadmin', 'admin', 'staff']) && (
                     <div className="sidebar-option-group">
                     <div
@@ -176,7 +165,6 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         </span>
                     </div>
 
-                    {/* Submenu */}
                     <div className={`sidebar-submenu ${isListMenuOpen ? 'open' : ''}`}> 
                         <NavLink 
                             to='/list' 

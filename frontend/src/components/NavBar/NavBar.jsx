@@ -15,7 +15,6 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   const [showSearch, setShowSearch] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  // Do NOT initialize from localStorage — always fetch from backend when token exists
   const [userName, setUserName] = useState("");
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const { getTotalCartAmount, token, setToken, cartItems, url } = useContext(StoreContext)
@@ -34,7 +33,6 @@ const NavBar = ({ setShowLogin, showLogin }) => {
 
     window.addEventListener('scroll', handleScroll);
 
-    // Fetch logo from backend settings
     const fetchLogo = async () => {
       try {
         const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:4000";
@@ -54,9 +52,7 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     };
     fetchLogo();
 
-    // Fetch user data from backend (MongoDB) whenever we have a token (from context or storage)
     const fetchUserData = async () => {
-      // Prefer token from context, fallback to sessionStorage/localStorage
       const storedToken = token || sessionStorage.getItem("token") || localStorage.getItem("token");
       const userId = sessionStorage.getItem("userId") || localStorage.getItem("userId");
 
@@ -66,10 +62,8 @@ const NavBar = ({ setShowLogin, showLogin }) => {
             headers: { token: storedToken }
           });
           if (response.data && response.data.success) {
-            // Only set state from API result (MongoDB)
             setUserName(response.data.data.name || "");
           } else {
-            // If API says unauthenticated or missing, clear any displayed name
             setUserName("");
           }
         } catch (error) {
@@ -77,18 +71,15 @@ const NavBar = ({ setShowLogin, showLogin }) => {
           setUserName("");
         }
       } else {
-        // No token/userId -> ensure username cleared
         setUserName("");
       }
     };
 
-    // Run fetchUserData on mount and whenever token/url change
     fetchUserData();
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, [token, url]);
 
-  // Fetch unread notifications count
   useEffect(() => {
     const fetchUnreadCount = async () => {
       const storedToken = token || sessionStorage.getItem("token") || localStorage.getItem("token");
@@ -115,7 +106,6 @@ const NavBar = ({ setShowLogin, showLogin }) => {
 
     if (token || sessionStorage.getItem("token") || localStorage.getItem("token")) {
       fetchUnreadCount();
-      // Refresh every 30 seconds
       const interval = setInterval(fetchUnreadCount, 30000);
       return () => clearInterval(interval);
     } else {
@@ -123,7 +113,6 @@ const NavBar = ({ setShowLogin, showLogin }) => {
     }
   }, [token, url]);
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showProfileDropdown && !event.target.closest('.navbar-profile')) {
@@ -136,21 +125,16 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   }, [showProfileDropdown]);
 
   const logout = () => {
-    // Clear both sessionStorage and localStorage to be safe
-    try {
-      sessionStorage.removeItem("token");
-      sessionStorage.removeItem("userId");
-      sessionStorage.removeItem("userName");
-      sessionStorage.removeItem("userType");
-      sessionStorage.removeItem("userRole");
-    } catch(e) {}
-    try {
-      localStorage.removeItem("token");
-      localStorage.removeItem("userId");
-      localStorage.removeItem("userName");
-      localStorage.removeItem("userType");
-      localStorage.removeItem("userRole");
-    } catch(e) {}
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userId");
+    sessionStorage.removeItem("userName");
+    sessionStorage.removeItem("userType");
+    sessionStorage.removeItem("userRole");
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("userRole");
 
     setToken("")
     setUserName("")
@@ -192,7 +176,6 @@ const NavBar = ({ setShowLogin, showLogin }) => {
   };
 
   const toggleProfileDropdown = (e) => {
-    // stop propagation so the document click handler doesn't immediately close it
     if (e && e.stopPropagation) e.stopPropagation();
     setShowProfileDropdown(!showProfileDropdown);
   };

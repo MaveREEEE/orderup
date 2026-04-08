@@ -1,13 +1,20 @@
 import settingsModel from "../models/settingsModel.js";
-import fs from 'fs';
-import path from 'path';
 
-// Get settings
+const saveSettingsUpdate = async (updateData) => {
+  const savedSettings = await settingsModel.findOneAndUpdate(
+    {},
+    { $set: updateData },
+    { new: true, upsert: true, runValidators: false }
+  );
+
+  return savedSettings;
+};
+
+//Get settings
 const getSettings = async (req, res) => {
   try {
     let settings = await settingsModel.findOne();
     
-    // Create default settings if none exist
     if (!settings) {
       settings = new settingsModel({});
       await settings.save();
@@ -20,42 +27,36 @@ const getSettings = async (req, res) => {
   }
 };
 
-// Update settings (IT Admin only)
+//Update settings
 const updateSettings = async (req, res) => {
   try {
     const updates = req.body;
     updates.updatedAt = Date.now();
     console.log("[Settings Update] Payload received:", updates);
-    // Remove logo and favicon from update if not provided
     if (!updates.logo) {
       delete updates.logo;
     }
     if (!updates.favicon) {
       delete updates.favicon;
     }
-    let settings = await settingsModel.findOneAndUpdate(
-      {},
-      { $set: updates },
-      { new: true, upsert: true }
-    );
+    let settings = await saveSettingsUpdate(updates);
     res.json({ success: true, message: "Settings updated successfully", data: settings });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: "Error updating settings" });
   }
 };
-// Update hero background image, title, and subtitle
+
+//Update hero background image, title, and subtitle
 const updateHeroBackground = async (req, res) => {
   try {
     const updateData = {};
 
-    // Update hero background if uploaded
     if (req.file) {
       console.log("Hero background file received:", req.file.path || req.file.filename);
       updateData.heroBackground = req.file.path || req.file.filename;
     }
 
-    // Accept heroTitle and heroSubtitle from body (for multipart/form-data)
     if (req.body.heroTitle !== undefined) updateData.heroTitle = req.body.heroTitle;
     if (req.body.heroSubtitle !== undefined) updateData.heroSubtitle = req.body.heroSubtitle;
 
@@ -63,15 +64,10 @@ const updateHeroBackground = async (req, res) => {
 
     console.log("Attempting to update hero background/title/subtitle with:", updateData);
 
-    const savedSettings = await settingsModel.findOneAndUpdate(
-      {},
-      { $set: updateData },
-      { new: true, upsert: true, runValidators: false }
-    );
+    const savedSettings = await saveSettingsUpdate(updateData);
     console.log("MongoDB returned:", savedSettings);
     console.log("Hero background in response:", savedSettings.heroBackground);
 
-    // Verify the update by fetching directly from DB
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.heroBackground, verified.heroTitle, verified.heroSubtitle);
 
@@ -85,18 +81,16 @@ const updateHeroBackground = async (req, res) => {
     res.json({ success: false, message: "Error updating hero background: " + error.message });
   }
 };
-// Update branding (logo and favicon)
+//Update branding
 const updateBranding = async (req, res) => {
   try {
     const updateData = {};
 
-    // Update logo if uploaded
     if (req.file) {
       console.log("File received:", req.file.path || req.file.filename);
       updateData.logo = req.file.path || req.file.filename;
     }
 
-    // Update other branding fields from body
     if (req.body.siteName) updateData.siteName = req.body.siteName;
     if (req.body.primaryColor) updateData.primaryColor = req.body.primaryColor;
     if (req.body.secondaryColor) updateData.secondaryColor = req.body.secondaryColor;
@@ -108,20 +102,14 @@ const updateBranding = async (req, res) => {
 
     console.log("Attempting to update with:", updateData);
 
-    const savedSettings = await settingsModel.findOneAndUpdate(
-      {},
-      { $set: updateData },
-      { new: true, upsert: true, runValidators: false }
-    );
+    const savedSettings = await saveSettingsUpdate(updateData);
     
     console.log("MongoDB returned:", savedSettings);
     console.log("Logo in response:", savedSettings.logo);
 
-    // Verify the update by fetching directly from DB
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.logo);
 
-    // Cloudinary-only: no git auto-commit for uploads
 
     res.json({ 
       success: true, 
@@ -134,12 +122,11 @@ const updateBranding = async (req, res) => {
   }
 };
 
-// Update favicon
+//Update favicon
 const updateFavicon = async (req, res) => {
   try {
     const updateData = {};
 
-    // Update favicon if uploaded
     if (req.file) {
       console.log("Favicon file received:", req.file.path || req.file.filename);
       updateData.favicon = req.file.path || req.file.filename;
@@ -149,20 +136,13 @@ const updateFavicon = async (req, res) => {
 
     console.log("Attempting to update favicon with:", updateData);
 
-    const savedSettings = await settingsModel.findOneAndUpdate(
-      {},
-      { $set: updateData },
-      { new: true, upsert: true, runValidators: false }
-    );
+    const savedSettings = await saveSettingsUpdate(updateData);
     
     console.log("MongoDB returned:", savedSettings);
     console.log("Favicon in response:", savedSettings.favicon);
 
-    // Verify the update by fetching directly from DB
     const verified = await settingsModel.findById(savedSettings._id);
     console.log("Verified from DB:", verified.favicon);
-
-    // Cloudinary-only: no git auto-commit for uploads
 
     res.json({ 
       success: true, 

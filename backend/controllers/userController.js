@@ -3,12 +3,12 @@ import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import validator from "validator"
 
-// Create JWT token
+//Create JWT token
 const createToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET)
 }
 
-// login user
+//Login user
 const loginUser = async (req,res) => {
     const {email,password} = req.body;
     try {
@@ -44,27 +44,23 @@ const loginUser = async (req,res) => {
     }
 }
 
-// register user
+//Register user
 const registerUser = async (req,res) => {
     const {name,password,email,role} = req.body
     try {
-        // Check if user exist
         const exists = await userModel.findOne({email});
         if (exists){
             return res.json({success:false,message:"User already exist"})
         }
 
-        // Validate email format
         if (!validator.isEmail(email)) {
             return res.json({success:false,message:"Please enter a valid email"})
         }
 
-        // Validate password strength
         if (password.length<8) {
             return res.json({success:false,message:"Please enter a strong password"})
         }
 
-        // Hash password
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password,salt)
 
@@ -96,7 +92,7 @@ const registerUser = async (req,res) => {
     }
 }
 
-// Get user profile
+//Get user profile
 const getUserProfile = async (req, res) => {
     try {
         const { token } = req.headers;
@@ -118,7 +114,7 @@ const getUserProfile = async (req, res) => {
         res.json({ success: false, message: "Error" });
     }
 }
-// List all users
+//List all users
 const listUsers = async (req, res) => {
   try {
     const users = await userModel.find().select('-password')
@@ -128,7 +124,7 @@ const listUsers = async (req, res) => {
   }
 }
 
-// Create user (admin panel)
+//Create user
 const createUser = async (req, res) => {
   try {
     const { name, email, password, role } = req.body
@@ -151,7 +147,7 @@ const createUser = async (req, res) => {
   }
 }
 
-// Update user (admin panel)
+//Update user
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params
@@ -172,7 +168,7 @@ const updateUser = async (req, res) => {
   }
 }
 
-// Delete user (admin panel)
+//Delete user 
 const deleteUser = async (req, res) => {
   const { id } = req.params
   try {
@@ -183,13 +179,12 @@ const deleteUser = async (req, res) => {
   }
 }
 
-// Update own profile (customer)
+//Update own profile 
 const updateOwnProfile = async (req, res) => {
   try {
     const { id } = req.params
     const { name, email, phone, address } = req.body
     
-    // Verify user is updating their own profile
     if (!req.user || req.user.id.toString() !== id.toString()) {
       return res.json({ success: false, message: "Unauthorized" })
     }
@@ -199,7 +194,6 @@ const updateOwnProfile = async (req, res) => {
       return res.json({ success: false, message: "User not found" })
     }
     
-    // Update allowed fields
     if (name) user.name = name
     if (email) user.email = email
     if (phone !== undefined) user.phone = phone

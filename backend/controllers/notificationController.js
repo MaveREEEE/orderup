@@ -1,6 +1,6 @@
 import notificationModel from '../models/notificationModel.js';
 
-// Create notification
+//Create notification
 export const createNotification = async ({ userId, type, title, message, relatedOrderId = null }) => {
   try {
     const notification = new notificationModel({
@@ -18,7 +18,7 @@ export const createNotification = async ({ userId, type, title, message, related
   }
 };
 
-// Get user notifications
+//Get user notifications
 export const getUserNotifications = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -47,7 +47,7 @@ export const getUserNotifications = async (req, res) => {
   }
 };
 
-// Mark notification as read
+//Mark notification as read
 export const markAsRead = async (req, res) => {
   try {
     const { notificationId } = req.params;
@@ -61,7 +61,7 @@ export const markAsRead = async (req, res) => {
   }
 };
 
-// Mark all notifications as read
+//Mark all notifications as read
 export const markAllAsRead = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -78,7 +78,7 @@ export const markAllAsRead = async (req, res) => {
   }
 };
 
-// Delete notification
+//Delete notification
 export const deleteNotification = async (req, res) => {
   try {
     const { notificationId } = req.params;
@@ -92,7 +92,7 @@ export const deleteNotification = async (req, res) => {
   }
 };
 
-// Get unread count
+//Get unread count
 export const getUnreadCount = async (req, res) => {
   try {
     const { userId } = req.params;

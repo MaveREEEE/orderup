@@ -50,7 +50,6 @@ const PlaceOrder = () => {
   const currentTime = getCurrentTimeString();
   const minReservationTime = data.reservationDate === todayDate ? currentTime : undefined;
 
-  // Prefill user details from profile
   useEffect(() => {
     const fetchProfile = async () => {
       if (!token) return;
@@ -74,7 +73,6 @@ const PlaceOrder = () => {
     fetchProfile();
   }, [token, url]);
 
-  // Get promo code from location state
   useEffect(() => {
     if (location.state?.appliedPromo) {
       setAppliedPromo(location.state.appliedPromo);
@@ -154,7 +152,6 @@ const PlaceOrder = () => {
       return;
     }
     
-    // Calculate final amount with promo discount
     const subtotal = getTotalCartAmount();
     const discount = appliedPromo ? appliedPromo.discount : 0;
     const finalAmount = subtotal - discount;
@@ -216,7 +213,7 @@ const PlaceOrder = () => {
     else if (getTotalCartAmount() === 0) {
       navigate('/cart')
     }
-  }, [token, navigate])
+  }, [token, navigate, getTotalCartAmount])
 
   const subtotal = getTotalCartAmount();
   const discount = appliedPromo ? appliedPromo.discount : 0;

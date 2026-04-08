@@ -6,7 +6,7 @@ import FoodDisplay from '../../components/FoodDisplay/FoodDisplay'
 import Recommendations from '../../components/Recommendations/Recommendations'
 import { StoreContext } from '../../context/StoreContext'
 
-const Home = ({ showLogin }) => {
+const Home = () => {
 
  const [category, setCategory] = useState('All');
  const { userId } = useContext(StoreContext);

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import './Inventory.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -21,14 +21,13 @@ const Inventory = ({ url }) => {
         hasExpiry: false
     })
 
-    const fetchInventory = async () => {
+    const fetchInventory = useCallback(async () => {
         try {
             const token = sessionStorage.getItem("token")
             const response = await axios.get(url + "/api/inventory/list", {
                 headers: { token }
             })
             if (response.data.success) {
-                // Sort inventory alphabetically by name
                 const sortedInventory = response.data.data.sort((a, b) => 
                     a.name.localeCompare(b.name)
                 )
@@ -41,9 +40,9 @@ const Inventory = ({ url }) => {
             console.log("Error fetching inventory:", error)
             toast.error("Error fetching inventory")
         }
-    }
+    }, [url])
 
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             const response = await axios.get(url + "/api/category/list")
             if (response.data.success) {
@@ -55,9 +54,9 @@ const Inventory = ({ url }) => {
             console.log("Error fetching categories:", error)
             toast.error("Failed to fetch categories")
         }
-    }
+    }, [url])
 
-    const fetchLowStockItems = async () => {
+    const fetchLowStockItems = useCallback(async () => {
         try {
             const token = sessionStorage.getItem("token")
             const response = await axios.get(url + "/api/inventory/low-stock", {
@@ -68,7 +67,6 @@ const Inventory = ({ url }) => {
                     ...item,
                     totalStock: item.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0
                 }))
-                // Sort alphabetically by name
                 const sortedItems = itemsWithStock.sort((a, b) => 
                     a.name.localeCompare(b.name)
                 )
@@ -77,16 +75,15 @@ const Inventory = ({ url }) => {
         } catch (error) {
             console.log("Error fetching low stock items:", error)
         }
-    }
+    }, [url])
 
-    const fetchExpiringItems = async () => {
+    const fetchExpiringItems = useCallback(async () => {
         try {
             const token = sessionStorage.getItem("token")
             const response = await axios.get(url + "/api/inventory/expiring-soon", {
                 headers: { token }
             })
             if (response.data.success) {
-                // Sort alphabetically by name
                 const sortedItems = response.data.data.sort((a, b) => 
                     a.name.localeCompare(b.name)
                 )
@@ -95,7 +92,7 @@ const Inventory = ({ url }) => {
         } catch (error) {
             console.log("Error fetching expiring items:", error)
         }
-    }
+    }, [url])
 
     const addBatch = async (e) => {
         e.preventDefault()
@@ -193,7 +190,7 @@ const Inventory = ({ url }) => {
         fetchCategories()
         fetchLowStockItems()
         fetchExpiringItems()
-    }, [url])
+    }, [fetchCategories, fetchExpiringItems, fetchInventory, fetchLowStockItems])
 
     useEffect(() => {
         let result = [...inventory]
@@ -250,7 +247,6 @@ const Inventory = ({ url }) => {
                 <h2>Inventory Management</h2>
             </div>
 
-            {/* Alerts Section */}
             <div className="alerts-section">
                 {expiringItems.length > 0 && (
                     <div className="alert-box expiring-alert-box">
@@ -300,13 +296,11 @@ const Inventory = ({ url }) => {
                 )}
             </div>
 
-            {/* Inventory Grid */}
             <div className="inventory-list">
                 <div className="list-header">
                     <h2>All Items ({filteredInventory.length})</h2>
                 </div>
 
-                {/* Filters Section */}
                 <div className="inventory-filters">
                     <div className="filter-group">
                         <label>Search:</label>
@@ -447,7 +441,6 @@ const Inventory = ({ url }) => {
                 )}
             </div>
 
-            {/* Add Batch Modal */}
             {showAddBatchModal && selectedItem && (
                 <div className="modal-overlay" onClick={() => setShowAddBatchModal(false)}>
                     <div className="modal-content" onClick={(e) => e.stopPropagation()}>

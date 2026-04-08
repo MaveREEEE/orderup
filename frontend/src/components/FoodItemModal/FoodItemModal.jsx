@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import './FoodItemModal.css'
 
 const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClick }) => {
-  if (!item) return null
+  const currentItem = item || {}
 
   const [amount, setAmount] = useState(1)
   const [mlRecs, setMlRecs] = useState([])
@@ -49,10 +49,10 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClic
     return () => controller.abort()
   }, [userId, url])
 
-  const ratings = item.ratings || []
+  const ratings = currentItem.ratings || []
   const ratingCount = ratings.length
   const averageRating =
-    item.averageRating ??
+    currentItem.averageRating ??
     (ratingCount
       ? Number((ratings.reduce((sum, r) => sum + (r.rating || 0), 0) / ratingCount).toFixed(1))
       : null)
@@ -65,10 +65,10 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClic
   const fallbackRecommendations = items
     .filter(
       i =>
-        i._id !== item._id &&
+        i._id !== currentItem._id &&
         i.category &&
-        item.category &&
-        i.category.trim().toLowerCase() === item.category.trim().toLowerCase()
+        currentItem.category &&
+        i.category.trim().toLowerCase() === currentItem.category.trim().toLowerCase()
     )
     .slice(0, 5)
 
@@ -88,32 +88,34 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClic
     })
   }
 
+  if (!item) return null
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={e => e.stopPropagation()}>
         <button className="modal-close" onClick={onClose}>&times;</button>
 
         <div className="modal-image-wrapper">
-          <img src={getImageUrl(item.image)} alt={item.name} className="modal-image" />
+          <img src={getImageUrl(currentItem.image)} alt={currentItem.name} className="modal-image" />
         </div>
 
-        <h2 className="modal-name">{item.name}</h2>
-        <p className="modal-desc">{item.description}</p>
+        <h2 className="modal-name">{currentItem.name}</h2>
+        <p className="modal-desc">{currentItem.description}</p>
 
         
 
-        {item.allergens && item.allergens.length > 0 && (
+        {currentItem.allergens && currentItem.allergens.length > 0 && (
           <div className="modal-allergens">
             <span className="allergen-label">⚠️ Allergens:</span>
             <div className="allergen-list">
-              {item.allergens.map((allergen, index) => (
+              {currentItem.allergens.map((allergen, index) => (
                 <span key={index} className="allergen-item">{allergen}</span>
               ))}
             </div>
           </div>
         )}
 
-        <div className="modal-price">₱{Number(item.price).toFixed(2)}</div>
+        <div className="modal-price">₱{Number(currentItem.price).toFixed(2)}</div>
 
         <div className="modal-quantity">
           <label>Quantity:</label>
@@ -133,7 +135,7 @@ const FoodItemModal = ({ item, items = [], onClose, onAddToCart, url, onItemClic
               onClose()
             }}
           >
-            Add to Cart - ₱{(item.price * amount).toFixed(2)}
+            Add to Cart - ₱{(currentItem.price * amount).toFixed(2)}
           </button>
           <button className="btn-cancel" onClick={onClose}>Cancel</button>
         </div>

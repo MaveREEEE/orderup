@@ -11,8 +11,6 @@ const Recommendations = ({ userId, showTitle = true }) => {
   const { recommendations, loading, error } = useRecommendations(userId, 10);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-
-  // Filter food_list to get only recommended items
   const recommendedFoods = recommendations
     .map(foodId => food_list.find(item => item._id?.toString() === foodId?.toString()))
     .filter(item => item !== undefined);
@@ -35,11 +33,11 @@ const Recommendations = ({ userId, showTitle = true }) => {
 
   if (error) {
     console.error('Recommendations error:', error);
-    return null; // Silently fail without breaking the UI
+    return null; 
   }
 
   if (recommendedFoods.length === 0) {
-    return null; // No recommendations to show
+    return null;
   }
 
   const handleItemClick = (item) => {

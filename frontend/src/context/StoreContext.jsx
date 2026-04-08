@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -74,10 +74,9 @@ const StoreContextProvider = (props) => {
         return totalAmount;
     }
 
-    const fetchFoodList = async () => {
+    const fetchFoodList = useCallback(async () => {
         try {
             const response = await axios.get(url + "/api/food/list");
-            // Make sure data exists and is an array
             if (response.data.success && Array.isArray(response.data.data)) {
                 setFoodList(response.data.data);
             } else {
@@ -88,9 +87,9 @@ const StoreContextProvider = (props) => {
             console.error("Error fetching food list:", error);
             setFoodList([]);
         }
-    }
+    }, [url])
     
-    const loadCartData = async (token) => {
+    const loadCartData = useCallback(async (token) => {
         try {
             const userId = localStorage.getItem("userId");
             const response = await axios.post(
@@ -104,10 +103,9 @@ const StoreContextProvider = (props) => {
         } catch (error) {
             console.error("Error loading cart data:", error);
         }
-    }
+    }, [url])
     useEffect(() => {
         async function loadData() {
-            // Load food list first
             await fetchFoodList();
 
             const storedToken = sessionStorage.getItem("token");
@@ -116,12 +114,11 @@ const StoreContextProvider = (props) => {
             if (storedToken) {
                 setToken(storedToken);
                 setUserId(storedUserId);
-                // Load cart after food list is ready
                 await loadCartData(storedToken);
             }
         }
         loadData();
-    }, [])
+    }, [fetchFoodList, loadCartData])
 
     const contextValue = {
         food_list,

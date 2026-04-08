@@ -74,7 +74,6 @@ code {
   min-height: calc(100vh - 70px);
 }
 
-/* Scrollbar styles */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -93,7 +92,6 @@ code {
   background: #6c757d;
 }
 
-/* Loading animation */
 @keyframes spin {
   to {
     transform: rotate(360deg);

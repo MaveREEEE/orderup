@@ -162,7 +162,6 @@
   font-size: 18px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .profile-wrapper h1 {
     font-size: 26px;

@@ -4,7 +4,6 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter } from 'react-router-dom'
 
-// Load favicon and site name from backend
 const loadBranding = async () => {
   try {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4000'
@@ -12,20 +11,18 @@ const loadBranding = async () => {
     if (response.ok) {
       const data = await response.json()
       if (data.success && data.data) {
-        // Update favicon
         if (data.data.favicon && data.data.favicon.startsWith('http')) {
           const link = document.querySelector('link[rel="icon"]')
           if (link) {
             link.href = data.data.favicon
           }
         }
-        // Update page title with siteName + admin
         if (data.data.siteName) {
           document.title = `${data.data.siteName} admin`
         }
       }
     }
-  } catch (error) {
+  } catch {
     console.log('Using default branding')
   }
 }

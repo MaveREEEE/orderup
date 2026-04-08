@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import './List.css'
 import axios from "axios"
 import { toast } from "react-toastify"
@@ -32,34 +32,19 @@ const List = ({ url, token }) => {
     return img.startsWith('http') ? img : `${url}/uploads/items/${img}`
   }
 
-  const allergensList = [
-    "Milk",
-    "Eggs",
-    "Fish",
-    "Shellfish",
-    "Tree Nuts",
-    "Peanuts",
-    "Wheat",
-    "Soybeans",
-    "Sesame",
-    "Gluten"
-  ];
-
-  // Normalize allergens coming from API (array or comma-separated string)
   const normalizeAllergens = (val) => {
     if (Array.isArray(val)) return val;
     if (typeof val === "string" && val.length) {
-      // Try JSON parse first to handle strings like '["Milk","Eggs"]'
       try {
         const parsed = JSON.parse(val)
         if (Array.isArray(parsed)) return parsed
-      } catch (_) { /* ignore */ }
+      } catch {  }
       return val.split(",").map(a => a.replace(/\[|\]|"/g, "").trim()).filter(Boolean)
     }
     return [];
   };
 
-  const fetchList = async () => {
+  const fetchList = useCallback(async () => {
     try {
       setLoading(true)
       const response = await axios.get(`${url}/api/food/list`);
@@ -82,7 +67,7 @@ const List = ({ url, token }) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [url])
 
   const fetchArchivedList = async () => {
     if (!token) {
@@ -135,7 +120,7 @@ const List = ({ url, token }) => {
     }
   }
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/api/category/list`);
       
@@ -148,9 +133,9 @@ const List = ({ url, token }) => {
       console.error("Fetch categories error:", error);
       toast.error("Failed to fetch categories");
     }
-  };
+  }, [url]);
 
-  const fetchAllergens = async () => {
+  const fetchAllergens = useCallback(async () => {
     try {
       const response = await axios.get(`${url}/api/allergens`);
       
@@ -164,13 +149,13 @@ const List = ({ url, token }) => {
       console.error("Fetch allergens error:", error);
       toast.error("Failed to fetch allergens");
     }
-  };
+  }, [url]);
 
   useEffect(() => {
     fetchList();
     fetchCategories();
     fetchAllergens();
-  }, [url]);
+  }, [fetchAllergens, fetchCategories, fetchList]);
 
   useEffect(() => {
     let result = [...list];
@@ -359,7 +344,6 @@ const List = ({ url, token }) => {
       formData.append('description', editData.description);
       formData.append('allergens', (editData.allergens || []).join(','));
       
-      // Add image if new one was selected
       if (editData.image) {
         formData.append('image', editData.image);
       }
@@ -589,7 +573,6 @@ const List = ({ url, token }) => {
           <form className="edit-popup-container" onSubmit={updateFood}>
             <h3>Edit Product</h3>
             
-            {/* Image Section */}
             <div className="edit-image-section">
               {editData.imagePreview && (
                 <div className="edit-image-preview">

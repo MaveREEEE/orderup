@@ -40,7 +40,6 @@
     margin-bottom: 2px;
 }
 
-/* Image Upload - Left side, fixed width */
 .add-img-upload {
     grid-column: 1;
     grid-row: 1 / 6;
@@ -79,7 +78,6 @@
     transform: scale(1.02);
 }
 
-/* Right side content */
 .add-product-name {
     grid-column: 2;
 }
@@ -133,7 +131,6 @@
     color: var(--text-color, #666);
 }
 
-/* Category, Price, Stock in one row */
 .add-category-price {
     grid-column: 2;
     display: grid;
@@ -171,7 +168,6 @@
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
 }
 
-/* Allergens Section - More compact */
 .add-allergens {
     grid-column: 2;
 }
@@ -230,7 +226,6 @@
     color: var(--text-color, #374151);
 }
 
-/* Scrollbar Styling */
 .allergens-grid::-webkit-scrollbar {
     width: 5px;
 }
@@ -249,7 +244,6 @@
     background: rgba(0, 0, 0, 0.24);
 }
 
-/* Submit Button */
 .add-btn {
     grid-column: 2;
     width: 100%;
@@ -281,7 +275,6 @@
     cursor: not-allowed;
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
     .add form {
         grid-template-columns: 250px 1fr;

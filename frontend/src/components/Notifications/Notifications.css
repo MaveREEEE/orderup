@@ -216,7 +216,6 @@
   border-radius: 50%;
 }
 
-/* Responsive */
 @media (max-width: 480px) {
   .notifications-panel {
     width: 100%;

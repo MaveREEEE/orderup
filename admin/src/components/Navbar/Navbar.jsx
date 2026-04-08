@@ -8,7 +8,6 @@ const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState("")
 
-  // Fetch admin profile from MongoDB
   useEffect(() => {
     const fetchAdminProfile = async () => {
       try {
@@ -19,7 +18,6 @@ const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
           return
         }
 
-        // Call the admin profile endpoint
         const response = await fetch('http://localhost:4000/api/admin/profile', {
           method: 'GET',
           headers: {
@@ -33,22 +31,18 @@ const Navbar = ({ setToken, setUserRole, isCollapsed, setIsCollapsed }) => {
         if (data.success && data.admin) {
           setLocalUserRole(data.admin.role)
           setUserName(data.admin.name)
-          // Update sessionStorage with fresh data from DB
           sessionStorage.setItem("userRole", data.admin.role)
           
-          // Also update parent component state if needed
           if (setUserRole) {
             setUserRole(data.admin.role)
           }
         } else {
           console.error("Failed to fetch admin profile:", data.message)
-          // Fallback to sessionStorage
           const storedRole = sessionStorage.getItem("userRole") || "admin"
           setLocalUserRole(storedRole)
         }
       } catch (error) {
         console.error("Error fetching admin profile:", error)
-        // Fallback to sessionStorage if API fails
         const storedRole = sessionStorage.getItem("userRole") || "admin"
         setLocalUserRole(storedRole)
       } finally {

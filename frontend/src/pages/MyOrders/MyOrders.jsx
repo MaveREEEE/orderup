@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 import './MyOrders.css'
 import { StoreContext } from '../../context/StoreContext';
 import axios from 'axios';
-import { assets } from '../../assets/assets';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,7 +35,7 @@ const MyOrders = () => {
     const [userRatings, setUserRatings] = useState({});
     const [ratingStates, setRatingStates] = useState({});
 
-    const fetchOrders = async () => {
+    const fetchOrders = useCallback(async () => {
         if (!userId || !token) {
             console.error("userId or token missing");
             return;
@@ -52,7 +51,6 @@ const MyOrders = () => {
             if (response.data.success) {
                 setData(response.data.data || []);
                 
-                // Fetch ratings for all items in orders
                 const ratings = {};
                 const items = [];
                 response.data.data?.forEach(order => {
@@ -61,7 +59,6 @@ const MyOrders = () => {
                     });
                 });
 
-                // Fetch each food item to check ratings
                 for (let item of items) {
                     try {
                         const foodResponse = await axios.get(
@@ -88,7 +85,7 @@ const MyOrders = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [url, token, userId])
 
     const getImageUrl = (img) => {
         if (!img) return ''
@@ -105,7 +102,7 @@ const MyOrders = () => {
             
             return () => clearInterval(interval);
         }
-    }, [token, userId])
+    }, [token, userId, fetchOrders])
 
     const formatDate = (dateString) => {
         const date = new Date(dateString)
@@ -121,7 +118,6 @@ const MyOrders = () => {
     const openModal = (order) => {
         setSelectedOrder(order)
         setShowModal(true)
-        // Initialize rating form states for this order
         const states = {};
         order.items?.forEach(item => {
             states[item._id] = {
@@ -155,13 +151,11 @@ const MyOrders = () => {
             );
 
             if (response.data.success) {
-                // Mark item as rated
                 setUserRatings(prev => ({
                     ...prev,
                     [`${foodId}-${orderId}`]: rating
                 }));
                 
-                // Reset form
                 setRatingStates(prev => ({
                     ...prev,
                     [foodId]: {
@@ -203,7 +197,6 @@ const MyOrders = () => {
     }
 
     const handleReorder = async (order) => {
-        // Add all items from the order to cart
         for (const item of order.items) {
             for (let i = 0; i < item.quantity; i++) {
                 await addToCart(item._id);

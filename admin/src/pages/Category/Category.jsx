@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import './Category.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -15,10 +15,6 @@ const Category = ({ url, token }) => {
     const [loading, setLoading] = useState(false)
     const fileInputRef = useRef(null)
 
-    useEffect(() => {
-        fetchCategories()
-    }, [])
-
     const getImageUrl = (img) => {
         if (!img) return null;
         return img.startsWith('http') ? img : null;
@@ -29,9 +25,9 @@ const Category = ({ url, token }) => {
         console.log("  Token:", token ? "Present" : "Missing");
         console.log("  User Role:", localStorage.getItem("userRole"));
         console.log("  URL:", url);
-    }, [token])
+    }, [token, url])
 
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             setLoading(true)
             console.log("Fetching categories from:", `${url}/api/category/list`);
@@ -53,7 +49,11 @@ const Category = ({ url, token }) => {
         } finally {
             setLoading(false)
         }
-    }
+    }, [url])
+
+    useEffect(() => {
+        fetchCategories()
+    }, [fetchCategories])
 
     const fetchArchivedCategories = async () => {
         if (!token) {

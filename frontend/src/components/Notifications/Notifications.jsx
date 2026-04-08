@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import './Notifications.css';
 import { StoreContext } from '../../context/StoreContext';
 import axios from 'axios';
@@ -8,13 +8,9 @@ const Notifications = ({ onClose }) => {
   const { url, token, userId } = useContext(StoreContext);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all'); // all, unread
+  const [filter, setFilter] = useState('all'); 
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!userId || !token) return;
 
     try {
@@ -31,7 +27,11 @@ const Notifications = ({ onClose }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, token, userId]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const markAsRead = async (notificationId) => {
     try {

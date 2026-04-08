@@ -5,7 +5,7 @@ import { Routes, Route } from 'react-router-dom'
 import Add from './pages/Add/Add'
 import List from './pages/List/List'
 import Orders from './pages/Orders/Orders'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Dashboard from './pages/Dashboard/Dashboard'
 import Category from './pages/Category/Category'
@@ -24,16 +24,14 @@ const App = () => {
 
   const url = import.meta.env.VITE_API_URL || "http://localhost:4000"
   const [token, setToken] = useState(sessionStorage.getItem("token") || "");
-  const [userRole, setUserRole] = useState(sessionStorage.getItem("userRole") || "");
+  const [, setUserRole] = useState(sessionStorage.getItem("userRole") || "");
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Apply theme on load
   useEffect(() => {
-    applyStoredTheme(); // Apply cached theme immediately
-    applyTheme(url); // Fetch fresh theme from backend
+    applyStoredTheme(); 
+    applyTheme(url); 
   }, [url]);
 
-  // If no token, show login
   if (!token) {
     return (
       <div>
@@ -54,7 +52,7 @@ const App = () => {
       />
       <hr />
       <div className="app-content">
-        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} /> {/* Pass both props */}
+        <Sidebar isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} /> 
         <div className={`main-content ${isCollapsed ? 'expanded' : ''}`}>
           <Routes>
             <Route path="/" element={<Dashboard url={url} token={token} />} />

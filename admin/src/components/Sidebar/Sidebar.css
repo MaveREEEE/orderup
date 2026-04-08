@@ -127,7 +127,6 @@
   color: white;
 }
 
-/* Submenu Styles */
 .sidebar-submenu {
   max-height: 0;
   overflow: hidden;
@@ -195,7 +194,6 @@
   opacity: 1;
 }
 
-/* Collapsed State */
 .sidebar.collapsed .sidebar-option p,
 .sidebar.collapsed .submenu-arrow {
   opacity: 0;
@@ -238,7 +236,6 @@
     margin: 16px 12px;
 }
 
-/* Section Header */
 .sidebar-section-header {
     padding: 8px 16px;
     margin-top: 8px;
@@ -257,7 +254,6 @@
     display: none;
 }
 
-/* Sidebar Footer */
 .sidebar-footer {
     margin-top: auto;
     padding: 16px;
@@ -295,7 +291,6 @@
     display: none;
 }
 
-/* Enhanced submenu styling for admin section */
 .sidebar-submenu-option img.submenu-icon {
     width: 18px;
     height: 18px;
@@ -306,7 +301,6 @@
     opacity: 1;
 }
 
-/* Tooltip enhancement for collapsed state */
 .sidebar.collapsed .sidebar-option[data-tooltip]:hover::after,
 .sidebar.collapsed .sidebar-submenu-option[data-tooltip]:hover::after {
     content: attr(data-tooltip);
@@ -337,7 +331,6 @@
     z-index: 1001;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .sidebar-footer {
         padding: 12px;
@@ -353,7 +346,6 @@
     }
 }
 
-/* Animation for role badge */
 @keyframes badgePulse {
     0%, 100% {
         transform: scale(1);
@@ -366,13 +358,13 @@
 .role-badge.role-itadmin {
     animation: badgePulse 3s ease-in-out infinite;
 }
-/* Mobile Responsiveness */
+
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
     left: 0;
     top: 0;
-    z-index: 3000; /* above navbar */
+    z-index: 3000; 
     height: 100vh;
     transform: translateX(0);
   }

@@ -1,6 +1,6 @@
 import allergenModel from '../models/allergenModel.js'
 
-// Get all allergens
+//Get all allergens
 const getAllergens = async (req, res) => {
     try {
         const allergens = await allergenModel.find().sort({ createdAt: -1 })
@@ -16,7 +16,7 @@ const getAllergens = async (req, res) => {
     }
 }
 
-// Add allergen
+//Add allergen
 const addAllergen = async (req, res) => {
     try {
         const { name } = req.body
@@ -28,7 +28,6 @@ const addAllergen = async (req, res) => {
             })
         }
 
-        // Check if allergen already exists
         const exists = await allergenModel.findOne({ name: name.trim() })
         if (exists) {
             return res.json({
@@ -55,7 +54,7 @@ const addAllergen = async (req, res) => {
     }
 }
 
-// Update allergen
+//Update allergen
 const updateAllergen = async (req, res) => {
     try {
         const { id } = req.params
@@ -68,7 +67,6 @@ const updateAllergen = async (req, res) => {
             })
         }
 
-        // Check if another allergen with this name exists
         const exists = await allergenModel.findOne({ 
             name: name.trim(),
             _id: { $ne: id }
@@ -106,7 +104,7 @@ const updateAllergen = async (req, res) => {
     }
 }
 
-// Delete allergen
+//Delete allergen
 const deleteAllergen = async (req, res) => {
     try {
         const { id } = req.params

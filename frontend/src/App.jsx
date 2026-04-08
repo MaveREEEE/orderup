@@ -21,11 +21,11 @@ const App = () => {
   const [showLogin, setShowLogin] = useState(false)
   const url = import.meta.env.VITE_API_URL || "http://localhost:4000"
 
-  // Apply theme on load
+
   useEffect(() => {
-    applyStoredTheme(); // Apply cached theme immediately
-    applyTheme(url); // Fetch fresh theme from backend
-  }, [])
+    applyStoredTheme();
+    applyTheme(url); 
+  }, [url])
 
   return (
     <ErrorBoundary>
@@ -33,7 +33,7 @@ const App = () => {
       <div className="app">
         <NavBar setShowLogin={setShowLogin} showLogin={showLogin} />
         <Routes>
-          <Route path='/' element={<Home showLogin={showLogin} />} />
+          <Route path='/' element={<Home />} />
           <Route path='/cart' element={<Cart />} />
           <Route path='/order' element={<PlaceOrder />} />
           <Route path='/verify' element={<Verify />} />

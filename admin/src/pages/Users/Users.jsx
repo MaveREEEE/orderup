@@ -45,7 +45,6 @@ const Users = ({ url }) => {
     const role = sessionStorage.getItem("userRole") || sessionStorage.getItem("role")
     if (role) setCurrentRole(role)
     fetchUsers()
-    // eslint-disable-next-line
   }, [])
 
   const fetchUsers = async () => {
@@ -59,7 +58,7 @@ const Users = ({ url }) => {
     if (adminsRes.data.success) combined = adminsRes.data.data
     if (usersRes.data.success) combined = combined.concat(usersRes.data.data)
     setUsers(combined)
-  } catch (error) {
+  } catch {
     toast.error("Error fetching users")
   }
 }
@@ -110,7 +109,7 @@ const Users = ({ url }) => {
         toast.error(response.data.message)
       }
     }
-  } catch (error) {
+  } catch {
     toast.error("Error saving user")
   }
 }
@@ -132,7 +131,7 @@ const Users = ({ url }) => {
       } else {
         toast.error(response.data.message)
       }
-    } catch (error) {
+    } catch {
       toast.error("Error deleting user")
     }
   }
@@ -256,7 +255,6 @@ const Users = ({ url }) => {
         </table>
       </div>
 
-      {/* User Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>  

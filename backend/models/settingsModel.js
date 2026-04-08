@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const settingsSchema = new mongoose.Schema({
-  // Site Information
+
   siteName: {
     type: String,
     default: "OrderUP"
@@ -14,8 +14,6 @@ const settingsSchema = new mongoose.Schema({
     type: String,
     default: ""
   },
-
-  // Hero Section Customization
   heroBackground: {
     type: String,
     default: ""
@@ -29,7 +27,6 @@ const settingsSchema = new mongoose.Schema({
     default: "Order your favorite meals and enjoy them at home"
   },
   
-  // Branding
   logo: {
     type: String,
     default: ""
@@ -59,7 +56,6 @@ const settingsSchema = new mongoose.Schema({
     default: "#fcfcfc"
   },
   
-  // Contact Information
   email: {
     type: String,
     default: ""
@@ -81,7 +77,6 @@ const settingsSchema = new mongoose.Schema({
     default: ""
   },
   
-  // Feature Flags
   enableDelivery: {
     type: Boolean,
     default: true
@@ -99,14 +94,12 @@ const settingsSchema = new mongoose.Schema({
     default: true
   },
   
-  // Social Media
   socialMedia: {
     facebook: { type: String, default: "" },
     instagram: { type: String, default: "" },
     x: { type: String, default: "" },
   },
   
-  // Metadata
   updatedAt: {
     type: Date,
     default: Date.now

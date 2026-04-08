@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import './PromoCode.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -21,7 +21,7 @@ const PromoCode = ({ url }) => {
 
   const token = sessionStorage.getItem("token");
 
-  const fetchPromoCodes = async () => {
+  const fetchPromoCodes = useCallback(async () => {
     try {
       const response = await axios.get(url + "/api/promo/list", {
         headers: { token }
@@ -35,11 +35,11 @@ const PromoCode = ({ url }) => {
       console.error("Error:", error)
       toast.error("Network error")
     }
-  }
+  }, [token, url])
 
   useEffect(() => {
     fetchPromoCodes()
-  }, [])
+  }, [fetchPromoCodes])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target

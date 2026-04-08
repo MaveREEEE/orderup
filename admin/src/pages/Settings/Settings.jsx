@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import './Settings.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -58,11 +58,7 @@ const Settings = ({ url }) => {
     return img.startsWith('http') ? img : null
   }
 
-  useEffect(() => {
-    fetchSettings()
-  }, [])
-
-  const fetchSettings = async () => {
+  const fetchSettings = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(url + "/api/settings/", {
@@ -70,7 +66,6 @@ const Settings = ({ url }) => {
       })
       if (response.data.success) {
         const data = response.data.data || {}
-        // Create the new settings object, excluding socialMedia for now
         const { socialMedia, ...rest } = data
         
         setSettings(prev => ({
@@ -92,10 +87,14 @@ const Settings = ({ url }) => {
           setFaviconPreview(getBrandingUrl(data.favicon))
         }
       }
-    } catch (error) {
+    } catch {
       toast.error("Error fetching settings")
     }
-  }
+  }, [url])
+
+  useEffect(() => {
+    fetchSettings()
+  }, [fetchSettings])
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -139,7 +138,6 @@ const Settings = ({ url }) => {
     try {
       const token = sessionStorage.getItem("token");
 
-      // Branding/logo upload (only if new logo selected)
       if (logoFile) {
         const formData = new FormData()
         formData.append("logo", logoFile)
@@ -163,11 +161,9 @@ const Settings = ({ url }) => {
         }
       }
 
-      // Hero background upload (only if new hero background selected)
       if (heroBgFile) {
         const heroBgFormData = new FormData()
         heroBgFormData.append("heroBackground", heroBgFile)
-        // Also send heroTitle and heroSubtitle if present
         if (settings.heroTitle !== undefined) heroBgFormData.append("heroTitle", settings.heroTitle)
         if (settings.heroSubtitle !== undefined) heroBgFormData.append("heroSubtitle", settings.heroSubtitle)
 
@@ -184,7 +180,6 @@ const Settings = ({ url }) => {
         }
       }
 
-      // Favicon upload (only if new favicon selected)
       if (faviconFile) {
         const faviconFormData = new FormData()
         faviconFormData.append("favicon", faviconFile)
@@ -202,11 +197,11 @@ const Settings = ({ url }) => {
         }
       }
 
-      // Settings update (always send this) — EXCLUDE logo/favicon/heroBg so file endpoints own them
-      // If heroBgFile was uploaded, do not send heroTitle/heroSubtitle again in this request
-      const { logo, favicon, heroBackground, ...nonFileSettings } = settings
+      const nonFileSettings = { ...settings }
+      delete nonFileSettings.logo
+      delete nonFileSettings.favicon
+      delete nonFileSettings.heroBackground
       if (!heroBgFile) {
-        // Only send heroTitle/heroSubtitle if not already sent with heroBgFile
         const response = await axios.put(url + "/api/settings/update", nonFileSettings, {
           headers: { token }
         })
@@ -217,13 +212,11 @@ const Settings = ({ url }) => {
           setFaviconFile(null)
           setHeroBgFile(null)
           fetchSettings()
-          // Apply theme immediately after saving
           applyTheme(url)
         } else {
           toast.error(response.data.message || "Failed to update settings")
         }
       } else {
-        // If heroBgFile was uploaded, still clear files and fetch settings
         setLogoFile(null)
         setFaviconFile(null)
         setHeroBgFile(null)
@@ -325,7 +318,6 @@ const Settings = ({ url }) => {
       
       <form onSubmit={handleSubmit} className="settings-form">
 
-        {/* Branding Section */}
         <div className="settings-section">
           <h3>Branding</h3>
           <div className="form-group">
@@ -419,7 +411,6 @@ const Settings = ({ url }) => {
           </div>
         </div>
 
-        {/* Color Scheme Section */}
         <div className="settings-section">
           <h3>Color Scheme</h3>
           
@@ -538,7 +529,6 @@ const Settings = ({ url }) => {
           </div>
         </div>
 
-        {/* Company Section */}
         <div className="settings-section">
           <h3>Company</h3>
 
@@ -591,7 +581,6 @@ const Settings = ({ url }) => {
           </div>
         </div>
 
-        {/* Contact Info Section */}
         <div className="settings-section">
           <h3>Contact Information</h3>
           
@@ -629,7 +618,6 @@ const Settings = ({ url }) => {
           </div>
         </div>
 
-        {/* Legal Section */}
         <div className="settings-section">
           <h3>Legal</h3>
           
@@ -656,7 +644,6 @@ const Settings = ({ url }) => {
           </div>
         </div>
 
-        {/* Features Section */}
         <div className="settings-section">
           <h3>Features</h3>
           

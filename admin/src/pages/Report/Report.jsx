@@ -24,7 +24,7 @@ const presetRange = (preset) => {
   if (preset === 'thisMonth') return { start: new Date(y, m, 1), end: endOfDay(new Date(y, m + 1, 0)) }
   if (preset === 'lastMonth') return { start: new Date(y, m - 1, 1), end: endOfDay(new Date(y, m, 0)) }
   if (preset === 'thisYear') return { start: new Date(y, 0, 1), end: endOfDay(new Date(y, 11, 31)) }
-  return { start: null, end: null } // all time
+  return { start: null, end: null } 
 }
 
 const getWeekNumber = (date) => {
@@ -35,7 +35,6 @@ const getWeekNumber = (date) => {
   return Math.ceil(((d - yearStart) / 86400000 + 1) / 7)
 }
 
-// Simple Calendar Component
 const Calendar = ({ year, month, dateGranularity, onSelect, selectedDate, selectedWeek }) => {
   const getDaysInMonth = (y, m) => new Date(y, m, 0).getDate()
   const getFirstDayOfMonth = (y, m) => new Date(y, m - 1, 1).getDay()
@@ -48,7 +47,6 @@ const Calendar = ({ year, month, dateGranularity, onSelect, selectedDate, select
 
   const monthName = new Date(year, month - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
 
-  // Helper function to parse date string safely
   const parseLocalDate = (dateStr) => {
     const [y, m, d] = dateStr.split('-').map(Number)
     return new Date(y, m - 1, d)
@@ -97,9 +95,8 @@ const Calendar = ({ year, month, dateGranularity, onSelect, selectedDate, select
 const Report = ({ url, token }) => {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
-  const [preset, setPreset] = useState('thisMonth')
-  const [customStart, setCustomStart] = useState('')
-  const [customEnd, setCustomEnd] = useState('')
+  const [preset] = useState('thisMonth')
+  const [customEnd] = useState('')
   const [dateGranularity, setDateGranularity] = useState('daily')
   const [calendarYear, setCalendarYear] = useState(new Date().getFullYear())
   const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth() + 1)
@@ -129,14 +126,8 @@ const Report = ({ url, token }) => {
 
   useEffect(() => {
     fetchOrders()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const { start: presetStart, end: presetEnd } = presetRange(preset)
-  const filterStart = customStart ? startOfDay(customStart) : presetStart
-  const filterEnd = customEnd ? endOfDay(customEnd) : presetEnd
-
-  // Determine filter dates based on granularity
   const getGranularFilterDates = () => {
     if (dateGranularity === 'yearly') {
       return {
@@ -159,7 +150,6 @@ const Report = ({ url, token }) => {
         end: endOfDay(endDate)
       }
     } else {
-      // daily - use selected date or range
       if (selectedDate && customEnd) {
         return {
           start: startOfDay(selectedDate),
@@ -185,7 +175,7 @@ const Report = ({ url, token }) => {
       const beforeEnd = granularEnd ? d <= granularEnd : true
       return afterStart && beforeEnd
     })
-  }, [orders, granularStart, granularEnd, dateGranularity, calendarYear, calendarMonth, selectedWeek, selectedDate, customEnd])
+  }, [orders, granularStart, granularEnd])
 
   const totals = useMemo(() => {
     const totalSales = filteredOrders.reduce((s, o) => s + (o.amount || 0), 0)
@@ -231,18 +221,6 @@ const Report = ({ url, token }) => {
       .map((it, idx) => ({ ...it, rank: idx + 1 }))
   }, [filteredOrders])
 
-  const dailySummary = useMemo(() => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    const map = new Map(days.map((d) => [d, { day: d, orders: 0, sales: 0 }]))
-    filteredOrders.forEach((o) => {
-      const d = days[new Date(o.date).getDay()]
-      const entry = map.get(d)
-      entry.orders += 1
-      entry.sales += o.amount || 0
-    })
-    return Array.from(map.values())
-  }, [filteredOrders])
-
   const leastOrdered = useMemo(() => {
     const map = new Map()
     filteredOrders.forEach((order) => {
@@ -261,45 +239,10 @@ const Report = ({ url, token }) => {
       .map((it, idx) => ({ ...it, rank: idx + 1 }))
   }, [filteredOrders])
 
-  const weeklySummary = useMemo(() => {
-    const map = new Map()
-    filteredOrders.forEach((o) => {
-      const d = new Date(o.date)
-      let key, label
-      
-      if (dateGranularity === 'yearly') {
-        key = d.getFullYear()
-        label = `${key}`
-      } else if (dateGranularity === 'monthly') {
-        const y = d.getFullYear()
-        const m = String(d.getMonth() + 1).padStart(2, '0')
-        key = `${y}-${m}`
-        label = new Date(y, d.getMonth()).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })
-      } else if (dateGranularity === 'weekly') {
-        const wk = getWeekNumber(o.date)
-        const y = d.getFullYear()
-        key = `${y}-W${String(wk).padStart(2, '0')}`
-        label = `Week ${wk}`
-      } else {
-        // daily
-        key = d.toLocaleDateString('en-CA')
-        label = new Date(key).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      }
-      
-      const entry = map.get(key) || { label, sales: 0, key }
-      entry.sales += o.amount || 0
-      map.set(key, entry)
-    })
-    return Array.from(map.values())
-      .sort((a, b) => a.key.localeCompare(b.key))
-      .map((w) => ({ label: w.label, value: w.sales }))
-  }, [filteredOrders, dateGranularity])
-
-  // Daily sales trend for line chart
   const dailyTrend = useMemo(() => {
     const map = new Map()
     filteredOrders.forEach((o) => {
-      const dateKey = new Date(o.date).toLocaleDateString('en-CA') // YYYY-MM-DD
+      const dateKey = new Date(o.date).toLocaleDateString('en-CA') 
       const entry = map.get(dateKey) || { date: dateKey, sales: 0, orders: 0 }
       entry.sales += o.amount || 0
       entry.orders += 1
@@ -308,7 +251,6 @@ const Report = ({ url, token }) => {
     return Array.from(map.values()).sort((a, b) => new Date(a.date) - new Date(b.date))
   }, [filteredOrders])
 
-  // Peak hours heatmap data
   const peakHours = useMemo(() => {
     const hours = Array.from({ length: 24 }, (_, i) => ({ hour: i, orders: 0 }))
     filteredOrders.forEach((o) => {
@@ -337,41 +279,6 @@ const Report = ({ url, token }) => {
     ].filter(item => item.value > 0)
   }, [filteredOrders])
 
-  const pieSlices = categorySummary.map((c) => c.sales)
-  const pieLabels = categorySummary.map((c) => c.category)
-
-  const renderBarChartSVG = (values = [], labels = []) => {
-    // Find max and round to nearest 500/1000
-    const maxVal = Math.max(...values, 1)
-    const step = maxVal <= 500 ? 100 : maxVal <= 5000 ? 500 : maxVal <= 50000 ? 5000 : 50000
-    const max = Math.ceil(maxVal / step) * step
-    
-    const width = 340
-    const height = Math.max(values.length * 26 + 20, 100)
-    const barHeight = 14
-    const gap = 12
-    const leftLabelWidth = 90
-    return (
-      <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height}>
-        {values.map((v, i) => {
-          const y = i * (barHeight + gap) + 12
-          const barW = ((width - leftLabelWidth - 30) * v) / max
-          return (
-            <g key={i}>
-              <text x={4} y={y + 10} fontSize="11" fill="#374151">
-                {labels[i]}
-              </text>
-              <rect x={leftLabelWidth} y={y - 4} width={barW} height={barHeight} rx="6" fill="#ff7043" />
-              <text x={leftLabelWidth + barW + 6} y={y + 8} fontSize="11" fill="#374151" textAnchor="start">
-                {formatCurrency(v)}
-              </text>
-            </g>
-          )
-        })}
-      </svg>
-    )
-  }
-
   const renderLineChartSVG = (data = []) => {
     if (!data.length) return null
     const width = 600
@@ -393,7 +300,6 @@ const Report = ({ url, token }) => {
       })
       .join(' ')
 
-    // Generate Y-axis grid lines at 500-unit intervals
     const gridLines = []
     for (let val = 0; val <= maxSales; val += 500) {
       gridLines.push(val)
@@ -401,7 +307,6 @@ const Report = ({ url, token }) => {
 
     return (
       <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height}>
-        {/* Grid lines at 500-unit intervals */}
         {gridLines.map((val) => {
           const pct = val / maxSales
           const y = padding.top + chartHeight * (1 - pct)
@@ -415,24 +320,20 @@ const Report = ({ url, token }) => {
           )
         })}
 
-        {/* Line */}
         <polyline points={points} fill="none" stroke="#ff7043" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
 
-        {/* Area fill */}
         <polygon
           points={`${padding.left},${padding.top + chartHeight} ${points} ${padding.left + (data.length - 1) * xStep},${padding.top + chartHeight}`}
           fill="url(#lineGradient)"
           opacity="0.2"
         />
 
-        {/* Data points */}
         {data.map((d, i) => {
           const x = padding.left + i * xStep
           const y = padding.top + chartHeight - (d.sales / maxSales) * chartHeight
           return <circle key={i} cx={x} cy={y} r="4" fill="#ff7043" stroke="#fff" strokeWidth="2" />
         })}
 
-        {/* X-axis labels (show some dates) */}
         {data.map((d, i) => {
           if (data.length <= 10 || i % Math.ceil(data.length / 7) === 0 || i === data.length - 1) {
             const x = padding.left + i * xStep
@@ -445,7 +346,6 @@ const Report = ({ url, token }) => {
           return null
         })}
 
-        {/* Gradient definition */}
         <defs>
           <linearGradient id="lineGradient" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="#ff7043" />
@@ -498,7 +398,7 @@ const Report = ({ url, token }) => {
     )
   }
 
-  const renderPieSVG = (slices = [], labels = []) => {
+  const renderPieSVG = (slices = []) => {
     const size = 160
     const cx = size / 2
     const cy = size / 2
@@ -526,7 +426,6 @@ const Report = ({ url, token }) => {
 
   return (
     <div className="report-container">
-      {/* Print-only header */}
       <div className="print-only-header">
         <h1>Sales Report</h1>
         <p>Generated on: {generatedOn.toLocaleString()}</p>
@@ -608,7 +507,6 @@ const Report = ({ url, token }) => {
         )}
       </div>
 
-      {/* Calendar Modal */}
       {showCalendarModal && (
         <div className="modal-overlay" onClick={() => setShowCalendarModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -728,7 +626,6 @@ const Report = ({ url, token }) => {
                     month={calendarMonth}
                     dateGranularity="daily"
                     onSelect={(date) => {
-                      // Format date as YYYY-MM-DD in local timezone
                       const year = date.getFullYear()
                       const month = String(date.getMonth() + 1).padStart(2, '0')
                       const day = String(date.getDate()).padStart(2, '0')
@@ -918,7 +815,6 @@ const Report = ({ url, token }) => {
           </div>
 
           <div className="report-grid">
-            {/* Sales Trend Line Chart */}
             <div className="report-card chart-wide">
               <div className="card-title">Sales Trend Over Time</div>
               {dailyTrend.length ? (
@@ -928,7 +824,6 @@ const Report = ({ url, token }) => {
               )}
             </div>
 
-            {/* Peak Hours Heatmap */}
             <div className="report-card chart-wide">
               <div className="card-title">Peak Hours Analysis</div>
               {peakHours.some((h) => h.orders > 0) ? (

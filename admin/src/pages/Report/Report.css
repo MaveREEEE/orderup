@@ -103,7 +103,6 @@
   margin-top: 10px;
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -198,7 +197,6 @@
   background: #f3f4f6;
 }
 
-/* Calendar Styles */
 .calendar-section {
   display: flex;
   flex-direction: column;
@@ -714,13 +712,11 @@ th {
   font-size: 13px;
 }
 
-/* Ensure charts are responsive */
 .chart-container svg {
   max-width: 100%;
   height: auto;
 }
 [data-print-hide] {
-  /* hidden in print */
 }
 
 .print-only-header {
@@ -748,7 +744,6 @@ th {
     font-size: 14px;
   }
 
-  /* Existing print styles */
   body {
     background: white;
   }
@@ -765,7 +760,6 @@ th {
     box-shadow: none;
   }
   
-  /* Hide sidebar and navbar */
   .sidebar,
   .navbar,
   nav,
@@ -774,14 +768,12 @@ th {
     display: none !important;
   }
   
-  /* Make main content full width */
   .main-content {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
   }
   
-  /* Reset app layout for print */
   .app-content {
     display: block !important;
   }

@@ -36,7 +36,7 @@ const Login = ({ url, setToken, setUserRole }) => {
           setUserRole(role)
           toast.success(`Welcome ${name}!`)
           setTimeout(() => {
-            navigate("/") // Go to dashboard
+            navigate("/") 
           }, 500)
         } else {
           toast.warning("This login is for admin panel only. Redirecting...")

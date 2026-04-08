@@ -1,4 +1,4 @@
-/* Hide description on mobile if .hide-desc-mobile is set */
+
 @media (max-width: 600px) {
     .hide-desc-mobile {
         display: none !important;
@@ -124,23 +124,23 @@
 
 .food-item-info button {
     margin-top: 12px;
-    padding: 12px 28px; /* bigger */
+    padding: 12px 28px; 
     border: none;
-    border-radius: 8px; /* slightly larger radius */
+    border-radius: 8px;
     background-color: var(--primary-color);
     color: white;
-    font-weight: 600; /* slightly bolder */
-    font-size: 15px; /* bigger text */
+    font-weight: 600; 
+    font-size: 15px; 
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
-    align-self: stretch; /* full width for alignment */
+    align-self: stretch; 
 }
 .view-button { 
-    margin-top: auto; /* keep button aligned to bottom for equal height */
+    margin-top: auto; 
 }
 
 .sold-out-btn {
-    margin-top: auto; /* ensure sold out button aligns as well */
+    margin-top: auto;
 }
 
 .low-stock-badge {

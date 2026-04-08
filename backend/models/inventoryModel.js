@@ -13,7 +13,6 @@ const inventorySchema = new mongoose.Schema({
   lowStockThreshold: { type: Number, default: 10 }
 }, { timestamps: true });
 
-// Virtual for total stock
 inventorySchema.virtual('totalStock').get(function() {
   return this.batches.reduce((sum, batch) => sum + batch.quantity, 0);
 });

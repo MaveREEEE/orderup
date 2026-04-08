@@ -1,9 +1,7 @@
 import { Resend } from 'resend';
 
-// Initialize Resend with API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// Email templates
 export const emailTemplates = {
   orderConfirmation: (orderData) => `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -110,7 +108,6 @@ export const emailTemplates = {
   `
 };
 
-// Send email function using Resend
 export const sendEmail = async ({ to, subject, html }) => {
   try {
     if (!process.env.RESEND_API_KEY) {
@@ -139,4 +136,3 @@ export const sendEmail = async ({ to, subject, html }) => {
   }
 };
 
-export default { sendEmail, emailTemplates };

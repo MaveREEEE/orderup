@@ -1,4 +1,3 @@
-// Fetch settings and apply color scheme to the website
 export const applyTheme = async (url) => {
   try {
     const response = await fetch(`${url}/api/settings/`);
@@ -8,14 +7,12 @@ export const applyTheme = async (url) => {
       const settings = data.data;
       const root = document.documentElement;
       
-      // Apply colors as CSS variables (trim whitespace from colors)
       root.style.setProperty('--primary-color', (settings.primaryColor || '#ff7043').trim());
       root.style.setProperty('--secondary-color', (settings.secondaryColor || '#ff4500').trim());
       root.style.setProperty('--accent-color', (settings.accentColor || '#e85a4f').trim());
       root.style.setProperty('--text-color', (settings.textColor || '#333333').trim());
       root.style.setProperty('--background-color', (settings.backgroundColor || '#fcfcfc').trim());
       
-      // Store in localStorage for quick access
       localStorage.setItem('theme', JSON.stringify({
         primaryColor: settings.primaryColor,
         secondaryColor: settings.secondaryColor,
@@ -24,7 +21,6 @@ export const applyTheme = async (url) => {
         backgroundColor: settings.backgroundColor
       }));
       
-      // Update favicon if available (supports Cloudinary URLs)
       if (settings.favicon && settings.favicon.startsWith('http')) {
         updateFavicon(settings.favicon);
       }
@@ -33,12 +29,10 @@ export const applyTheme = async (url) => {
     }
   } catch (error) {
     console.error('Error fetching theme:', error);
-    // Apply default colors if fetch fails
     applyDefaultTheme();
   }
 };
 
-// Apply default theme
 export const applyDefaultTheme = () => {
   const root = document.documentElement;
   root.style.setProperty('--primary-color', '#ff7043');
@@ -48,7 +42,6 @@ export const applyDefaultTheme = () => {
   root.style.setProperty('--background-color', '#fcfcfc');
 };
 
-// Apply theme from localStorage
 export const applyStoredTheme = () => {
   try {
     const storedTheme = localStorage.getItem('theme');
@@ -67,14 +60,11 @@ export const applyStoredTheme = () => {
   }
 };
 
-// Update favicon dynamically
 export const updateFavicon = (faviconUrl) => {
   try {
-    // Remove existing favicon links
     const existingLinks = document.querySelectorAll('link[rel*="icon"]');
     existingLinks.forEach(link => link.remove());
     
-    // Add new favicon link
     const link = document.createElement('link');
     link.rel = 'icon';
     link.type = 'image/x-icon';

@@ -48,17 +48,11 @@ npm install --production
 npm run build
 ```
 
-#### Deploy to Vercel/Netlify
+#### Deploy to Vercel
 **Vercel:**
 ```bash
 npm install -g vercel
 vercel --prod
-```
-
-**Netlify:**
-```bash
-npm install -g netlify-cli
-netlify deploy --prod --dir=dist
 ```
 
 Or set up GitHub Actions for automated deployment.

@@ -1,9 +1,11 @@
-import { getAssetFromKV, mapRequestToAsset } from '@cloudflare/kv-asset-handler';
+import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
 
 const DEBUG = false;
 
 export default {
   async fetch(request, env, ctx) {
+    const options = {};
+
     try {
       if (DEBUG) {
         console.log(request.method + ' ' + request.url);
@@ -12,8 +14,6 @@ export default {
       if (request.url.includes('/api/')) {
         return fetch(request);
       }
-
-      let options = {};
 
       const page = await getAssetFromKV(
         {

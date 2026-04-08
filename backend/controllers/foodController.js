@@ -2,27 +2,23 @@ import foodModel from "../models/foodModel.js"
 import archivedFoodModel from "../models/archivedFoodModel.js"
 import fs from 'fs'
 
-// Normalize allergens from array, JSON string, or comma-separated string
 const parseAllergens = (input) => {
   if (!input) return [];
   if (Array.isArray(input)) return input;
   if (typeof input === 'string') {
-    // Try JSON parse first
     try {
       const parsed = JSON.parse(input);
       if (Array.isArray(parsed)) return parsed;
     } catch (_) {
-      // fall through
     }
     return input.split(',').map(a => a.trim()).filter(Boolean);
   }
   return [];
 };
 
-// Add food item
+//Add food item
 const addFood = async (req, res) => {
   try {
-    // Get Cloudinary URL (path) when available, fallback to filename for legacy data
     let image_url = ""
     if (req.file) {
       image_url = req.file.path || req.file.filename || ""
@@ -41,8 +37,6 @@ const addFood = async (req, res) => {
 
     await food.save()
     
-    // Cloudinary-only: no git auto-commit for uploads
-    
     res.json({ success: true, message: "Food Added" })
   } catch (error) {
     console.log(error)
@@ -50,7 +44,7 @@ const addFood = async (req, res) => {
   }
 }
 
-// List all food items
+//List all food items
 const listFood = async (req, res) => {
   try {
     const foods = await foodModel.find({}).lean().sort({ name: 1 })
@@ -65,7 +59,7 @@ const listFood = async (req, res) => {
   }
 }
 
-// Get single food item
+//Get single food item
 const getFoodById = async (req, res) => {
   try {
     const food = await foodModel.findById(req.params.id)
@@ -83,7 +77,7 @@ const getFoodById = async (req, res) => {
   }
 }
 
-// Remove food item (archive it)
+//Remove food item
 const removeFood = async (req, res) => {
   try {
     const food = await foodModel.findById(req.body.id)
@@ -92,7 +86,6 @@ const removeFood = async (req, res) => {
       return res.json({ success: false, message: "Food not found" })
     }
 
-    // Archive the food item
     const archivedFood = new archivedFoodModel({
       name: food.name,
       description: food.description,
@@ -105,13 +98,7 @@ const removeFood = async (req, res) => {
 
     await archivedFood.save()
 
-    // Delete from active foods
     await foodModel.findByIdAndDelete(req.body.id)
-    
-    // DON'T delete the image file - keep it for potential restore
-    // fs.unlink(`uploads/items/${food.image}`, (err) => {
-    //   if (err) console.log("Error deleting image:", err)
-    // })
 
     res.json({ success: true, message: "Food Archived" })
   } catch (error) {
@@ -120,7 +107,7 @@ const removeFood = async (req, res) => {
   }
 }
 
-// Update food item
+//Update food item
 const updateFood = async (req, res) => {
   try {
     const food = await foodModel.findById(req.params.id)
@@ -129,12 +116,10 @@ const updateFood = async (req, res) => {
       return res.json({ success: false, message: "Food not found" })
     }
 
-    // If new image is uploaded, use Cloudinary URL/path
     if (req.file) {
       food.image = req.file.path || req.file.filename
     }
 
-    // Update fields
     food.name = req.body.name || food.name
     food.description = req.body.description || food.description
     food.price = req.body.price || food.price
@@ -151,7 +136,7 @@ const updateFood = async (req, res) => {
   }
 }
 
-// Get archived food items
+//Get archived food items
 const getArchivedFood = async (req, res) => {
   try {
     const archivedFoods = await archivedFoodModel.find({}).lean().sort({ deletedAt: -1 })
@@ -166,7 +151,7 @@ const getArchivedFood = async (req, res) => {
   }
 }
 
-// Restore archived food item
+//Restore archived food item
 const restoreFood = async (req, res) => {
   try {
     const archivedFood = await archivedFoodModel.findById(req.body.id)
@@ -175,7 +160,6 @@ const restoreFood = async (req, res) => {
       return res.json({ success: false, message: "Archived food not found" })
     }
 
-    // Create new food item from archived
     const restoredFood = new foodModel({
       name: archivedFood.name,
       description: archivedFood.description,
@@ -187,7 +171,6 @@ const restoreFood = async (req, res) => {
 
     await restoredFood.save()
 
-    // Delete from archived
     await archivedFoodModel.findByIdAndDelete(req.body.id)
 
     res.json({ success: true, message: "Food Restored" })
@@ -197,7 +180,7 @@ const restoreFood = async (req, res) => {
   }
 }
 
-// Permanently delete archived food item (optional - for cleanup)
+//Permanently delete archived food item
 const permanentlyDeleteFood = async (req, res) => {
   try {
     const archivedFood = await archivedFoodModel.findById(req.body.id)
@@ -206,14 +189,12 @@ const permanentlyDeleteFood = async (req, res) => {
       return res.json({ success: false, message: "Archived food not found" })
     }
 
-    // Delete local image only if it's not a Cloudinary URL
     if (archivedFood.image && !archivedFood.image.startsWith("http")) {
       fs.unlink(`uploads/items/${archivedFood.image}`, (err) => {
         if (err) console.log("Error deleting image:", err)
       })
     }
 
-    // Delete from archived
     await archivedFoodModel.findByIdAndDelete(req.body.id)
 
     res.json({ success: true, message: "Food Permanently Deleted" })
@@ -223,13 +204,12 @@ const permanentlyDeleteFood = async (req, res) => {
   }
 }
 
-// Rate a food item
+//Rate a food item
 const rateFood = async (req, res) => {
   try {
     const { foodId, userId, rating, comment, orderId } = req.body
-
-    // Validate rating
     if (rating < 1 || rating > 5) {
+
       return res.json({ success: false, message: "Rating must be between 1 and 5" })
     }
 
@@ -238,7 +218,6 @@ const rateFood = async (req, res) => {
       return res.json({ success: false, message: "Food not found" })
     }
 
-    // Check if user already rated this item
     const existingRating = food.ratings.find(
       r => r.userId === userId && r.orderId === orderId
     )
@@ -247,7 +226,6 @@ const rateFood = async (req, res) => {
       return res.json({ success: false, message: "You have already rated this item" })
     }
 
-    // Add rating
     food.ratings.push({
       userId,
       orderId,
@@ -255,7 +233,6 @@ const rateFood = async (req, res) => {
       comment: comment || ""
     })
 
-    // Calculate average rating
     const totalRating = food.ratings.reduce((sum, r) => sum + r.rating, 0)
     food.averageRating = (totalRating / food.ratings.length).toFixed(1)
 
@@ -267,7 +244,7 @@ const rateFood = async (req, res) => {
   }
 }
 
-// Get food ratings
+//Get food ratings
 const getFoodRatings = async (req, res) => {
   try {
     const food = await foodModel.findById(req.params.id)
@@ -285,7 +262,7 @@ const getFoodRatings = async (req, res) => {
   }
 }
 
-// Delete a specific rating (admin)
+//Delete a specific rating
 const deleteFoodRating = async (req, res) => {
   try {
     const { foodId, ratingId } = req.params

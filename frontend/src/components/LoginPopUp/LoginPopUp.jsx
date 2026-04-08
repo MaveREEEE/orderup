@@ -18,7 +18,6 @@ const LoginPopUp = ({ setShowLogin }) => {
         allergens: []
     })
 
-    // Static preference options - food preferences
     const preferenceOptions = [
         "Spicy food",
         "Filipino dishes",
@@ -153,11 +152,9 @@ const LoginPopUp = ({ setShowLogin }) => {
 
                     console.log("Login successful:", { userType, role, name })
 
-                    // Decode token to get userId
                     const tokenPayload = JSON.parse(atob(token.split('.')[1]))
                     const userId = tokenPayload.id
 
-                    // Update context and sessionStorage (clears on browser close)
                     setToken(token)
                     setUserId(userId)
                     sessionStorage.setItem("token", token)
@@ -170,7 +167,6 @@ const LoginPopUp = ({ setShowLogin }) => {
 
                         toast.success(`Welcome ${name}! Redirecting to Admin Panel...`)
 
-                        // Redirect to admin panel
                         setTimeout(() => {
                             window.location.href = 'http://localhost:5174'
                         }, 1500)
@@ -179,7 +175,7 @@ const LoginPopUp = ({ setShowLogin }) => {
                         setShowLogin(false)
                     }
                 } else {
-                    // Sign Up - don't auto-login
+
                     toast.success("Account created successfully! Please login to continue.")
                     setCurrState("Login")
                     setData({

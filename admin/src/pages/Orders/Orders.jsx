@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import './Orders.css'
 import axios from 'axios'
 import { toast } from 'react-toastify'
-import { assets } from '../../assets/assets'
 
 const ORDER_STATUSES = [
   'Order Received',
@@ -57,7 +56,6 @@ const Orders = ({ url }) => {
     return { ...address, fullAddress }
   }
 
-  // Get token from localStorage
   const token = sessionStorage.getItem("token");
 
   const fetchAllOrders = async () => {
@@ -66,7 +64,6 @@ const Orders = ({ url }) => {
         headers: { token }
       })
       if (response.data.success) {
-        // Sort by date (newest first)
         const sortedOrders = response.data.data.sort((a, b) => {
           return new Date(b.date) - new Date(a.date)
         })
@@ -82,14 +79,11 @@ const Orders = ({ url }) => {
 
   useEffect(() => {
     fetchAllOrders()
-    // eslint-disable-next-line
   }, [])
 
-  // Apply filters
   useEffect(() => {
     let result = orders
 
-    // Search filter
     if (searchTerm) {
       result = result.filter(order => {
         const addr = parseAddress(order.address)
@@ -105,22 +99,18 @@ const Orders = ({ url }) => {
       })
     }
 
-    // Status filter
     if (statusFilter !== 'All') {
       result = result.filter(order => normalizeStatus(order.status) === statusFilter)
     }
 
-    // Type filter
     if (typeFilter !== 'All') {
       result = result.filter(order => order.orderType === typeFilter)
     }
 
-    // Payment filter
     if (paymentFilter !== 'All') {
       result = result.filter(order => order.paymentMethod === paymentFilter)
     }
 
-    // Sort by date after filtering (newest first)
     result = result.sort((a, b) => new Date(b.date) - new Date(a.date))
 
     setFilteredOrders(result)
@@ -202,7 +192,6 @@ const Orders = ({ url }) => {
         </div>
       </div>
 
-      {/* Filters Section */}
       <div className="list-filters">
         <div className="filter-group">
           <label>Search:</label>
@@ -280,7 +269,6 @@ const Orders = ({ url }) => {
           <tbody>
             {filteredOrders.length > 0 ? (
               filteredOrders.map(order => {
-                const addr = parseAddress(order.address)
                 return (
                   <tr key={order._id}>
                     <td className="date-cell">{formatDate(order.date)}</td>
@@ -328,7 +316,6 @@ const Orders = ({ url }) => {
         </table>
       </div>
 
-      {/* Order Details Modal */}
       {showModal && selectedOrder && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>

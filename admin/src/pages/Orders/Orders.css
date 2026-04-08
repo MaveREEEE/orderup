@@ -139,37 +139,37 @@
 .list-table tbody tr:last-child {
   border-bottom: none;
 }
-.list-table thead th:nth-child(1) { /* Order Date */
+.list-table thead th:nth-child(1) { 
   width: 140px;
   min-width: 140px;
 }
 
-.list-table thead th:nth-child(2) { /* ID */
+.list-table thead th:nth-child(2) {
   width: 80px;
   min-width: 80px;
 }
 
-.list-table thead th:nth-child(3) { /* Type */
+.list-table thead th:nth-child(3) {
   width: 100px;
   min-width: 100px;
 }
 
-.list-table thead th:nth-child(4) { /* Customer/Info */
+.list-table thead th:nth-child(4) { 
   width: 100px;
   min-width: 180px;
 }
 
-.list-table thead th:nth-child(5) { /* Order Details */
+.list-table thead th:nth-child(5) { 
   width: 120px;
   min-width: 120px;
 }
 
-.list-table thead th:nth-child(6) { /* Payment */
+.list-table thead th:nth-child(6) { 
   width: 100px;
   min-width: 100px;
 }
 
-.list-table thead th:nth-child(7) { /* Status */
+.list-table thead th:nth-child(7) { 
   width: 160px;
   min-width: 160px;
 }
@@ -340,7 +340,6 @@
   transform: translateY(-1px);
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -657,7 +656,6 @@
   border: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .list-table {
     font-size: 13px;

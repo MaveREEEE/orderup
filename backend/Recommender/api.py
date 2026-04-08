@@ -8,7 +8,7 @@ app = FastAPI(title="OrderUP Recommender API", version="2.0")
 # Global recommender instance
 recommender = HybridRecommender()
 
-# Allow CORS for local frontend, Netlify, and Cloudflare Pages
+# Allow CORS for local frontend and Cloudflare Pages
 origins = [
     "http://localhost",
     "http://localhost:5173",

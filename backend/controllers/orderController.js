@@ -5,7 +5,70 @@ import promoCodeModel from "../models/promoCodeModel.js";
 import { sendEmail, emailTemplates } from "../config/email.js";
 import { createNotification } from "./notificationController.js";
 
-// Get all orders for admin
+const deductFoodStock = (food, requestedQuantity) => {
+    const batches = Array.isArray(food.batches) ? food.batches : [];
+    const totalStock = batches.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
+
+    if (totalStock < requestedQuantity) {
+        return { success: false, totalStock };
+    }
+
+    let remainingToDeduct = requestedQuantity;
+
+    batches.sort((a, b) => new Date(a.productionDate) - new Date(b.productionDate));
+
+    for (let i = 0; i < batches.length && remainingToDeduct > 0; i++) {
+        const batch = batches[i];
+
+        if (batch.quantity > 0) {
+            const deductAmount = Math.min(batch.quantity, remainingToDeduct);
+            batch.quantity -= deductAmount;
+            remainingToDeduct -= deductAmount;
+        }
+    }
+
+    food.batches = batches.filter(batch => batch.quantity > 0);
+    return { success: true, totalStock };
+};
+
+//Adjust inventory
+const adjustInventoryForItems = async (items) => {
+    for (const item of items) {
+        const food = await foodModel.findById(item._id);
+        if (!food) {
+            return {
+                success: false,
+                message: `Item not found: ${item.name}`
+            };
+        }
+
+        const stockResult = deductFoodStock(food, item.quantity);
+
+        if (!stockResult.success) {
+            return {
+                success: false,
+                message: `Insufficient stock for ${item.name}. Available: ${stockResult.totalStock}, Requested: ${item.quantity}`
+            };
+        }
+
+        await food.save();
+    }
+
+    return { success: true };
+};
+
+//Send order-related notification
+const sendOrderNotification = async ({ userId, title, message, orderId }) => {
+    return createNotification({
+        userId,
+        type: 'order',
+        title,
+        message,
+        relatedOrderId: orderId
+    });
+};
+
+//Get all orders for admin
 const listOrders = async (req, res) => {
     try {
         console.log("Fetching all orders...");
@@ -31,7 +94,7 @@ const listOrders = async (req, res) => {
     }
 };
 
-// Place order from frontend
+//Place order
 const placeOrder = async (req, res) => {
     try {
         const parsedItems = typeof req.body.items === "string" ? JSON.parse(req.body.items) : req.body.items;
@@ -62,46 +125,12 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Check inventory and deduct quantities (FIFO)
-        for (const item of items) {
-            const food = await foodModel.findById(item._id);
-            if (!food) {
-                return res.json({ 
-                    success: false, 
-                    message: `Item not found: ${item.name}` 
-                });
-            }
-
-            // Calculate total available stock
-            const totalStock = food.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
-            
-            if (totalStock < item.quantity) {
-                return res.json({ 
-                    success: false, 
-                    message: `Insufficient stock for ${item.name}. Available: ${totalStock}, Requested: ${item.quantity}` 
-                });
-            }
-
-            // Deduct from batches (FIFO - First In First Out, use oldest batches first)
-            let remainingToDeduct = item.quantity;
-            
-            // Sort batches by production date (oldest first)
-            food.batches.sort((a, b) => new Date(a.productionDate) - new Date(b.productionDate));
-            
-            for (let i = 0; i < food.batches.length && remainingToDeduct > 0; i++) {
-                const batch = food.batches[i];
-                
-                if (batch.quantity > 0) {
-                    const deductAmount = Math.min(batch.quantity, remainingToDeduct);
-                    batch.quantity -= deductAmount;
-                    remainingToDeduct -= deductAmount;
-                }
-            }
-
-            // Remove batches with 0 quantity
-            food.batches = food.batches.filter(batch => batch.quantity > 0);
-            
-            await food.save();
+        const inventoryResult = await adjustInventoryForItems(items);
+        if (!inventoryResult.success) {
+            return res.json({
+                success: false,
+                message: inventoryResult.message
+            });
         }
 
         const normalizedAddress = typeof address === "string"
@@ -125,8 +154,7 @@ const placeOrder = async (req, res) => {
         });
 
         await newOrder.save();
-        
-        // Increment promo code usage if promo was applied
+
         if (promoCode) {
             try {
                 await promoCodeModel.findOneAndUpdate(
@@ -136,17 +164,13 @@ const placeOrder = async (req, res) => {
                 console.log(`Promo code ${promoCode} usage incremented`);
             } catch (error) {
                 console.error("Error incrementing promo usage:", error);
-                // Don't fail the order if promo increment fails
             }
         }
         
-        // Clear user cart
         await userModel.findByIdAndUpdate(userId, { cartData: {} });
 
-        // Get user details for email
         const user = await userModel.findById(userId);
 
-        // Send order confirmation email
         if (user && user.email) {
             const emailHtml = emailTemplates.orderConfirmation({
                 customerName: user.name,
@@ -164,13 +188,11 @@ const placeOrder = async (req, res) => {
             });
         }
 
-        // Create notification
-        await createNotification({
+        await sendOrderNotification({
             userId,
-            type: 'order',
             title: 'Order Placed Successfully',
             message: `Your order of ₱${amount.toFixed(2)} has been placed and is being processed.`,
-            relatedOrderId: newOrder._id
+            orderId: newOrder._id
         });
 
         res.json({ 
@@ -187,7 +209,7 @@ const placeOrder = async (req, res) => {
     }
 }; 
 
-// Place dine-in order (admin/staff)
+//Place dine-in order
 const placeDineInOrder = async (req, res) => {
     try {
         const { items, amount, tableNumber, notes } = req.body;
@@ -202,46 +224,12 @@ const placeDineInOrder = async (req, res) => {
             return res.json({ success: false, message: "Table number is required" });
         }
 
-        // Check inventory and deduct quantities
-        for (const item of items) {
-            const food = await foodModel.findById(item._id);
-            if (!food) {
-                return res.json({ 
-                    success: false, 
-                    message: `Item not found: ${item.name}` 
-                });
-            }
-
-            // Calculate total available stock
-            const totalStock = food.batches?.reduce((sum, batch) => sum + batch.quantity, 0) || 0;
-            
-            if (totalStock < item.quantity) {
-                return res.json({ 
-                    success: false, 
-                    message: `Insufficient stock for ${item.name}. Available: ${totalStock}, Requested: ${item.quantity}` 
-                });
-            }
-
-            // Deduct from batches (FIFO - First In First Out, use oldest batches first)
-            let remainingToDeduct = item.quantity;
-            
-            // Sort batches by production date (oldest first)
-            food.batches.sort((a, b) => new Date(a.productionDate) - new Date(b.productionDate));
-            
-            for (let i = 0; i < food.batches.length && remainingToDeduct > 0; i++) {
-                const batch = food.batches[i];
-                
-                if (batch.quantity > 0) {
-                    const deductAmount = Math.min(batch.quantity, remainingToDeduct);
-                    batch.quantity -= deductAmount;
-                    remainingToDeduct -= deductAmount;
-                }
-            }
-
-            // Remove batches with 0 quantity
-            food.batches = food.batches.filter(batch => batch.quantity > 0);
-            
-            await food.save();
+        const inventoryResult = await adjustInventoryForItems(items);
+        if (!inventoryResult.success) {
+            return res.json({
+                success: false,
+                message: inventoryResult.message
+            });
         }
 
         const adminId = (req.admin?._id || req.user?.id || req.user?._id || "dine-in").toString();
@@ -286,7 +274,7 @@ const placeDineInOrder = async (req, res) => {
 };
 
 
-// Update order status
+//Update order status
 const updateStatus = async (req, res) => {
     try {
         const { orderId, status } = req.body;
@@ -315,10 +303,8 @@ const updateStatus = async (req, res) => {
 
         await order.save();
 
-        // Get user details for email and notification
         const user = await userModel.findById(order.userId);
 
-        // Send status update email
         if (user && user.email) {
             const emailHtml = emailTemplates.orderStatusUpdate({
                 customerName: user.name,
@@ -333,13 +319,11 @@ const updateStatus = async (req, res) => {
             });
         }
 
-        // Create notification
-        await createNotification({
+        await sendOrderNotification({
             userId: order.userId,
-            type: 'order',
             title: 'Order Status Updated',
             message: `Your order status has been updated to: ${status}`,
-            relatedOrderId: order._id
+            orderId: order._id
         });
 
         res.json({ 
@@ -356,7 +340,7 @@ const updateStatus = async (req, res) => {
     }
 };
 
-// Get user orders
+//Get user orders
 const userOrders = async (req, res) => {
     try {
         const { userId } = req.body;
@@ -386,7 +370,7 @@ const userOrders = async (req, res) => {
     }
 };
 
-// Cancel order
+//Cancel order
 const cancelOrder = async (req, res) => {
     try {
         const { orderId, userId } = req.body;
@@ -401,7 +385,6 @@ const cancelOrder = async (req, res) => {
             return res.json({ success: false, message: "Order not found" });
         }
 
-        // Only allow cancellation while order is not yet prepared for release
         const cancellableStatuses = ["Order Received", "Food is being processed", "Food Processing"];
         if (!cancellableStatuses.includes(order.status)) {
             return res.json({ 
@@ -410,16 +393,13 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        // Verify order belongs to user (security check)
         if (userId && order.userId.toString() !== userId) {
             return res.json({ success: false, message: "Unauthorized" });
         }
 
-        // Refund inventory - add items back to food batches
         for (const item of order.items) {
             const food = await foodModel.findById(item._id);
             if (food) {
-                // Add back as a new batch
                 const refundBatch = {
                     quantity: item.quantity,
                     productionDate: new Date(),
@@ -434,7 +414,6 @@ const cancelOrder = async (req, res) => {
             }
         }
 
-        // Refund promo code usage
         if (order.promoCode) {
             const promo = await promoCodeModel.findOne({ code: order.promoCode });
             if (promo && promo.usageLimit > 0) {
@@ -443,14 +422,11 @@ const cancelOrder = async (req, res) => {
             }
         }
 
-        // Update order status to Cancelled
         order.status = "Cancelled";
         await order.save();
 
-        // Get user details for email
         const user = await userModel.findById(order.userId);
 
-        // Send cancellation email
         if (user && user.email) {
             const emailHtml = emailTemplates.orderCancellation({
                 customerName: user.name,
@@ -465,13 +441,11 @@ const cancelOrder = async (req, res) => {
             });
         }
 
-        // Create notification
-        await createNotification({
+        await sendOrderNotification({
             userId: order.userId,
-            type: 'order',
             title: 'Order Cancelled',
             message: `Your order has been cancelled successfully. Amount: ₱${order.amount.toFixed(2)}`,
-            relatedOrderId: order._id
+            orderId: order._id
         });
 
         res.json({ 

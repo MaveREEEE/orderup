@@ -13,14 +13,11 @@ const userSchema = new mongoose.Schema({
     default: "customer"
   },
   isActive: { type: Boolean, default: true },
-  // Food preferences for recommendations
   foodPreferences: { type: String, default: "" },
   allergens: { type: [String], default: [] },
-  // Email verification
   isEmailVerified: { type: Boolean, default: false },
   emailVerificationToken: { type: String },
   emailVerificationExpires: { type: Date },
-  // Password reset
   resetPasswordToken: { type: String },
   resetPasswordExpires: { type: Date }
 }, { timestamps: true, minimize: false });

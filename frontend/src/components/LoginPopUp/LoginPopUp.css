@@ -209,7 +209,6 @@
     }
 }
 
-/* Terms Modal */
 .terms-modal-overlay {
     position: fixed;
     top: 0;
@@ -367,7 +366,6 @@
     }
 }
 
-/* Preferences and Allergens Styles */
 .preferences-section,
 .allergens-section {
     display: flex;

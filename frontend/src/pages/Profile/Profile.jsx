@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useCallback } from 'react';
 import './Profile.css';
 import { StoreContext } from '../../context/StoreContext';
 import axios from 'axios';
@@ -24,11 +24,7 @@ const Profile = () => {
     confirmPassword: ''
   });
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     if (!userId || !token) return;
 
     try {
@@ -49,7 +45,11 @@ const Profile = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [url, token, userId]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const handleProfileChange = (e) => {
     setProfileData({
@@ -149,7 +149,6 @@ const Profile = () => {
       <div className='profile-wrapper'>
         <h1>My Profile</h1>
 
-        {/* Profile Information */}
         <div className='profile-card'>
           <div className='card-header'>
             <h2>Profile Information</h2>
@@ -249,7 +248,6 @@ const Profile = () => {
           )}
         </div>
 
-        {/* Change Password */}
         <div className='profile-card'>
           <div className='card-header'>
             <h2>Security</h2>

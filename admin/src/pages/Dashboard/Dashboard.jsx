@@ -4,8 +4,6 @@ import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 import { assets } from '../../assets/assets';
 
-const orderTypes = ["Dine In", "Pick Up", "Pre-Order", "Delivery"];
-
 const Dashboard = ({ url }) => {
     const [orders, setOrders] = useState([]);
     const [filterType, setFilterType] = useState("Today's");
@@ -14,7 +12,6 @@ const Dashboard = ({ url }) => {
         return now.toISOString().slice(0, 10);
     });
     const [expiringItems, setExpiringItems] = useState([]);
-    const [itemStatsByType, setItemStatsByType] = useState({});
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-PH', {
@@ -40,7 +37,6 @@ const Dashboard = ({ url }) => {
         return diffDays;
     };
 
-    // Fetch Orders with token
     useEffect(() => {
         const fetchOrders = async () => {
             try {
@@ -50,29 +46,6 @@ const Dashboard = ({ url }) => {
                 });
                 if (res.data.success) {
                     setOrders(res.data.data);
-                    const stats = {};
-                    orderTypes.forEach(type => stats[type] = {});
-                    res.data.data.forEach(order => {
-                        const type = order.orderType || "Other";
-                        if (!stats[type]) {
-                            stats[type] = {};
-                        }
-                        order.items.forEach(item => {
-                            if (!stats[type][item.name]) {
-                                stats[type][item.name] = { count: 0, image: item.image };
-                            }
-                            stats[type][item.name].count += item.quantity;
-                        });
-                    });
-                    const formattedStats = {};
-                    Object.entries(stats).forEach(([type, items]) => {
-                        formattedStats[type] = Object.entries(items).map(([name, data]) => ({
-                            name,
-                            count: data.count,
-                            image: data.image
-                        }));
-                    });
-                    setItemStatsByType(formattedStats);
                 }
             } catch (error) {
                 console.log("Error fetching orders:", error);
@@ -81,7 +54,6 @@ const Dashboard = ({ url }) => {
         fetchOrders();
     }, [url]);
 
-    // Fetch Expiring Items from Inventory (same as Inventory page)
     useEffect(() => {
         const fetchExpiringItems = async () => {
             try {
@@ -105,7 +77,7 @@ const Dashboard = ({ url }) => {
     }, [url]);
 
     const filterOrdersByRange = (orders, selectedDate, type) => {
-        // Normalize type to lowercase
+
         const normalizedType = type.toLowerCase().replace("'s", "").trim();
         
         if (normalizedType === "all") return orders;
@@ -159,7 +131,6 @@ const Dashboard = ({ url }) => {
     const deliveredOrders = filteredOrders.filter(o => o.status === "Food is delivered" || o.status === "Delivered").length;
     const avgOrderValue = totalOrders ? totalSales / totalOrders : 0;
 
-    // Top Selling Items - Aggregate items from FILTERED orders to reflect current filter
     const itemAggregation = {};
     filteredOrders.forEach(order => {
         order.items.forEach(item => {
@@ -173,7 +144,6 @@ const Dashboard = ({ url }) => {
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
 
-    // Sales by Food Category (Pie)
     const categoryCount = {};
     filteredOrders.forEach(order => {
         order.items.forEach(item => {
@@ -187,7 +157,6 @@ const Dashboard = ({ url }) => {
     }));
     const pieColors = ["#ff7043", "#ff6347", "#e85a4f", "#ffd966", "#ffab40"];
 
-    // Peak Hours
     const hourCount = {};
     filteredOrders.forEach(order => {
         const hour = new Date(order.date).getHours();
@@ -197,7 +166,6 @@ const Dashboard = ({ url }) => {
         .sort((a, b) => b[1] - a[1])
         .slice(0, 5);
 
-    // Orders by Weekday
     const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const weekCount = {};
     weekdays.forEach(day => weekCount[day] = 0);
@@ -232,7 +200,6 @@ const Dashboard = ({ url }) => {
             </div>
 
             <div className="dashboard-grid">
-                {/* Stats Cards */}
                 <div className="dashboard-card stats-card">
                     <div className="card-icon">
                         <img src={assets.money} alt="Sales" />
@@ -277,7 +244,6 @@ const Dashboard = ({ url }) => {
                     </div>
                 </div>
 
-                {/* Expiring Items Alert */}
                 {expiringItems.length > 0 && (
                     <div className="dashboard-card expiring-card chart-wide">
                         <div className="card-header">
@@ -336,7 +302,6 @@ const Dashboard = ({ url }) => {
                     </div>
                 )}
 
-                {/* Top Selling Items Chart */}
                 <div className="dashboard-chart chart-wide">
                     <div className="chart-header">
                         <h3>Top Selling Items</h3>
@@ -366,7 +331,6 @@ const Dashboard = ({ url }) => {
                     </div>
                 </div>
 
-                {/* Sales by Category */}
                 <div className="dashboard-chart">
                     <div className="chart-header">
                         <h3>Sales by Category</h3>
@@ -390,7 +354,6 @@ const Dashboard = ({ url }) => {
                     </div>
                 </div>
 
-                {/* Peak Hours Table */}
                 <div className="dashboard-card table-card">
                     <div className="card-header">
                         <h3>Peak Hours</h3>
@@ -421,7 +384,6 @@ const Dashboard = ({ url }) => {
                     </div>
                 </div>
 
-                {/* Orders by Day Table */}
                 <div className="dashboard-card table-card">
                     <div className="card-header">
                         <h3>Orders by Day</h3>

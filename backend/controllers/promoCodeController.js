@@ -1,6 +1,6 @@
 import promoCodeModel from "../models/promoCodeModel.js";
 
-// Get all promo codes (Admin)
+//Get all promo codes 
 const listPromoCodes = async (req, res) => {
     try {
         const promoCodes = await promoCodeModel.find().sort({ createdAt: -1 });
@@ -11,7 +11,7 @@ const listPromoCodes = async (req, res) => {
     }
 };
 
-// Create promo code (Admin)
+//Create promo code
 const createPromoCode = async (req, res) => {
     try {
         const {
@@ -25,7 +25,6 @@ const createPromoCode = async (req, res) => {
             validUntil
         } = req.body;
 
-        // Validation
         if (!code || !discountType || !discountValue || !validFrom || !validUntil) {
             return res.json({
                 success: false,
@@ -33,7 +32,6 @@ const createPromoCode = async (req, res) => {
             });
         }
 
-        // Check if code already exists
         const existingCode = await promoCodeModel.findOne({ 
             code: code.toUpperCase().trim() 
         });
@@ -70,7 +68,7 @@ const createPromoCode = async (req, res) => {
     }
 };
 
-// Update promo code (Admin)
+//Update promo code
 const updatePromoCode = async (req, res) => {
     try {
         const { id } = req.params;
@@ -82,7 +80,6 @@ const updatePromoCode = async (req, res) => {
             return res.json({ success: false, message: "Promo code not found" });
         }
 
-        // Update fields
         Object.keys(updateData).forEach(key => {
             if (key === 'code') {
                 promoCode[key] = updateData[key].toUpperCase().trim();
@@ -104,7 +101,7 @@ const updatePromoCode = async (req, res) => {
     }
 };
 
-// Delete promo code (Admin)
+//Delete promo code
 const deletePromoCode = async (req, res) => {
     try {
         const { id } = req.params;
@@ -125,7 +122,7 @@ const deletePromoCode = async (req, res) => {
     }
 };
 
-// Toggle promo code status (Admin)
+//Toggle promo code status
 const togglePromoStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -150,7 +147,7 @@ const togglePromoStatus = async (req, res) => {
     }
 };
 
-// Apply promo code (Customer)
+//Apply promo code
 const applyPromoCode = async (req, res) => {
     try {
         const { code, orderAmount } = req.body;
@@ -239,7 +236,7 @@ const applyPromoCode = async (req, res) => {
     }
 };
 
-// Increment usage count
+//Increment usage count
 const incrementPromoUsage = async (code) => {
     try {
         await promoCodeModel.findOneAndUpdate(

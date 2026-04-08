@@ -1,48 +1,42 @@
-import React, { useContext, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 import './Search.css'
 import { StoreContext } from '../../context/StoreContext'
 import { assets } from '../../assets/assets'
 import FoodItemModal from '../FoodItemModal/FoodItemModal'
 
-const Search = ({ onClose }) => { // Add onClose prop
+const Search = ({ onClose }) => {
     const { food_list, addToCart, url } = useContext(StoreContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [showResults, setShowResults] = useState(true); // Start with true
+    const [showResults, setShowResults] = useState(true);
     const [selectedFood, setSelectedFood] = useState(null);
-    const [sortBy, setSortBy] = useState('relevance'); // relevance, price-low, price-high, rating
+    const [sortBy, setSortBy] = useState('relevance');
     const [filterCategory, setFilterCategory] = useState('all');
     const [priceRange, setPriceRange] = useState({ min: '', max: '' });
     const [categories, setCategories] = useState([]);
 
-    // Get unique categories from food list
     React.useEffect(() => {
         const uniqueCategories = [...new Set(food_list.map(item => item.category))];
         setCategories(uniqueCategories);
     }, [food_list]);
 
-    const handleSearch = (e) => {
-        const value = e.target.value;
-        setSearchTerm(value);
+    const applySearch = useCallback((value) => {
 
         if (value.trim() === '') {
             setSearchResults([]);
             return;
         }
 
-        // Filter food items based on search term
         const results = food_list.filter(item =>
             item.name.toLowerCase().includes(value.toLowerCase()) ||
             item.description.toLowerCase().includes(value.toLowerCase()) ||
             item.category.toLowerCase().includes(value.toLowerCase())
         );
 
-        // Apply category filter
-        const categoryFiltered = filterCategory === 'all' 
-            ? results 
+        const categoryFiltered = filterCategory === 'all'
+            ? results
             : results.filter(item => item.category === filterCategory);
 
-        // Apply price range filter
         let priceFiltered = categoryFiltered;
         if (priceRange.min !== '') {
             priceFiltered = priceFiltered.filter(item => item.price >= parseFloat(priceRange.min));
@@ -51,7 +45,6 @@ const Search = ({ onClose }) => { // Add onClose prop
             priceFiltered = priceFiltered.filter(item => item.price <= parseFloat(priceRange.max));
         }
 
-        // Apply sorting
         let sorted = [...priceFiltered];
         switch (sortBy) {
             case 'price-low':
@@ -67,24 +60,24 @@ const Search = ({ onClose }) => { // Add onClose prop
                     return avgB - avgA;
                 });
                 break;
-            default: // relevance
+            default:
                 break;
         }
 
         setSearchResults(sorted);
+    }, [food_list, filterCategory, priceRange, sortBy]);
+
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        applySearch(value);
     };
 
-    const handleFilterChange = () => {
-        // Reapply search with current filters
-        handleSearch({ target: { value: searchTerm } });
-    };
-
-    // Re-apply filters when they change
     React.useEffect(() => {
         if (searchTerm) {
-            handleFilterChange();
+            applySearch(searchTerm);
         }
-    }, [sortBy, filterCategory, priceRange]);
+    }, [searchTerm, applySearch]);
 
     const handleFoodClick = (food) => {
         setSelectedFood(food);
@@ -132,7 +125,7 @@ const Search = ({ onClose }) => { // Add onClose prop
                             autoFocus
                         />
                         {searchTerm && (
-                            <button 
+                            <button
                                 className='clear-search'
                                 onClick={() => {
                                     setSearchTerm('');
@@ -148,8 +141,8 @@ const Search = ({ onClose }) => { // Add onClose prop
                         <div className='filters-container'>
                             <div className='filter-group'>
                                 <label>Category:</label>
-                                <select 
-                                    value={filterCategory} 
+                                <select
+                                    value={filterCategory}
                                     onChange={(e) => setFilterCategory(e.target.value)}
                                 >
                                     <option value='all'>All Categories</option>
@@ -161,8 +154,8 @@ const Search = ({ onClose }) => { // Add onClose prop
 
                             <div className='filter-group'>
                                 <label>Sort by:</label>
-                                <select 
-                                    value={sortBy} 
+                                <select
+                                    value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
                                 >
                                     <option value='relevance'>Relevance</option>
@@ -175,16 +168,16 @@ const Search = ({ onClose }) => { // Add onClose prop
                             <div className='filter-group price-filter'>
                                 <label>Price Range:</label>
                                 <div className='price-inputs'>
-                                    <input 
-                                        type='number' 
-                                        placeholder='Min' 
+                                    <input
+                                        type='number'
+                                        placeholder='Min'
                                         value={priceRange.min}
                                         onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
                                     />
                                     <span>-</span>
-                                    <input 
-                                        type='number' 
-                                        placeholder='Max' 
+                                    <input
+                                        type='number'
+                                        placeholder='Max'
                                         value={priceRange.max}
                                         onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
                                     />
@@ -199,14 +192,14 @@ const Search = ({ onClose }) => { // Add onClose prop
                                 <div className='search-results-list'>
                                     <p className='results-count'>{searchResults.length} items found</p>
                                     {searchResults.map((item) => (
-                                        <div 
-                                            key={item._id} 
+                                        <div
+                                            key={item._id}
                                             className='search-result-item'
                                             onClick={() => handleFoodClick(item)}
                                         >
-                                            <img 
-                                                src={getImageUrl(item.image)} 
-                                                alt={item.name} 
+                                            <img
+                                                src={getImageUrl(item.image)}
+                                                alt={item.name}
                                             />
                                             <div className='search-result-info'>
                                                 <h4>{item.name}</h4>
@@ -234,7 +227,7 @@ const Search = ({ onClose }) => { // Add onClose prop
             </div>
 
             {selectedFood && (
-                <FoodItemModal 
+                <FoodItemModal
                     item={selectedFood}
                     items={food_list}
                     onClose={handleCloseModal}

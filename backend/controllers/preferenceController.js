@@ -1,6 +1,6 @@
 import preferenceModel from '../models/preferenceModel.js'
 
-// Get all preferences
+//Get all preferences
 const getPreferences = async (req, res) => {
     try {
         const preferences = await preferenceModel.find().sort({ createdAt: -1 })
@@ -16,7 +16,7 @@ const getPreferences = async (req, res) => {
     }
 }
 
-// Add preference
+//Add preference
 const addPreference = async (req, res) => {
     try {
         const { name } = req.body
@@ -28,7 +28,6 @@ const addPreference = async (req, res) => {
             })
         }
 
-        // Check if preference already exists
         const exists = await preferenceModel.findOne({ name: name.trim() })
         if (exists) {
             return res.json({
@@ -55,7 +54,7 @@ const addPreference = async (req, res) => {
     }
 }
 
-// Update preference
+//Update preference
 const updatePreference = async (req, res) => {
     try {
         const { id } = req.params
@@ -68,7 +67,6 @@ const updatePreference = async (req, res) => {
             })
         }
 
-        // Check if another preference with this name exists
         const exists = await preferenceModel.findOne({ 
             name: name.trim(),
             _id: { $ne: id }
@@ -106,7 +104,7 @@ const updatePreference = async (req, res) => {
     }
 }
 
-// Delete preference
+//Delete preference
 const deletePreference = async (req, res) => {
     try {
         const { id } = req.params

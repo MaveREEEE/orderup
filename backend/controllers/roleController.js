@@ -1,6 +1,6 @@
 import adminModel from "../models/adminModel.js";
 
-// Get all roles with their permissions
+//Get all roles with their permissions
 const getRoles = async (req, res) => {
   try {
     const roles = await adminModel.distinct('role');
@@ -60,7 +60,7 @@ const getRoles = async (req, res) => {
   }
 };
 
-// Create/Assign role to admin with custom permissions
+//Create/Assign role to admin with custom permissions
 const createRole = async (req, res) => {
   try {
     const { adminId, role, permissions } = req.body;
@@ -136,24 +136,21 @@ const createRole = async (req, res) => {
   }
 };
 
-// Update role and permissions
+//Update role and permissions
 const updateRole = async (req, res) => {
   try {
     const { id } = req.params;
     const { role, permissions } = req.body;
     
-    // Find admin
     const admin = await adminModel.findById(id);
     if (!admin) {
       return res.json({ success: false, message: "Admin not found" });
     }
     
-    // Prevent changing itadmin role
     if (admin.role === 'itadmin' && role && role !== 'itadmin') {
       return res.json({ success: false, message: "Cannot change itadmin role" });
     }
     
-    // Update role if provided
     if (role) {
       const validRoles = ['itadmin', 'admin', 'staff'];
       if (!validRoles.includes(role)) {
@@ -162,7 +159,6 @@ const updateRole = async (req, res) => {
       admin.role = role;
     }
     
-    // Update permissions if provided
     if (permissions) {
       admin.permissions = {
         ...admin.permissions,
@@ -189,23 +185,20 @@ const updateRole = async (req, res) => {
   }
 };
 
-// Delete role (remove admin)
+//Delete role
 const deleteRole = async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Find admin
     const admin = await adminModel.findById(id);
     if (!admin) {
       return res.json({ success: false, message: "Admin not found" });
     }
     
-    // Prevent deleting itadmin
     if (admin.role === 'itadmin') {
       return res.json({ success: false, message: "Cannot delete itadmin" });
     }
     
-    // Delete admin
     await adminModel.findByIdAndDelete(id);
     
     res.json({ success: true, message: "Admin removed successfully" });
@@ -215,7 +208,7 @@ const deleteRole = async (req, res) => {
   }
 };
 
-// Get admins by role
+//Get admins by role
 const getAdminsByRole = async (req, res) => {
   try {
     const { role } = req.params;
@@ -238,7 +231,7 @@ const getAdminsByRole = async (req, res) => {
   }
 };
 
-// Update specific permissions for an admin
+//Update specific permissions for an admin
 const updatePermissions = async (req, res) => {
   try {
     const { id } = req.params;
@@ -249,12 +242,9 @@ const updatePermissions = async (req, res) => {
       return res.json({ success: false, message: "Admin not found" });
     }
     
-    // IT Admin always has all permissions
     if (admin.role === 'itadmin') {
       return res.json({ success: false, message: "Cannot modify itadmin permissions" });
     }
-    
-    // Update only the provided permissions
     admin.permissions = {
       ...admin.permissions,
       ...permissions
