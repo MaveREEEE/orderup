@@ -50,7 +50,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             setIsListMenuOpen(!isListMenuOpen);
         }
     };
-e
+
     useEffect(() => {
         if (location.pathname === '/list' || location.pathname === '/category' || location.pathname === '/add') {
             setIsListMenuOpen(true);
